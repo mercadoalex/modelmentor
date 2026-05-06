@@ -1,0 +1,856 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useEntranceAnimation } from '@/hooks/useEntranceAnimation';
+import { useOnboarding } from '@/hooks/useOnboarding';
+import { AppLayout } from '@/components/layouts/AppLayout';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Sparkles, BookOpen, AlertCircle, FileText, Database, GraduationCap, Zap, Bug, Share2, Copy, Image, MessageSquare, TrendingUp, Star, ShoppingBag, Music, Leaf, Heart, Brain, Dog, Car, Smile, Mail, ThumbsUp, DollarSign, CloudRain, Users, Fingerprint, Languages, Mic, FileImage, Newspaper, Globe, ExternalLink } from 'lucide-react';
+import { MLWorkflowVisualizer } from '@/components/MLWorkflowVisualizer';
+import { DatasetConnectionWizard } from '@/components/DatasetConnectionWizard';
+import { WelcomeModal } from '@/components/onboarding/WelcomeModal';
+import { InteractiveTour } from '@/components/onboarding/InteractiveTour';
+import { projectService, userTriesService } from '@/services/supabase';
+import { activityTrackingService } from '@/services/activityTrackingService';
+import { sessionUtils } from '@/utils/helpers';
+import { toast } from 'sonner';
+import type { ModelType } from '@/types/types';
+import type { LucideIcon } from 'lucide-react';
+
+const workflowSteps = [
+  {
+    id: 'describe',
+    title: 'Describe',
+    description: 'Define your ML project goals',
+    icon: FileText
+  },
+  {
+    id: 'data',
+    title: 'Input Data',
+    description: 'Upload or select training data',
+    icon: Database
+  },
+  {
+    id: 'learn',
+    title: 'Learn',
+    description: 'Understand ML concepts',
+    icon: GraduationCap
+  },
+  {
+    id: 'train',
+    title: 'Train Model',
+    description: 'Train your AI model',
+    icon: Zap
+  },
+  {
+    id: 'debug',
+    title: 'Test & Debug',
+    description: 'Evaluate and refine',
+    icon: Bug
+  },
+  {
+    id: 'deploy',
+    title: 'Deploy',
+    description: 'Share your model',
+    icon: Share2
+  }
+];
+
+interface ExampleProject {
+  icon: LucideIcon;
+  text: string;
+  source?: string;
+  datasetUrl?: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+}
+
+interface ExampleCategory {
+  title: string;
+  description: string;
+  examples: ExampleProject[];
+}
+
+const exampleCategories: ExampleCategory[] = [
+  {
+    title: 'Image Classification',
+    description: 'Train models to recognize and categorize images',
+    examples: [
+      {
+        icon: Image,
+        text: 'Train an AI to classify different types of flowers from photos',
+        source: 'Inspired by Oxford Flowers dataset',
+        datasetUrl: 'https://www.robots.ox.ac.uk/~vgg/data/flowers/',
+        difficulty: 'beginner'
+      },
+      {
+        icon: Leaf,
+        text: 'Build a model to identify plant diseases from leaf images',
+        source: 'Based on PlantVillage dataset',
+        datasetUrl: 'https://www.kaggle.com/datasets/emmarex/plantdisease',
+        difficulty: 'intermediate'
+      },
+      {
+        icon: Star,
+        text: 'Create an AI to recognize handwritten digits',
+        source: 'Classic MNIST dataset',
+        datasetUrl: 'https://huggingface.co/datasets/mnist',
+        difficulty: 'beginner'
+      },
+      {
+        icon: Dog,
+        text: 'Train a model to identify different dog breeds from photos',
+        source: 'Stanford Dogs dataset',
+        datasetUrl: 'http://vision.stanford.edu/aditya86/ImageNetDogs/',
+        difficulty: 'intermediate'
+      },
+      {
+        icon: Car,
+        text: 'Build an AI to classify vehicle types from traffic camera images',
+        source: 'Similar to CIFAR-10 vehicles',
+        datasetUrl: 'https://huggingface.co/datasets/cifar10',
+        difficulty: 'beginner'
+      },
+      {
+        icon: Fingerprint,
+        text: 'Create a model to recognize facial expressions and emotions',
+        source: 'FER2013 emotion recognition',
+        datasetUrl: 'https://www.kaggle.com/datasets/msambare/fer2013',
+        difficulty: 'advanced'
+      },
+      {
+        icon: FileImage,
+        text: 'Train an AI to classify fashion items like shirts, shoes, and bags',
+        source: 'Fashion-MNIST dataset',
+        datasetUrl: 'https://huggingface.co/datasets/fashion_mnist',
+        difficulty: 'beginner'
+      }
+    ]
+  },
+  {
+    title: 'Text Classification',
+    description: 'Analyze and categorize text data',
+    examples: [
+      {
+        icon: MessageSquare,
+        text: 'Build a model to detect spam messages in text',
+        source: 'SMS Spam Collection dataset',
+        datasetUrl: 'https://www.kaggle.com/datasets/uciml/sms-spam-collection-dataset',
+        difficulty: 'beginner'
+      },
+      {
+        icon: Heart,
+        text: 'Classify customer reviews as positive or negative',
+        source: 'IMDb movie reviews dataset',
+        datasetUrl: 'https://huggingface.co/datasets/imdb',
+        difficulty: 'beginner'
+      },
+      {
+        icon: Brain,
+        text: 'Train an AI to categorize news articles by topic',
+        source: 'AG News dataset',
+        datasetUrl: 'https://huggingface.co/datasets/ag_news',
+        difficulty: 'intermediate'
+      },
+      {
+        icon: Smile,
+        text: 'Create a sentiment analyzer for social media posts',
+        source: 'Twitter sentiment analysis',
+        datasetUrl: 'https://huggingface.co/datasets/tweet_eval',
+        difficulty: 'intermediate'
+      },
+      {
+        icon: Mail,
+        text: 'Build an email classifier to sort messages into categories',
+        source: 'Enron email dataset',
+        datasetUrl: 'https://www.kaggle.com/datasets/wcukierski/enron-email-dataset',
+        difficulty: 'advanced'
+      },
+      {
+        icon: Languages,
+        text: 'Train a model to detect the language of a given text',
+        source: 'WiLI language identification',
+        datasetUrl: 'https://huggingface.co/datasets/wili_2018',
+        difficulty: 'intermediate'
+      },
+      {
+        icon: Newspaper,
+        text: 'Create an AI to classify scientific paper abstracts by research field',
+        source: 'arXiv dataset categories',
+        datasetUrl: 'https://www.kaggle.com/datasets/Cornell-University/arxiv',
+        difficulty: 'advanced'
+      }
+    ]
+  },
+  {
+    title: 'Regression',
+    description: 'Predict numerical values based on input features',
+    examples: [
+      {
+        icon: TrendingUp,
+        text: 'Create a system to predict house prices based on features',
+        source: 'Boston Housing dataset',
+        datasetUrl: 'https://www.kaggle.com/datasets/vikrishnan/boston-house-prices',
+        difficulty: 'beginner'
+      },
+      {
+        icon: ShoppingBag,
+        text: 'Build a model to forecast product sales based on historical data',
+        source: 'Retail sales forecasting',
+        datasetUrl: 'https://www.kaggle.com/competitions/store-sales-time-series-forecasting',
+        difficulty: 'intermediate'
+      },
+      {
+        icon: Music,
+        text: 'Predict song popularity based on audio features',
+        source: 'Spotify dataset',
+        datasetUrl: 'https://www.kaggle.com/datasets/zaheenhamidani/ultimate-spotify-tracks-db',
+        difficulty: 'intermediate'
+      },
+      {
+        icon: DollarSign,
+        text: 'Train an AI to estimate stock prices from market indicators',
+        source: 'Financial time series data',
+        datasetUrl: 'https://www.kaggle.com/datasets/borismarjanovic/price-volume-data-for-all-us-stocks-etfs',
+        difficulty: 'advanced'
+      },
+      {
+        icon: CloudRain,
+        text: 'Create a model to predict temperature based on weather patterns',
+        source: 'Weather prediction datasets',
+        datasetUrl: 'https://www.kaggle.com/datasets/muthuj7/weather-dataset',
+        difficulty: 'beginner'
+      },
+      {
+        icon: Heart,
+        text: 'Build a model to predict patient health outcomes from medical data',
+        source: 'UCI Heart Disease dataset',
+        datasetUrl: 'https://archive.ics.uci.edu/dataset/45/heart+disease',
+        difficulty: 'intermediate'
+      }
+    ]
+  },
+  {
+    title: 'Popular Hugging Face Examples',
+    description: 'Inspired by well-known datasets and models from the ML community',
+    examples: [
+      {
+        icon: Globe,
+        text: 'Train a model to classify toxic comments and hate speech',
+        source: 'Jigsaw Toxic Comment dataset',
+        datasetUrl: 'https://www.kaggle.com/competitions/jigsaw-toxic-comment-classification-challenge',
+        difficulty: 'advanced'
+      },
+      {
+        icon: Mic,
+        text: 'Build an AI to classify audio recordings by spoken command',
+        source: 'Speech Commands dataset',
+        datasetUrl: 'https://huggingface.co/datasets/speech_commands',
+        difficulty: 'intermediate'
+      },
+      {
+        icon: Users,
+        text: 'Create a recommendation system for movies based on user preferences',
+        source: 'MovieLens dataset',
+        datasetUrl: 'https://grouplens.org/datasets/movielens/',
+        difficulty: 'advanced'
+      },
+      {
+        icon: ThumbsUp,
+        text: 'Train a model to predict customer churn in subscription services',
+        source: 'Telco Customer Churn',
+        datasetUrl: 'https://www.kaggle.com/datasets/blastchar/telco-customer-churn',
+        difficulty: 'intermediate'
+      },
+      {
+        icon: Brain,
+        text: 'Build an AI to detect fake news articles',
+        source: 'LIAR fake news dataset',
+        datasetUrl: 'https://huggingface.co/datasets/liar',
+        difficulty: 'advanced'
+      },
+      {
+        icon: Star,
+        text: 'Create a model to classify product reviews by star rating',
+        source: 'Amazon Reviews dataset',
+        datasetUrl: 'https://huggingface.co/datasets/amazon_polarity',
+        difficulty: 'beginner'
+      }
+    ]
+  },
+  {
+    title: 'ModelScope & TensorFlow Hub Examples',
+    description: 'Real-world projects from leading ML platforms',
+    examples: [
+      {
+        icon: Image,
+        text: 'Train an AI to detect objects in images like people, cars, and animals',
+        source: 'TensorFlow Hub - COCO dataset',
+        datasetUrl: 'https://www.tensorflow.org/datasets/catalog/coco',
+        difficulty: 'intermediate'
+      },
+      {
+        icon: Leaf,
+        text: 'Build a model to classify crop types from satellite imagery',
+        source: 'ModelScope - EuroSAT dataset',
+        datasetUrl: 'https://github.com/phelber/EuroSAT',
+        difficulty: 'advanced'
+      },
+      {
+        icon: MessageSquare,
+        text: 'Create an AI to answer questions based on text passages',
+        source: 'TensorFlow Hub - SQuAD dataset',
+        datasetUrl: 'https://huggingface.co/datasets/squad',
+        difficulty: 'advanced'
+      },
+      {
+        icon: Image,
+        text: 'Train a model to colorize black and white photos',
+        source: 'ModelScope - Image colorization',
+        datasetUrl: 'https://www.kaggle.com/datasets/shravankumar9892/image-colorization',
+        difficulty: 'advanced'
+      },
+      {
+        icon: Brain,
+        text: 'Build an AI to classify medical images for disease detection',
+        source: 'TensorFlow Hub - ChestX-ray8',
+        datasetUrl: 'https://www.kaggle.com/datasets/nih-chest-xrays/data',
+        difficulty: 'advanced'
+      },
+      {
+        icon: Mic,
+        text: 'Create a model to transcribe spoken words into text',
+        source: 'ModelScope - LibriSpeech dataset',
+        datasetUrl: 'https://www.openslr.org/12',
+        difficulty: 'advanced'
+      }
+    ]
+  },
+  {
+    title: 'Kaggle Competition Classics',
+    description: 'Popular projects from Kaggle competitions and datasets',
+    examples: [
+      {
+        icon: Heart,
+        text: 'Predict survival on the Titanic based on passenger information',
+        source: 'Kaggle - Titanic dataset',
+        datasetUrl: 'https://www.kaggle.com/competitions/titanic',
+        difficulty: 'beginner'
+      },
+      {
+        icon: Leaf,
+        text: 'Train an AI to classify iris flowers into three species',
+        source: 'Kaggle - Iris dataset',
+        datasetUrl: 'https://www.kaggle.com/datasets/uciml/iris',
+        difficulty: 'beginner'
+      },
+      {
+        icon: Car,
+        text: 'Build a model to predict used car prices from features',
+        source: 'Kaggle - Vehicle dataset',
+        datasetUrl: 'https://www.kaggle.com/datasets/nehalbirla/vehicle-dataset-from-cardekho',
+        difficulty: 'intermediate'
+      },
+      {
+        icon: Brain,
+        text: 'Create an AI to detect credit card fraud from transaction patterns',
+        source: 'Kaggle - Credit Card Fraud',
+        datasetUrl: 'https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud',
+        difficulty: 'advanced'
+      },
+      {
+        icon: Dog,
+        text: 'Train a model to classify cat and dog images',
+        source: 'Kaggle - Dogs vs Cats',
+        datasetUrl: 'https://www.kaggle.com/competitions/dogs-vs-cats',
+        difficulty: 'beginner'
+      },
+      {
+        icon: TrendingUp,
+        text: 'Build an AI to predict diamond prices from characteristics',
+        source: 'Kaggle - Diamonds dataset',
+        datasetUrl: 'https://www.kaggle.com/datasets/shivam2503/diamonds',
+        difficulty: 'beginner'
+      },
+      {
+        icon: Heart,
+        text: 'Create a model to predict diabetes from patient health metrics',
+        source: 'Kaggle - Pima Indians Diabetes',
+        datasetUrl: 'https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database',
+        difficulty: 'intermediate'
+      },
+      {
+        icon: Smile,
+        text: 'Train an AI to classify facial expressions into emotions',
+        source: 'Kaggle - FER2013 dataset',
+        datasetUrl: 'https://www.kaggle.com/datasets/msambare/fer2013',
+        difficulty: 'intermediate'
+      }
+    ]
+  },
+  {
+    title: 'GitHub Open Source Projects',
+    description: 'Community-driven ML projects from GitHub repositories',
+    examples: [
+      {
+        icon: Image,
+        text: 'Build a model to generate realistic human faces using GANs',
+        source: 'GitHub - CelebA dataset',
+        datasetUrl: 'https://github.com/tkarras/progressive_growing_of_gans',
+        difficulty: 'advanced'
+      },
+      {
+        icon: MessageSquare,
+        text: 'Train an AI chatbot to have conversations on specific topics',
+        source: 'GitHub - Cornell Movie Dialogs',
+        datasetUrl: 'https://github.com/suriyadeepan/datasets/tree/master/seq2seq/cornell_movie_corpus',
+        difficulty: 'advanced'
+      },
+      {
+        icon: Music,
+        text: 'Create a model to classify music genres from audio features',
+        source: 'GitHub - GTZAN dataset',
+        datasetUrl: 'https://github.com/mdeff/fma',
+        difficulty: 'intermediate'
+      },
+      {
+        icon: Brain,
+        text: 'Build an AI to generate image captions automatically',
+        source: 'GitHub - Flickr8k dataset',
+        datasetUrl: 'https://github.com/jbrownlee/Datasets/releases/tag/Flickr8k',
+        difficulty: 'advanced'
+      },
+      {
+        icon: FileImage,
+        text: 'Train a model to remove backgrounds from product images',
+        source: 'GitHub - U2-Net background removal',
+        datasetUrl: 'https://github.com/xuebinqin/U-2-Net',
+        difficulty: 'advanced'
+      },
+      {
+        icon: Languages,
+        text: 'Create an AI to translate text between different languages',
+        source: 'GitHub - WMT translation datasets',
+        datasetUrl: 'https://github.com/pytorch/fairseq/tree/main/examples/translation',
+        difficulty: 'advanced'
+      },
+      {
+        icon: Star,
+        text: 'Build a model to detect and classify traffic signs',
+        source: 'GitHub - GTSRB dataset',
+        datasetUrl: 'https://github.com/mohamedameen93/German-Traffic-Sign-Classification-Using-TensorFlow',
+        difficulty: 'intermediate'
+      },
+      {
+        icon: Fingerprint,
+        text: 'Train an AI for face recognition and verification',
+        source: 'GitHub - LFW dataset',
+        datasetUrl: 'https://github.com/davidsandberg/facenet',
+        difficulty: 'advanced'
+      }
+    ]
+  }
+];
+
+export default function ProjectCreationPage() {
+  const [description, setDescription] = useState('');
+  const [parsedInfo, setParsedInfo] = useState<{ modelType: ModelType; title: string } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [triesRemaining, setTriesRemaining] = useState<number | null>(null);
+  const [showGuidedTour, setShowGuidedTour] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [selectedDataset, setSelectedDataset] = useState<{
+    url: string;
+    name: string;
+    source: string;
+  } | null>(null);
+  
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { elementRef: heroRef, shouldAnimate } = useEntranceAnimation({
+    threshold: 0.1,
+    sessionKey: 'hero-branding-animation'
+  });
+  
+  // Onboarding
+  const {
+    showWelcome,
+    activeTour,
+    closeWelcome,
+    startWelcomeTour,
+    completeTour,
+    skipTour,
+  } = useOnboarding();
+
+  useEffect(() => {
+    checkTriesRemaining();
+  }, [user]);
+
+  const checkTriesRemaining = async () => {
+    if (user) {
+      setTriesRemaining(null);
+      return;
+    }
+    
+    const sessionId = sessionUtils.getSessionId();
+    const tries = await userTriesService.getBySessionId(sessionId);
+    
+    if (tries) {
+      setTriesRemaining(10 - tries.tries_count);
+    } else {
+      setTriesRemaining(10);
+    }
+  };
+
+  const copyExampleToInput = (exampleText: string) => {
+    setDescription(exampleText);
+    toast.success('Example copied to input');
+  };
+
+  const parseDescription = (desc: string): { modelType: ModelType; title: string } | null => {
+    const lowerDesc = desc.toLowerCase();
+    
+    if (lowerDesc.includes('image') || lowerDesc.includes('photo') || lowerDesc.includes('picture') || lowerDesc.includes('classify')) {
+      return {
+        modelType: 'image_classification',
+        title: desc.substring(0, 100)
+      };
+    }
+    
+    if (lowerDesc.includes('text') || lowerDesc.includes('sentiment') || lowerDesc.includes('spam')) {
+      return {
+        modelType: 'text_classification',
+        title: desc.substring(0, 100)
+      };
+    }
+    
+    if (lowerDesc.includes('predict') || lowerDesc.includes('price') || lowerDesc.includes('forecast') || lowerDesc.includes('regression')) {
+      return {
+        modelType: 'regression',
+        title: desc.substring(0, 100)
+      };
+    }
+    
+    return {
+      modelType: 'image_classification',
+      title: desc.substring(0, 100)
+    };
+  };
+
+  const handleAnalyze = () => {
+    if (!description.trim()) {
+      toast.error('Please describe your project');
+      return;
+    }
+    
+    const info = parseDescription(description);
+    setParsedInfo(info);
+  };
+
+  const handleStartProject = async (isGuidedTour: boolean) => {
+    if (!parsedInfo) return;
+    
+    if (!user && triesRemaining !== null && triesRemaining <= 0) {
+      toast.error('You have reached the limit of 10 tries. Please register to continue.');
+      navigate('/login');
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const sessionId = sessionUtils.getSessionId();
+      
+      if (!user) {
+        await userTriesService.incrementTries(sessionId);
+      }
+      
+      const project = await projectService.create({
+        user_id: user?.id || null,
+        session_id: user ? null : sessionId,
+        title: parsedInfo.title,
+        description,
+        model_type: parsedInfo.modelType,
+        status: 'data_collection',
+        is_guided_tour: isGuidedTour
+      });
+      
+      // Track project creation for registered users
+      if (user) {
+        await activityTrackingService.trackProjectCreation(
+          user.id,
+          project.id,
+          parsedInfo.modelType,
+          description
+        );
+      }
+      
+      navigate(`/project/${project.id}/data-collection`);
+    } catch (error) {
+      toast.error('Failed to create project');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <AppLayout>
+      <div className="max-w-6xl mx-auto space-y-12">
+        {/* Hero Section */}
+        <div className="text-center space-y-6 pt-8">
+          <div 
+            ref={heroRef}
+            className={`flex justify-center ${shouldAnimate ? 'animate-hero-entrance' : ''}`}
+            style={{ 
+              willChange: 'transform, opacity',
+              transform: 'translateZ(0)' // Force GPU acceleration
+            }}
+          >
+            <img 
+              src="https://miaoda-conversation-file.s3cdn.medo.dev/user-b9ifsz9pqm80/conv-b9kq4jp3bta8/20260430/file-bavnbc0rb9j4.png" 
+              alt="ModelMentor - An AI Lab for Conceptual Learning" 
+              className="h-16 w-auto max-w-full md:h-20 lg:h-24"
+            />
+          </div>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">{"Follow a simple, guided journey to understand and build your first machine learning model -- no code required. \"Learn the Why, Not Just the How - ModelMentor Makes ML Click!\""}</p>
+          
+          {!user && triesRemaining !== null && (
+            <Alert className="max-w-2xl mx-auto">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                You have {triesRemaining} {triesRemaining === 1 ? 'try' : 'tries'} remaining. 
+                {triesRemaining <= 3 && ' Register to get unlimited access!'}
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
+
+        {/* Workflow Visualizer */}
+        <Card className="border-none shadow-none bg-muted/30">
+          <CardContent className="pt-8 pb-8">
+            <MLWorkflowVisualizer steps={workflowSteps} currentStep={0} />
+          </CardContent>
+        </Card>
+
+        {/* Main Content */}
+        <div className="max-w-4xl mx-auto space-y-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Step 1: Describe Your Project</CardTitle>
+              <CardDescription>
+                Tell us what you want to build. For example: "I want to train an AI to tell if a fruit is ripe from a photo"
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Textarea
+                placeholder="I want to train an AI to..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={6}
+                className="resize-none"
+              />
+              
+              <Button onClick={handleAnalyze} className="w-full" size="lg">
+                <Sparkles className="h-5 w-5 mr-2" />
+                Analyze Project
+              </Button>
+            </CardContent>
+          </Card>
+
+          {parsedInfo && (
+            <Card className="border-primary">
+              <CardHeader>
+                <CardTitle>Project Analysis</CardTitle>
+                <CardDescription>We've analyzed your project description</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Detected Model Type</p>
+                    <Badge variant="secondary" className="text-base px-4 py-2">
+                      {parsedInfo.modelType.replace('_', ' ').toUpperCase()}
+                    </Badge>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Your Journey</p>
+                    <p className="text-sm">
+                      {parsedInfo.modelType === 'image_classification' && 
+                        'You will collect images, train a classification model, and test its accuracy on new images.'}
+                      {parsedInfo.modelType === 'text_classification' && 
+                        'You will collect text samples, train a classification model, and evaluate its performance on new text.'}
+                      {parsedInfo.modelType === 'regression' && 
+                        'You will collect numerical data, train a regression model, and test its predictions on new data points.'}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button 
+                    onClick={() => handleStartProject(false)} 
+                    disabled={loading}
+                    className="flex-1"
+                    size="lg"
+                  >
+                    Start with My Data
+                  </Button>
+                  <Button 
+                    onClick={() => handleStartProject(true)} 
+                    disabled={loading}
+                    variant="outline"
+                    className="flex-1"
+                    size="lg"
+                  >
+                    <BookOpen className="h-5 w-5 mr-2" />
+                    Start Guided Tour
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Example Projects - Grouped by Category */}
+          <div className="space-y-12">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-semibold">Example Projects</h2>
+              <p className="text-muted-foreground">
+                Click the copy icon to use any example as a starting point
+              </p>
+            </div>
+
+            {exampleCategories.map((category, categoryIndex) => (
+              <div key={categoryIndex} className="space-y-6">
+                {/* Category Header */}
+                <div className="space-y-1">
+                  <h3 className="text-xl font-medium">{category.title}</h3>
+                  <p className="text-sm text-muted-foreground">{category.description}</p>
+                </div>
+
+                {/* Category Examples */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {category.examples.map((example, exampleIndex) => {
+                    const Icon = example.icon;
+                    
+                    const getDifficultyColor = (difficulty: string) => {
+                      switch (difficulty) {
+                        case 'beginner':
+                          return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+                        case 'intermediate':
+                          return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
+                        case 'advanced':
+                          return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+                        default:
+                          return 'bg-muted text-muted-foreground';
+                      }
+                    };
+                    
+                    return (
+                      <div
+                        key={exampleIndex}
+                        className="group flex items-start gap-3 p-4 rounded-lg border border-border hover:border-primary transition-colors bg-background"
+                      >
+                        <div className="flex-shrink-0 mt-0.5">
+                          <Icon className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className="flex items-start gap-2">
+                            <p className="text-sm leading-relaxed flex-1">{example.text}</p>
+                            <Badge 
+                              variant="secondary" 
+                              className={`text-xs capitalize flex-shrink-0 ${getDifficultyColor(example.difficulty)}`}
+                            >
+                              {example.difficulty}
+                            </Badge>
+                          </div>
+                          {example.source && (
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-xs text-muted-foreground italic">
+                                {example.source}
+                              </p>
+                              {example.datasetUrl && (
+                                <>
+                                  <a
+                                    href={example.datasetUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    View Dataset
+                                    <ExternalLink className="h-3 w-3" />
+                                  </a>
+                                  <Button
+                                    variant="link"
+                                    size="sm"
+                                    className="h-auto p-0 text-xs"
+                                    onClick={() => {
+                                      setSelectedDataset({
+                                        url: example.datasetUrl!,
+                                        name: example.text,
+                                        source: example.source!
+                                      });
+                                      setWizardOpen(true);
+                                    }}
+                                  >
+                                    <Database className="h-3 w-3 mr-1" />
+                                    Connection Guide
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => copyExampleToInput(example.text)}
+                          className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          aria-label="Copy example to input"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Dataset Connection Wizard */}
+      {selectedDataset && (
+        <DatasetConnectionWizard
+          open={wizardOpen}
+          onOpenChange={setWizardOpen}
+          datasetUrl={selectedDataset.url}
+          datasetName={selectedDataset.name}
+          source={selectedDataset.source}
+        />
+      )}
+
+      {/* Onboarding */}
+      <WelcomeModal
+        open={showWelcome}
+        onClose={closeWelcome}
+        onStartTour={startWelcomeTour}
+        userName={user?.email?.split('@')[0]}
+      />
+
+      {activeTour && (
+        <InteractiveTour
+          steps={activeTour.steps}
+          isActive={true}
+          onComplete={completeTour}
+          onSkip={skipTour}
+          tourId={activeTour.id}
+        />
+      )}
+    </AppLayout>
+  );
+}

@@ -1,0 +1,74 @@
+{
+  "name": "ModelMentor - An AI Lab for Conceptual Learning",
+  "short_name": "ModelMentor",
+  "description": "Follow a simple, guided journey to understand and build your first machine learning model -- no code required.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://miaoda-conversation-file.s3cdn.medo.dev/user-b9ifsz9pqm80/conv-b9kq4jp3bta8/20260430/file-bavzr057cbgi.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://miaoda-conversation-file.s3cdn.medo.dev/user-b9ifsz9pqm80/conv-b9kq4jp3bta8/20260430/file-bavzr057cbgi.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://miaoda-conversation-file.s3cdn.medo.dev/user-b9ifsz9pqm80/conv-b9kq4jp3bta8/20260430/file-bavzr057cbgi.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "https://miaoda-conversation-file.s3cdn.medo.dev/user-b9ifsz9pqm80/conv-b9kq4jp3bta8/20260430/file-bavzr057cbgi.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "https://miaoda-conversation-file.s3cdn.medo.dev/user-b9ifsz9pqm80/conv-b9kq4jp3bta8/20260430/file-bavzr057cbgi.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "https://miaoda-conversation-file.s3cdn.medo.dev/user-b9ifsz9pqm80/conv-b9kq4jp3bta8/20260430/file-bavzr057cbgi.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Create Project",
+      "short_name": "New Project",
+      "description": "Start a new ML project",
+      "url": "/",
+      "icons": [
+        {
+          "src": "https://miaoda-conversation-file.s3cdn.medo.dev/user-b9ifsz9pqm80/conv-b9kq4jp3bta8/20260430/file-bavzr057cbgi.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Teacher Resources",
+      "short_name": "Resources",
+      "description": "Access teaching materials",
+      "url": "/teacher-resources",
+      "icons": [
+        {
+          "src": "https://miaoda-conversation-file.s3cdn.medo.dev/user-b9ifsz9pqm80/conv-b9kq4jp3bta8/20260430/file-bavzr057cbgi.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
