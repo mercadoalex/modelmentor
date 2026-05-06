@@ -122,8 +122,7 @@ export function InteractiveTour({ steps, isActive, onComplete, onSkip, tourId }:
       {/* Overlay */}
       <div
         ref={overlayRef}
-        className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm"
-        style={{ pointerEvents: 'auto' }}
+        className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm pointer-events-none"
       >
         {/* Highlight cutout */}
         {targetPosition && (
@@ -141,7 +140,7 @@ export function InteractiveTour({ steps, isActive, onComplete, onSkip, tourId }:
 
         {/* Tooltip */}
         <Card
-          className="absolute w-full max-w-md shadow-2xl"
+          className="absolute w-full max-w-md shadow-2xl pointer-events-auto"
           style={getTooltipPosition()}
         >
           <CardHeader className="pb-3">

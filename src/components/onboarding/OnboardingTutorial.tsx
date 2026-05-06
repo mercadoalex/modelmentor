@@ -10,7 +10,8 @@ import {
   Sparkles,
   ArrowRight,
   CheckCircle2,
-  Lightbulb
+  Lightbulb,
+  X
 } from 'lucide-react';
 
 interface OnboardingStep {
@@ -106,11 +107,11 @@ export function OnboardingTutorial() {
   if (!showTutorial) return null;
 
   return (
-    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl shadow-lg">
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 pointer-events-none">
+      <Card className="w-full max-w-2xl shadow-lg pointer-events-auto">
         <CardHeader>
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-1">
               {steps.map((step, index) => (
                 <div
                   key={step.id}
@@ -121,9 +122,20 @@ export function OnboardingTutorial() {
                 />
               ))}
             </div>
-            <Button variant="ghost" size="sm" onClick={handleSkip}>
-              Skip
-            </Button>
+            <div className="flex items-center gap-2 ml-4">
+              <Button variant="ghost" size="sm" onClick={handleSkip}>
+                Skip Tutorial
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleSkip}
+                className="h-8 w-8 p-0"
+                aria-label="Close tutorial"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           
           <div className="flex items-start gap-4">
