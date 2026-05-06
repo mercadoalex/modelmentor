@@ -13,6 +13,7 @@ import {
   Lightbulb,
   X
 } from 'lucide-react';
+import { useTutorial } from '@/contexts/TutorialContext';
 
 interface OnboardingStep {
   id: string;
@@ -24,9 +25,7 @@ interface OnboardingStep {
 
 export function OnboardingTutorial() {
   const [currentStep, setCurrentStep] = useState(0);
-  const [showTutorial, setShowTutorial] = useState(() => {
-    return !localStorage.getItem('modelmentor_tutorial_completed');
-  });
+  const { showTutorial, closeTutorial } = useTutorial();
 
   const steps: OnboardingStep[] = [
     {
@@ -92,16 +91,16 @@ export function OnboardingTutorial() {
 
   const handleNext = () => {
     if (isLastStep) {
-      localStorage.setItem('modelmentor_tutorial_completed', 'true');
-      setShowTutorial(false);
+      closeTutorial();
+      setCurrentStep(0); // Reset for next time
     } else {
       setCurrentStep(currentStep + 1);
     }
   };
 
   const handleSkip = () => {
-    localStorage.setItem('modelmentor_tutorial_completed', 'true');
-    setShowTutorial(false);
+    closeTutorial();
+    setCurrentStep(0); // Reset for next time
   };
 
   if (!showTutorial) return null;

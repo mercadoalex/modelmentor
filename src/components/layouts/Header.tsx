@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTutorial } from '@/contexts/TutorialContext';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/ui/avatar';
 import {
@@ -10,12 +11,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut, Settings, BookOpen, Award, LayoutDashboard } from 'lucide-react';
+import { LogOut, Settings, BookOpen, Award, LayoutDashboard, GraduationCap } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationBell } from '@/components/NotificationBell';
 
 export function Header() {
   const { user, profile, signOut } = useAuth();
+  const { openTutorial } = useTutorial();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -74,6 +76,17 @@ export function Header() {
                 Dashboard
               </Link>
             )}
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={openTutorial}
+              className="text-sm hover:text-primary transition-colors flex items-center gap-1"
+              aria-label="Show tutorial"
+            >
+              <GraduationCap className="h-4 w-4" />
+              <span className="hidden lg:inline">Tutorial</span>
+            </Button>
             
             <ThemeToggle />
             {user && <NotificationBell />}
