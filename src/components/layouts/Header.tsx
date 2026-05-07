@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTutorial } from '@/contexts/TutorialContext';
+import { useContextualHelp } from '@/contexts/ContextualHelpContext';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/ui/avatar';
 import {
@@ -11,13 +12,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut, Settings, BookOpen, Award, LayoutDashboard, GraduationCap } from 'lucide-react';
+import { LogOut, Settings, BookOpen, Award, LayoutDashboard, GraduationCap, HelpCircle } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationBell } from '@/components/NotificationBell';
 
 export function Header() {
   const { user, profile, signOut } = useAuth();
   const { openTutorial } = useTutorial();
+  const { openHelp, currentHelp } = useContextualHelp();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -87,6 +89,24 @@ export function Header() {
               <GraduationCap className="h-4 w-4" />
               <span className="hidden lg:inline">Tutorial</span>
             </Button>
+            
+            {currentHelp.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={openHelp}
+                className="text-sm hover:text-primary transition-colors flex items-center gap-1 relative"
+                aria-label="Show contextual help"
+              >
+                <HelpCircle className="h-4 w-4" />
+                <span className="hidden lg:inline">Help</span>
+                {currentHelp.length > 0 && (
+                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+                    {currentHelp.length}
+                  </span>
+                )}
+              </Button>
+            )}
             
             <ThemeToggle />
             {user && <NotificationBell />}

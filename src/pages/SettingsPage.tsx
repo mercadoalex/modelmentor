@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useContextualHelp } from '@/contexts/ContextualHelpContext';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,12 +13,13 @@ import { Switch } from '@/components/ui/switch';
 import { AvatarUpload } from '@/components/AvatarUpload';
 import { RoleRequestCard } from '@/components/RoleRequestCard';
 import { supabase } from '@/db/supabase';
-import { User, Lock, Bell, Trash2, AlertTriangle, Loader2, CheckCircle2, ArrowLeft, Mail } from 'lucide-react';
+import { User, Lock, Bell, Trash2, AlertTriangle, Loader2, CheckCircle2, ArrowLeft, Mail, HelpCircle, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import type { EmailPreferences } from '@/types/types';
 
 export default function SettingsPage() {
   const { user, profile, signOut } = useAuth();
+  const { resetDismissed, dismissedTips } = useContextualHelp();
   const navigate = useNavigate();
   
   // Profile settings
@@ -653,6 +655,47 @@ export default function SettingsPage() {
                       </>
                     )}
                   </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <HelpCircle className="h-5 w-5" />
+                    Help & Learning
+                  </CardTitle>
+                  <CardDescription>
+                    Manage contextual help and tutorial preferences
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-4 border rounded-lg space-y-3">
+                    <div className="space-y-1">
+                      <p className="font-medium">Contextual Help Tips</p>
+                      <p className="text-sm text-muted-foreground">
+                        Reset all dismissed help tips to see them again. You have dismissed {dismissedTips.size} tip{dismissedTips.size !== 1 ? 's' : ''}.
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        resetDismissed();
+                        toast.success('All help tips have been reset');
+                      }}
+                      disabled={dismissedTips.size === 0}
+                      className="gap-2"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      Reset Help Tips
+                    </Button>
+                  </div>
+
+                  <Alert>
+                    <AlertDescription className="text-sm">
+                      Help tips provide contextual guidance based on the page you're viewing. They appear automatically when you visit different sections of the app.
+                    </AlertDescription>
+                  </Alert>
                 </CardContent>
               </Card>
             </div>
