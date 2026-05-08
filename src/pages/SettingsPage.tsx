@@ -1,3 +1,4 @@
+import { AppLayout } from '@/components/layouts/AppLayout';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useContextualHelp } from '@/contexts/ContextualHelpContext';
@@ -317,6 +318,7 @@ export default function SettingsPage() {
   }
 
   return (
+    <AppLayout>
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="space-y-6">
         {/* Back Button */}
@@ -781,5 +783,6 @@ export default function SettingsPage() {
         </Tabs>
       </div>
     </div>
+    </AppLayout>
   );
 }

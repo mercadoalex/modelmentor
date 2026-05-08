@@ -8,7 +8,11 @@ elif [ ! -e "$VITE_TEMP" ]; then
     mkdir -p "$VITE_TEMP"
 fi
 
-OUTPUT=$(npx vite build --minify false --logLevel error --outDir /workspace/.dist 2>&1)
+# Use a local dist folder instead of /workspace/.dist (CI-only path)
+OUTDIR="node_modules/.vite-temp/dist"
+mkdir -p "$OUTDIR"
+
+OUTPUT=$(npx vite build --minify false --logLevel error --outDir "$OUTDIR" 2>&1)
 EXIT_CODE=$?
 
 if [ $EXIT_CODE -ne 0 ]; then

@@ -1,6 +1,15 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Primitive / union types
+// ─────────────────────────────────────────────────────────────────────────────
+
 export type UserRole = 'user' | 'admin' | 'student' | 'teacher' | 'school_admin' | 'super_admin';
 
-export type ModelType = 'image_classification' | 'text_classification' | 'regression';
+/** Supported ML project types. 'classification' covers tabular binary/multiclass tasks. */
+export type ModelType =
+  | 'image_classification'
+  | 'text_classification'
+  | 'regression'
+  | 'classification';
 
 export type ProjectStatus = 'draft' | 'data_collection' | 'learning' | 'training' | 'testing' | 'completed';
 
@@ -17,6 +26,31 @@ export type BulkActionType = 'bulk_approve' | 'bulk_reject' | 'bulk_undo';
 export type BulkActionItemStatus = 'success' | 'failed';
 
 export type ActivityType = 'view' | 'filter' | 'export' | 'rollback' | 'note';
+
+export type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced';
+
+export type ConceptName = 'gradient_descent' | 'overfitting' | 'bias_variance' | 'regularization' | 'model_evaluation';
+
+export type ReportType = 'student_progress' | 'concept_mastery' | 'at_risk' | 'class_summary';
+export type ReportFrequency = 'weekly' | 'monthly';
+export type ReportFormat = 'pdf' | 'csv';
+export type DeliveryStatus = 'pending' | 'success' | 'error';
+
+export type AssignmentStatus = 'not_started' | 'in_progress' | 'completed';
+
+export type NotificationType =
+  | 'info'
+  | 'success'
+  | 'warning'
+  | 'error'
+  | 'role_change'
+  | 'assignment'
+  | 'training_complete'
+  | 'role_request';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Admin / bulk action interfaces
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface BulkAction {
   id: string;
@@ -42,43 +76,9 @@ export interface BulkActionItem {
   created_at: string;
 }
 
-export interface GroupActivity {
-  id: string;
-  group_id: string;
-  user_id: string;
-  target_user_id: string;
-  action_type: GroupActivityType;
-  notes: string | null;
-  created_at: string;
-}
-
-export interface JoinRequest {
-  id: string;
-  organization_id: string;
-  user_id: string;
-  status: JoinRequestStatus;
-  message: string | null;
-  admin_message: string | null;
-  processed_by: string | null;
-  processed_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Invitation {
-  id: string;
-  organization_id: string;
-  email: string;
-  role: UserRole;
-  code: string;
-  status: InvitationStatus;
-  expires_at: string;
-  invited_by: string | null;
-  accepted_by: string | null;
-  accepted_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// Organisation / group interfaces
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface Organization {
   id: string;
@@ -108,6 +108,20 @@ export interface GroupMember {
   created_at: string;
 }
 
+export interface GroupActivity {
+  id: string;
+  group_id: string;
+  user_id: string;
+  target_user_id: string;
+  action_type: GroupActivityType;
+  notes: string | null;
+  created_at: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// User / profile interfaces
+// ─────────────────────────────────────────────────────────────────────────────
+
 export interface Profile {
   id: string;
   email: string | null;
@@ -129,6 +143,80 @@ export interface UserTries {
   created_at: string;
   updated_at: string;
 }
+
+export interface RoleChange {
+  id: string;
+  user_id: string;
+  changed_by: string;
+  old_role: UserRole;
+  new_role: UserRole;
+  reason: string | null;
+  created_at: string;
+  /** Joined profile of the affected user */
+  user?: Profile;
+  /** Joined profile of the admin who made the change */
+  changed_by_user?: Profile;
+}
+
+export interface RoleRequest {
+  id: string;
+  user_id: string;
+  requested_role: UserRole;
+  status: RoleRequestStatus;
+  reason: string;
+  admin_notes: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  user?: Profile;
+  reviewer?: Profile;
+}
+
+export interface EmailPreferences {
+  id: string;
+  user_id: string;
+  role_change_notifications: boolean;
+  role_request_notifications: boolean;
+  weekly_digest: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Invitation / join request interfaces
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface Invitation {
+  id: string;
+  organization_id: string;
+  email: string;
+  role: UserRole;
+  code: string;
+  status: InvitationStatus;
+  expires_at: string;
+  invited_by: string | null;
+  accepted_by: string | null;
+  accepted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface JoinRequest {
+  id: string;
+  organization_id: string;
+  user_id: string;
+  status: JoinRequestStatus;
+  message: string | null;
+  admin_message: string | null;
+  processed_by: string | null;
+  processed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ML project interfaces
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface Project {
   id: string;
@@ -164,6 +252,10 @@ export interface Dataset {
   created_at: string;
   updated_at: string;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Training / model interfaces
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface TrainingSession {
   id: string;
@@ -227,6 +319,10 @@ export interface ModelVersion {
   created_by: string | null;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Collaboration interfaces
+// ─────────────────────────────────────────────────────────────────────────────
+
 export interface ProjectCollaborator {
   id: string;
   project_id: string;
@@ -266,10 +362,19 @@ export interface CollaborationActivity {
   id: string;
   project_id: string;
   user_id: string;
-  activity_type: 'experiment_shared' | 'comment_added' | 'collaborator_added' | 'model_updated' | 'dataset_updated';
+  activity_type:
+    | 'experiment_shared'
+    | 'comment_added'
+    | 'collaborator_added'
+    | 'model_updated'
+    | 'dataset_updated';
   activity_data: Record<string, unknown> | null;
   created_at: string;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Learning / quiz interfaces
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface QuizQuestion {
   id: string;
@@ -285,8 +390,6 @@ export interface LearningContent {
   visual: string;
   concepts: string[];
 }
-
-export type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced';
 
 export interface ProjectCompletion {
   id: string;
@@ -312,7 +415,9 @@ export interface BadgeProgress {
   earnedAt?: string;
 }
 
-export type ConceptName = 'gradient_descent' | 'overfitting' | 'bias_variance' | 'regularization' | 'model_evaluation';
+// ─────────────────────────────────────────────────────────────────────────────
+// Student analytics interfaces
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface StudentActivity {
   id: string;
@@ -365,10 +470,9 @@ export interface StudentProgress {
   alerts: AtRiskAlert[];
 }
 
-export type ReportType = 'student_progress' | 'concept_mastery' | 'at_risk' | 'class_summary';
-export type ReportFrequency = 'weekly' | 'monthly';
-export type ReportFormat = 'pdf' | 'csv';
-export type DeliveryStatus = 'pending' | 'success' | 'error';
+// ─────────────────────────────────────────────────────────────────────────────
+// Scheduled reporting interfaces
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface ScheduledReport {
   id: string;
@@ -381,10 +485,7 @@ export interface ScheduledReport {
   filters: {
     student_ids?: string[];
     concept_names?: ConceptName[];
-    date_range?: {
-      start: string;
-      end: string;
-    };
+    date_range?: { start: string; end: string };
   };
   format: ReportFormat;
   include_charts: boolean;
@@ -410,10 +511,7 @@ export interface DeliveryLog {
 
 export interface ReportData {
   title: string;
-  dateRange: {
-    start: string;
-    end: string;
-  };
+  dateRange: { start: string; end: string };
   generatedAt: string;
   students: StudentProgress[];
   conceptAverages: {
@@ -425,6 +523,10 @@ export interface ReportData {
   averageScore: number;
   atRiskCount: number;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sandbox / scenario interfaces
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface SandboxConfiguration {
   id: string;
@@ -484,8 +586,6 @@ export interface AssignmentCompletion {
   updated_at: string;
 }
 
-export type AssignmentStatus = 'not_started' | 'in_progress' | 'completed';
-
 export interface ScenarioHistoryItem {
   id: string;
   timestamp: Date;
@@ -499,43 +599,9 @@ export interface ScenarioHistoryItem {
   };
 }
 
-export interface RoleChange {
-  id: string;
-  user_id: string;
-  changed_by: string;
-  old_role: UserRole;
-  new_role: UserRole;
-  reason: string | null;
-  created_at: string;
-  user?: Profile;
-  changed_by_user?: Profile;
-}
-
-export interface RoleRequest {
-  id: string;
-  user_id: string;
-  requested_role: UserRole;
-  status: RoleRequestStatus;
-  reason: string;
-  admin_notes: string | null;
-  reviewed_by: string | null;
-  reviewed_at: string | null;
-  created_at: string;
-  user?: Profile;
-  reviewer?: Profile;
-}
-
-export interface EmailPreferences {
-  id: string;
-  user_id: string;
-  role_change_notifications: boolean;
-  role_request_notifications: boolean;
-  weekly_digest: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export type NotificationType = 'info' | 'success' | 'warning' | 'error' | 'role_change' | 'assignment' | 'training_complete' | 'role_request';
+// ─────────────────────────────────────────────────────────────────────────────
+// Notification interface
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface Notification {
   id: string;
@@ -547,6 +613,10 @@ export interface Notification {
   read: boolean;
   created_at: string;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Kaggle dataset search interfaces
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface KaggleDataset {
   id: string;

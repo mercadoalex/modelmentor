@@ -1,0 +1,1 @@
+{"mcpServers":{"openspec":{"command":"npx","args":["-y","@igor-olikh/openspec-mcp-server"],"type":"stdio"}}}

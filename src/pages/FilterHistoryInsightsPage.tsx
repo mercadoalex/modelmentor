@@ -1,3 +1,4 @@
+import { AppLayout } from '@/components/layouts/AppLayout';
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -210,6 +211,7 @@ export default function FilterHistoryInsightsPage() {
   }
 
   return (
+    <AppLayout>
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -442,5 +444,6 @@ export default function FilterHistoryInsightsPage() {
         </>
       )}
     </div>
+    </AppLayout>
   );
 }

@@ -1,3 +1,16 @@
+const signIn = async (username: string, password: string) => {
+    try {
+      // If input looks like an email, use it directly, otherwise convert
+      const email = username.includes('@') ? username : `${username}@miaoda.com`;
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      return { error };
+    } catch (error) {
+      return { error: error as Error };
+    }
+  };
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';

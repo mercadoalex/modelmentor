@@ -5,7 +5,7 @@ import TrainingPage from './pages/TrainingPage';
 import DebuggingSandboxPage from './pages/DebuggingSandboxPage';
 import TestingPage from './pages/TestingPage';
 import ExportPage from './pages/ExportPage';
-import { Login } from './pages/Login';
+import LoginPage from './pages/LoginPage';
 import { Signup } from './pages/Signup';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { Profile } from './pages/Profile';
@@ -51,7 +51,7 @@ export const routes: RouteConfig[] = [
   {
     name: 'Login',
     path: '/login',
-    element: <Login />,
+    element: <LoginPage />,
     public: true,
   },
   {

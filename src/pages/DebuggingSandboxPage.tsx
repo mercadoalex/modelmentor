@@ -1,3 +1,5 @@
+import { AppLayout } from '@/components/layouts/AppLayout';
+import { CollaborationPanel } from '@/components/collaboration/CollaborationPanel';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -506,6 +508,7 @@ export default function DebuggingSandboxPage() {
   const explanation = getFailureExplanation(hasRetrained ? brokenModelResults.failureMode : currentFailureMode);
 
   return (
+    <AppLayout>
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
@@ -1342,5 +1345,6 @@ export default function DebuggingSandboxPage() {
         scenario={scenarioToShare}
       />
     </div>
+    </AppLayout>
   );
 }

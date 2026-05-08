@@ -33,6 +33,18 @@ export const learningContent: Record<ModelType, LearningContent> = {
       'More data points lead to more accurate predictions',
       'Feature selection significantly impacts prediction quality'
     ]
+  },
+  // ── Tabular binary / multiclass classification ─────────────────────────────
+  classification: {
+    title: 'Tabular Classification Essentials',
+    description: 'Learn how AI classifies structured data into categories',
+    visual: '🗂️',
+    concepts: [
+      'Classification models assign rows of data to predefined categories',
+      'Features (columns) are used to find decision boundaries between classes',
+      'Balanced classes help the model treat all outcomes equally',
+      'More labelled examples reduce uncertainty and improve accuracy'
+    ]
   }
 };
 
@@ -149,6 +161,45 @@ export const quizQuestions: Record<ModelType, QuizQuestion[]> = {
       ],
       correctAnswer: 1,
       explanation: 'Loss measures the difference between predicted and actual values. Lower loss indicates better predictions.'
+    }
+  ],
+  // ── Tabular binary / multiclass classification ─────────────────────────────
+  classification: [
+    {
+      id: '1',
+      question: 'What is the goal of a classification model?',
+      options: [
+        'Predict a continuous number',
+        'Assign each data point to a category',
+        'Generate new data',
+        'Compress images'
+      ],
+      correctAnswer: 1,
+      explanation: 'Classification models learn to assign inputs to discrete categories, such as spam/not-spam or survived/did-not-survive.'
+    },
+    {
+      id: '2',
+      question: 'What problem occurs when one class has far more examples than others?',
+      options: [
+        'Faster training',
+        'Better accuracy',
+        'Class imbalance — the model ignores minority classes',
+        'Smaller model size'
+      ],
+      correctAnswer: 2,
+      explanation: 'Class imbalance causes the model to favour the majority class, leading to poor predictions for rarer outcomes.'
+    },
+    {
+      id: '3',
+      question: 'Which metric is most useful when classes are imbalanced?',
+      options: [
+        'Raw accuracy',
+        'File size',
+        'Number of epochs',
+        'F1 score'
+      ],
+      correctAnswer: 3,
+      explanation: 'F1 score balances precision and recall, making it a better measure than raw accuracy when classes are unevenly distributed.'
     }
   ]
 };

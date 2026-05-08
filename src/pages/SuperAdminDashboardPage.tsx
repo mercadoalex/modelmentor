@@ -1,5 +1,10 @@
+import { AppLayout } from '@/components/layouts/AppLayout';
 import { SuperAdminDashboard } from '@/components/admin/SuperAdminDashboard';
 
 export function SuperAdminDashboardPage() {
-  return <SuperAdminDashboard />;
+  return (
+    <AppLayout>
+      <SuperAdminDashboard />
+    </AppLayout>
+  );
 }

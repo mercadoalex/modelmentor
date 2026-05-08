@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, XCircle, ArrowRight, Lightbulb, FileText, Database, GraduationCap, Zap, Bug, Share2 } from 'lucide-react';
 import { MLWorkflowVisualizer } from '@/components/MLWorkflowVisualizer';
+import { CollaborationPanel } from '@/components/collaboration/CollaborationPanel';
 import { projectService } from '@/services/supabase';
 import { activityTrackingService } from '@/services/activityTrackingService';
 import { learningContent, quizQuestions, simulations } from '@/utils/learning';
@@ -320,6 +321,11 @@ export default function InteractiveLearningPage() {
         )}
         </div>
       </div>
+      {projectId && (
+        <div className="mt-6">
+          <CollaborationPanel projectId={projectId} />
+        </div>
+      )}
     </AppLayout>
   );
 }

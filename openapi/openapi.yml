@@ -1,0 +1,945 @@
+openapi: 3.1.0
+info:
+  title: ModelMentor API
+  description: |
+    AI-powered ML education platform. Allows students to learn machine learning
+    concepts through interactive projects, tutorials, quizzes, and debugging sandboxes.
+    Teachers and admins can manage assignments, monitor progress, and generate reports.
+  version: 1.0.0
+  contact:
+    name: Alex Mercado
+    email: mercadoalex@gmail.com
+
+servers:
+  - url: https://zvvlwqlbfigspckddvdk.supabase.co/rest/v1
+    description: Supabase REST API (Production)
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    apiKey:
+      type: apiKey
+      in: header
+      name: apikey
+
+  schemas:
+    Profile:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        username: { type: string }
+        first_name: { type: string }
+        last_name: { type: string }
+        role:
+          type: string
+          enum: [student, teacher, school_admin, super_admin]
+        avatar_url: { type: string }
+        bio: { type: string }
+        grade_level: { type: string }
+        organization_id: { type: string, format: uuid }
+        streak_days: { type: integer }
+        total_points: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    Project:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string }
+        user_id: { type: string, format: uuid }
+        is_assignment: { type: boolean }
+        assignment_id: { type: string, format: uuid }
+        due_date: { type: string, format: date-time }
+        status:
+          type: string
+          enum: [draft, in_progress, completed, submitted]
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    Organization:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string }
+        admin_id: { type: string, format: uuid }
+        website: { type: string }
+        logo_url: { type: string }
+        invite_code: { type: string }
+        created_at: { type: string, format: date-time }
+
+    Assignment:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        description: { type: string }
+        teacher_id: { type: string, format: uuid }
+        organization_id: { type: string, format: uuid }
+        due_date: { type: string, format: date-time }
+        max_points: { type: integer }
+        status:
+          type: string
+          enum: [draft, published, closed]
+        created_at: { type: string, format: date-time }
+
+    AssignmentSubmission:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        assignment_id: { type: string, format: uuid }
+        student_id: { type: string, format: uuid }
+        project_id: { type: string, format: uuid }
+        score: { type: number }
+        feedback: { type: string }
+        submitted_at: { type: string, format: date-time }
+        graded_at: { type: string, format: date-time }
+
+    Badge:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string }
+        icon: { type: string }
+        category:
+          type: string
+          enum: [achievement, milestone, skill, participation]
+        points_required: { type: integer }
+        created_at: { type: string, format: date-time }
+
+    UserBadge:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
+        badge_id: { type: string, format: uuid }
+        earned_at: { type: string, format: date-time }
+
+    Notification:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
+        title: { type: string }
+        message: { type: string }
+        type:
+          type: string
+          enum: [info, warning, success, error, assignment, badge]
+        read: { type: boolean }
+        link: { type: string }
+        created_at: { type: string, format: date-time }
+
+    TutorialProgress:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
+        tutorial_id: { type: string }
+        completed: { type: boolean }
+        score: { type: number }
+        completed_at: { type: string, format: date-time }
+
+    QuizResult:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
+        tutorial_id: { type: string }
+        score: { type: number }
+        total_questions: { type: integer }
+        correct_answers: { type: integer }
+        completed_at: { type: string, format: date-time }
+
+    UserTry:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
+        project_id: { type: string, format: uuid }
+        session_id: { type: string }
+        action: { type: string }
+        data: { type: object }
+        created_at: { type: string, format: date-time }
+
+    ActivityLog:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
+        action: { type: string }
+        resource_type: { type: string }
+        resource_id: { type: string, format: uuid }
+        metadata: { type: object }
+        created_at: { type: string, format: date-time }
+
+    Report:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        teacher_id: { type: string, format: uuid }
+        organization_id: { type: string, format: uuid }
+        title: { type: string }
+        type:
+          type: string
+          enum: [progress, engagement, performance, at_risk]
+        data: { type: object }
+        created_at: { type: string, format: date-time }
+
+    Error:
+      type: object
+      properties:
+        message: { type: string }
+        code: { type: string }
+        details: { type: object }
+
+security:
+  - bearerAuth: []
+  - apiKey: []
+
+tags:
+  - name: Auth
+    description: Authentication operations
+  - name: Profiles
+    description: User profile management
+  - name: Projects
+    description: ML project management
+  - name: Organizations
+    description: School and organization management
+  - name: Assignments
+    description: Teacher assignments and submissions
+  - name: Tutorials
+    description: Learning tutorials and progress
+  - name: Quizzes
+    description: Quiz results and analytics
+  - name: Badges
+    description: Achievement badges
+  - name: Notifications
+    description: User notifications
+  - name: Progress
+    description: Student learning progress
+  - name: Reports
+    description: Teacher and admin reports
+  - name: Admin
+    description: Super admin operations
+
+paths:
+  # ─── AUTH ────────────────────────────────────────────
+  /auth/v1/token:
+    post:
+      summary: Sign in with email and password
+      tags: [Auth]
+      security: []
+      parameters:
+        - in: query
+          name: grant_type
+          required: true
+          schema:
+            type: string
+            enum: [password]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '200':
+          description: Authenticated session
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token: { type: string }
+                  token_type: { type: string }
+                  expires_in: { type: integer }
+                  refresh_token: { type: string }
+        '400':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /auth/v1/signup:
+    post:
+      summary: Sign up with email and password
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+                data:
+                  type: object
+                  properties:
+                    username: { type: string }
+                    first_name: { type: string }
+                    last_name: { type: string }
+      responses:
+        '200':
+          description: User created
+        '400':
+          description: Signup error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /auth/v1/recover:
+    post:
+      summary: Send password reset email
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200':
+          description: Reset email sent
+
+  /auth/v1/logout:
+    post:
+      summary: Sign out
+      tags: [Auth]
+      responses:
+        '204':
+          description: Signed out
+
+  # ─── PROFILES ────────────────────────────────────────
+  /profiles:
+    get:
+      summary: Get profiles
+      tags: [Profiles]
+      parameters:
+        - in: query
+          name: id
+          schema: { type: string }
+        - in: query
+          name: role
+          schema: { type: string, enum: [student, teacher, school_admin, super_admin] }
+        - in: query
+          name: organization_id
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Profile' }
+    patch:
+      summary: Update profile
+      tags: [Profiles]
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Profile' }
+      responses:
+        '200':
+          description: Updated profile
+
+  # ─── PROJECTS ────────────────────────────────────────
+  /projects:
+    get:
+      summary: Get projects
+      tags: [Projects]
+      parameters:
+        - in: query
+          name: user_id
+          schema: { type: string }
+        - in: query
+          name: is_assignment
+          schema: { type: boolean }
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Project' }
+    post:
+      summary: Create project
+      tags: [Projects]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Project' }
+      responses:
+        '201':
+          description: Created project
+    patch:
+      summary: Update project
+      tags: [Projects]
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Project' }
+      responses:
+        '200':
+          description: Updated project
+    delete:
+      summary: Delete project
+      tags: [Projects]
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Deleted
+
+  # ─── ORGANIZATIONS ───────────────────────────────────
+  /organizations:
+    get:
+      summary: Get organizations
+      tags: [Organizations]
+      parameters:
+        - in: query
+          name: id
+          schema: { type: string }
+        - in: query
+          name: invite_code
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of organizations
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Organization' }
+    post:
+      summary: Create organization
+      tags: [Organizations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Organization' }
+      responses:
+        '201':
+          description: Created organization
+    patch:
+      summary: Update organization
+      tags: [Organizations]
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Organization' }
+      responses:
+        '200':
+          description: Updated organization
+
+  /organization_members:
+    get:
+      summary: Get organization members
+      tags: [Organizations]
+      parameters:
+        - in: query
+          name: organization_id
+          schema: { type: string }
+        - in: query
+          name: user_id
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of members
+    post:
+      summary: Add member to organization
+      tags: [Organizations]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                organization_id: { type: string, format: uuid }
+                user_id: { type: string, format: uuid }
+                role: { type: string }
+      responses:
+        '201':
+          description: Member added
+    delete:
+      summary: Remove member from organization
+      tags: [Organizations]
+      parameters:
+        - in: query
+          name: organization_id
+          schema: { type: string }
+        - in: query
+          name: user_id
+          schema: { type: string }
+      responses:
+        '204':
+          description: Member removed
+
+  # ─── ASSIGNMENTS ─────────────────────────────────────
+  /assignments:
+    get:
+      summary: Get assignments
+      tags: [Assignments]
+      parameters:
+        - in: query
+          name: teacher_id
+          schema: { type: string }
+        - in: query
+          name: organization_id
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Assignment' }
+    post:
+      summary: Create assignment
+      tags: [Assignments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Assignment' }
+      responses:
+        '201':
+          description: Created assignment
+    patch:
+      summary: Update assignment
+      tags: [Assignments]
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Assignment' }
+      responses:
+        '200':
+          description: Updated assignment
+
+  /assignment_submissions:
+    get:
+      summary: Get submissions
+      tags: [Assignments]
+      parameters:
+        - in: query
+          name: assignment_id
+          schema: { type: string }
+        - in: query
+          name: student_id
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of submissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AssignmentSubmission' }
+    post:
+      summary: Submit assignment
+      tags: [Assignments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AssignmentSubmission' }
+      responses:
+        '201':
+          description: Submitted
+    patch:
+      summary: Grade submission
+      tags: [Assignments]
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                score: { type: number }
+                feedback: { type: string }
+                graded_at: { type: string, format: date-time }
+      responses:
+        '200':
+          description: Graded
+
+  # ─── TUTORIALS ───────────────────────────────────────
+  /tutorial_progress:
+    get:
+      summary: Get tutorial progress
+      tags: [Tutorials]
+      parameters:
+        - in: query
+          name: user_id
+          schema: { type: string }
+        - in: query
+          name: tutorial_id
+          schema: { type: string }
+        - in: query
+          name: completed
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Tutorial progress list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/TutorialProgress' }
+    post:
+      summary: Record tutorial progress
+      tags: [Tutorials]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TutorialProgress' }
+      responses:
+        '201':
+          description: Progress recorded
+    patch:
+      summary: Update tutorial progress
+      tags: [Tutorials]
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TutorialProgress' }
+      responses:
+        '200':
+          description: Updated
+
+  # ─── QUIZZES ─────────────────────────────────────────
+  /quiz_results:
+    get:
+      summary: Get quiz results
+      tags: [Quizzes]
+      parameters:
+        - in: query
+          name: user_id
+          schema: { type: string }
+        - in: query
+          name: tutorial_id
+          schema: { type: string }
+      responses:
+        '200':
+          description: Quiz results
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/QuizResult' }
+    post:
+      summary: Submit quiz result
+      tags: [Quizzes]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/QuizResult' }
+      responses:
+        '201':
+          description: Result recorded
+
+  # ─── BADGES ──────────────────────────────────────────
+  /badges:
+    get:
+      summary: Get all badges
+      tags: [Badges]
+      parameters:
+        - in: query
+          name: category
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of badges
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Badge' }
+
+  /user_badges:
+    get:
+      summary: Get user badges
+      tags: [Badges]
+      parameters:
+        - in: query
+          name: user_id
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of earned badges
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/UserBadge' }
+    post:
+      summary: Award badge to user
+      tags: [Badges]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserBadge' }
+      responses:
+        '201':
+          description: Badge awarded
+
+  # ─── NOTIFICATIONS ───────────────────────────────────
+  /notifications:
+    get:
+      summary: Get notifications
+      tags: [Notifications]
+      parameters:
+        - in: query
+          name: user_id
+          schema: { type: string }
+        - in: query
+          name: read
+          schema: { type: boolean }
+        - in: query
+          name: type
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Notification' }
+    post:
+      summary: Create notification
+      tags: [Notifications]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Notification' }
+      responses:
+        '201':
+          description: Notification created
+    patch:
+      summary: Mark notifications as read
+      tags: [Notifications]
+      parameters:
+        - in: query
+          name: user_id
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                read: { type: boolean }
+      responses:
+        '200':
+          description: Updated
+
+  # ─── PROGRESS ────────────────────────────────────────
+  /user_tries:
+    get:
+      summary: Get user tries
+      tags: [Progress]
+      parameters:
+        - in: query
+          name: user_id
+          schema: { type: string }
+        - in: query
+          name: project_id
+          schema: { type: string }
+        - in: query
+          name: session_id
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of user tries
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/UserTry' }
+    post:
+      summary: Record user try
+      tags: [Progress]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserTry' }
+      responses:
+        '201':
+          description: Try recorded
+
+  /activity_logs:
+    get:
+      summary: Get activity logs
+      tags: [Progress]
+      parameters:
+        - in: query
+          name: user_id
+          schema: { type: string }
+        - in: query
+          name: resource_type
+          schema: { type: string }
+      responses:
+        '200':
+          description: Activity logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ActivityLog' }
+    post:
+      summary: Log activity
+      tags: [Progress]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActivityLog' }
+      responses:
+        '201':
+          description: Logged
+
+  # ─── REPORTS ─────────────────────────────────────────
+  /reports:
+    get:
+      summary: Get reports
+      tags: [Reports]
+      parameters:
+        - in: query
+          name: teacher_id
+          schema: { type: string }
+        - in: query
+          name: organization_id
+          schema: { type: string }
+        - in: query
+          name: type
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Report' }
+    post:
+      summary: Create report
+      tags: [Reports]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Report' }
+      responses:
+        '201':
+          description: Report created
+
+  # ─── ADMIN ───────────────────────────────────────────
+  /admin/users:
+    get:
+      summary: Get all users (super admin only)
+      tags: [Admin]
+      parameters:
+        - in: query
+          name: role
+          schema: { type: string }
+        - in: query
+          name: organization_id
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of all users
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Profile' }
+        '403':
+          description: Forbidden - super admin only
+
+  /admin/users/role:
+    patch:
+      summary: Update user role (super admin only)
+      tags: [Admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, role]
+              properties:
+                user_id: { type: string, format: uuid }
+                role:
+                  type: string
+                  enum: [student, teacher, school_admin, super_admin]
+      responses:
+        '200':
+          description: Role updated
+        '403':
+          description: Forbidden

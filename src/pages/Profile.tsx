@@ -1,3 +1,4 @@
+import { AppLayout } from '@/components/layouts/AppLayout';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -76,6 +77,7 @@ export function Profile() {
   };
 
   return (
+    <AppLayout>
     <div className="container mx-auto py-8 px-4 max-w-2xl">
       <div className="space-y-6">
         <Card>
@@ -166,5 +168,6 @@ export function Profile() {
         </Card>
       </div>
     </div>
+    </AppLayout>
   );
 }
