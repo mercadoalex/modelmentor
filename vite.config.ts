@@ -31,7 +31,7 @@ export default defineConfig(async () => {
       },
     },
     build: {
-      cssMinify: 'esbuild',
+      cssMinify: false, // rolldown-vite overrides esbuild setting, disable entirely for production
     },
   };
 });
