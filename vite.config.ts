@@ -4,7 +4,6 @@ import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
 import path from "path";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
@@ -21,5 +20,8 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  build: {
+    cssMinify: 'esbuild', // use esbuild instead of lightningcss — avoids Tailwind arbitrary value parsing errors
   },
 });
