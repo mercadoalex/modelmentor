@@ -52,6 +52,7 @@
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.7",
     "ky": "^1.13.0",
+    "lightningcss": "^1.32.0",
     "lucide-react": "^0.576.0",
     "miaoda-auth-react": "2.0.6",
     "miaoda-sc-plugin": "1.0.61",
