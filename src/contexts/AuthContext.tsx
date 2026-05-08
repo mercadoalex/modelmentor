@@ -1,7 +1,7 @@
 const signIn = async (username: string, password: string) => {
     try {
       // If input looks like an email, use it directly, otherwise convert
-      const email = username.includes('@') ? username : `${username}@miaoda.com`;
+      const email = username.includes('@') ? username : `${username}@modelmentor.app`;
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (username: string, password: string) => {
     try {
       // Convert username to email format
-      const email = `${username}@miaoda.com`;
+      const email = `${username}@modelmentor.app`;
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Convert username to email format
-      const email = `${username}@miaoda.com`;
+      const email = `${username}@modelmentor.app`;
       const { error } = await supabase.auth.signUp({
         email,
         password,
