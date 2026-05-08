@@ -1,13 +1,13 @@
 import { defineConfig } from "vite";
-import { miaodaDevPlugin } from "miaoda-sc-plugin";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
 import path from "path";
 
-export default defineConfig({
-  plugins: [
+const isDev = process.env.NODE_ENV === 'development';
+
+export default defineConfig(async () => {
+  const plugins = [
     react(),
-    miaodaDevPlugin(),
     svgr({
       svgrOptions: {
         icon: true,
@@ -15,13 +15,23 @@ export default defineConfig({
         namedExport: "ReactComponent",
       },
     }),
-  ],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+  ];
+
+  // Only load Miaoda plugin in development — it forces rolldown-vite which breaks CSS minification
+  if (isDev) {
+    const { miaodaDevPlugin } = await import("miaoda-sc-plugin");
+    plugins.unshift(miaodaDevPlugin());
+  }
+
+  return {
+    plugins,
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+      },
     },
-  },
-  build: {
-    cssMinify: 'esbuild', // use esbuild instead of lightningcss — avoids Tailwind arbitrary value parsing errors
-  },
+    build: {
+      cssMinify: 'esbuild',
+    },
+  };
 });
