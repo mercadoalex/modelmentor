@@ -31,6 +31,7 @@ import ConceptsVisualizerPage from './pages/ConceptsVisualizerPage';
 import TeacherQuestionGeneratorPage from './pages/TeacherQuestionGeneratorPage';
 import { SuperAdminDashboardPage } from './pages/SuperAdminDashboardPage';
 import type { ReactNode } from 'react';
+import PricingPage from './pages/PricingPage';
 
 export interface RouteConfig {
   name: string;
@@ -247,5 +248,12 @@ export const routes: RouteConfig[] = [
     element: <SuperAdminDashboardPage />,
     visible: true,
     public: false,
+  },
+  {
+  name:    'Pricing',
+  path:    '/pricing',
+  element: <PricingPage />,
+  visible: true,
+  public:  true,
   },
 ];
