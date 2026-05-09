@@ -1,0 +1,1 @@
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_guided_tour BOOLEAN NOT NULL DEFAULT false;
