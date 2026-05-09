@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { AppLayout } from '@/components/layouts/AppLayout';
@@ -20,7 +20,6 @@ import { FeatureImportancePanel } from '@/components/data/FeatureImportancePanel
 import { FeatureEngineeringPanel } from '@/components/data/FeatureEngineeringPanel';
 import { FeatureEngineeringWorkshop } from '@/components/data/FeatureEngineeringWorkshop';
 import { AdvancedFeatureInteractionAnalysis } from '@/components/data/AdvancedFeatureInteractionAnalysis';
-// Rich template panel — replaces the old plain "Sample Datasets" card
 import { DatasetTemplatesPanel, type DatasetTemplate } from '@/components/data/DatasetTemplatesPanel';
 import { projectService, datasetService, sampleDatasetService, storageService } from '@/services/supabase';
 import { dataValidationService } from '@/services/dataValidationService';
@@ -31,15 +30,15 @@ import { toast } from 'sonner';
 import type { Project, SampleDataset } from '@/types/types';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Workflow step definitions (used by MLWorkflowVisualizer at the top of page)
+// Workflow step definitions — drives the MLWorkflowVisualizer progress bar
 // ─────────────────────────────────────────────────────────────────────────────
 const workflowSteps = [
-  { id: 'describe', title: 'Describe',     description: 'Define your ML project goals',   icon: FileText     },
-  { id: 'data',     title: 'Input Data',   description: 'Upload or select training data', icon: Database     },
+  { id: 'describe', title: 'Describe',     description: 'Define your ML project goals',   icon: FileText      },
+  { id: 'data',     title: 'Input Data',   description: 'Upload or select training data', icon: Database      },
   { id: 'learn',    title: 'Learn',        description: 'Understand ML concepts',         icon: GraduationCap },
-  { id: 'train',    title: 'Train Model',  description: 'Train your AI model',            icon: Zap          },
-  { id: 'debug',    title: 'Test & Debug', description: 'Evaluate and refine',            icon: Bug          },
-  { id: 'deploy',   title: 'Deploy',       description: 'Share your model',               icon: Share2       },
+  { id: 'train',    title: 'Train Model',  description: 'Train your AI model',            icon: Zap           },
+  { id: 'debug',    title: 'Test & Debug', description: 'Evaluate and refine',            icon: Bug           },
+  { id: 'deploy',   title: 'Deploy',       description: 'Share your model',               icon: Share2        },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -47,24 +46,25 @@ const workflowSteps = [
 // ─────────────────────────────────────────────────────────────────────────────
 export default function DataCollectionPage() {
   const { projectId } = useParams<{ projectId: string }>();
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { user }      = useAuth();
+  const navigate      = useNavigate();
 
-  // ── State ──────────────────────────────────────────────────────────────────
-  const [project, setProject] = useState<Project | null>(null);
-  // Supabase-backed sample datasets (kept for save logic — template panel handles display)
-  const [sampleDatasets, setSampleDatasets] = useState<SampleDataset[]>([]);
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [selectedSample, setSelectedSample] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  // Parsed CSV rows (first row = headers)
-  const [csvData, setCsvData] = useState<string[][] | null>(null);
-  const [validation, setValidation] = useState<DataValidationResult | null>(null);
-  const [showPreview, setShowPreview] = useState(false);
-  // Feature selection state passed down to FeatureEngineeringPanel
+  // ── Core state ─────────────────────────────────────────────────────────────
+  const [project,          setProject]          = useState<Project | null>(null);
+  const [sampleDatasets,   setSampleDatasets]   = useState<SampleDataset[]>([]);
+  const [uploadedFiles,    setUploadedFiles]    = useState<File[]>([]);
+  const [uploadProgress,   setUploadProgress]   = useState(0);
+  const [selectedSample,   setSelectedSample]   = useState<string | null>(null);
+  const [loading,          setLoading]          = useState(false);
+
+  // ── CSV / validation state ─────────────────────────────────────────────────
+  const [csvData,          setCsvData]          = useState<string[][] | null>(null);
+  const [validation,       setValidation]       = useState<DataValidationResult | null>(null);
+  const [showPreview,      setShowPreview]      = useState(false);
+
+  // ── Feature engineering state ──────────────────────────────────────────────
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
-  const [targetColumn, setTargetColumn] = useState<string>('');
+  const [targetColumn,     setTargetColumn]     = useState<string>('');
 
   // ── Load project on mount ──────────────────────────────────────────────────
   useEffect(() => {
@@ -78,16 +78,76 @@ export default function DataCollectionPage() {
     if (projectData) {
       setProject(projectData);
 
-      // Still fetch DB samples so guided-tour auto-select still works
+      // Fetch sample datasets so guided-tour auto-select works
       const samples = await sampleDatasetService.list(projectData.model_type);
       setSampleDatasets(samples);
 
-      // Auto-select first sample in guided tour mode
+      // Guided tour: pre-select first available sample dataset
       if (projectData.is_guided_tour && samples.length > 0) {
         setSelectedSample(samples[0].id);
       }
     }
   };
+
+  // ── Guided tour: auto-advance to Learning after sample is selected ─────────
+  // Wrapping handleContinue in useCallback so it can safely be used in deps
+  const handleContinue = useCallback(async () => {
+    if (!project || !projectId) return;
+
+    if (!selectedSample && uploadedFiles.length === 0) {
+      toast.error('Please upload files or select a sample dataset');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      let fileUrls: string[] = [];
+
+      // Upload any manually-dropped files to Supabase storage
+      if (uploadedFiles.length > 0) {
+        const userId = user?.id || 'anonymous';
+
+        for (let i = 0; i < uploadedFiles.length; i++) {
+          const url = await storageService.uploadImage(uploadedFiles[i], userId);
+          fileUrls.push(url);
+          setUploadProgress(((i + 1) / uploadedFiles.length) * 100);
+        }
+      }
+
+      // Persist dataset record linking project → sample or uploaded files
+      await datasetService.create({
+        project_id:        projectId,
+        sample_dataset_id: selectedSample,
+        file_urls:         fileUrls,
+        labels:            [],
+        sample_count:      selectedSample
+          ? sampleDatasets.find(s => s.id === selectedSample)?.sample_count || 0
+          : uploadedFiles.length,
+      });
+
+      // Advance project status and navigate to the Learning step
+      await projectService.update(projectId, { status: 'learning' });
+      navigate(`/project/${projectId}/learning`);
+    } catch (error) {
+      toast.error('Failed to save dataset');
+      console.error(error);
+    } finally {
+      setLoading(false);
+      setUploadProgress(0);
+    }
+  }, [project, projectId, selectedSample, uploadedFiles, sampleDatasets, user, navigate]);
+
+  // Auto-advance guided tour 2 seconds after sample is auto-selected
+  useEffect(() => {
+    if (!project?.is_guided_tour || !selectedSample || loading) return;
+
+    const timer = setTimeout(() => {
+      handleContinue();
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [project?.is_guided_tour, selectedSample, loading, handleContinue]);
 
   // ── File drop handler ──────────────────────────────────────────────────────
   const onDrop = async (acceptedFiles: File[]) => {
@@ -104,7 +164,7 @@ export default function DataCollectionPage() {
           continue;
         }
 
-        // Compress images larger than 1 MB to improve upload speed
+        // Compress images > 1 MB to improve upload speed
         if (file.size > 1024 * 1024) {
           try {
             const compressed = await imageCompression.compressImage(file);
@@ -117,22 +177,20 @@ export default function DataCollectionPage() {
           validFiles.push(file);
         }
       } else {
-        // For CSV files: parse and validate immediately so preview appears
+        // CSV files: parse and validate immediately so preview appears
         if (file.name.endsWith('.csv')) {
           try {
-            const text = await file.text();
-            const parsedData = dataValidationService.parseCSV(text);
+            const text            = await file.text();
+            const parsedData      = dataValidationService.parseCSV(text);
             const validationResult = dataValidationService.validateData(parsedData);
 
             setCsvData(parsedData);
             setValidation(validationResult);
             setShowPreview(true);
 
-            if (validationResult.qualityScore >= 60) {
-              toast.success(`${file.name} uploaded successfully! Quality score: ${validationResult.qualityScore}`);
-            } else {
-              toast.warning(`${file.name} uploaded with quality issues. Score: ${validationResult.qualityScore}`);
-            }
+            validationResult.qualityScore >= 60
+              ? toast.success(`${file.name} uploaded! Quality score: ${validationResult.qualityScore}`)
+              : toast.warning(`${file.name} has quality issues. Score: ${validationResult.qualityScore}`);
           } catch {
             toast.error(`Failed to parse ${file.name}`);
             continue;
@@ -163,19 +221,19 @@ export default function DataCollectionPage() {
   /**
    * Called by DatasetTemplatesPanel when the user clicks "Use This Dataset".
    * Parses the generated CSV and injects it into the same state as a manual
-   * upload — so all downstream tabs (preview, cleaning, features…) work
+   * upload so all downstream tabs (preview, cleaning, features…) work
    * without any changes.
    */
   const handleLoadTemplate = (csvText: string, filename: string, template: DatasetTemplate) => {
     try {
-      const parsedData = dataValidationService.parseCSV(csvText);
+      const parsedData       = dataValidationService.parseCSV(csvText);
       const validationResult = dataValidationService.validateData(parsedData);
 
       setCsvData(parsedData);
       setValidation(validationResult);
       setShowPreview(true);
 
-      // Wrap in a File so the existing handleContinue upload logic works unchanged
+      // Wrap in a File so handleContinue upload logic works unchanged
       const blob = new Blob([csvText], { type: 'text/csv' });
       const file = new File([blob], filename, { type: 'text/csv' });
       setUploadedFiles([file]);
@@ -197,7 +255,6 @@ export default function DataCollectionPage() {
     const newValidation = dataValidationService.validateData(cleanedData);
     setValidation(newValidation);
 
-    // Log operations for debugging purposes
     console.debug('Cleaning operations applied:', operations);
 
     if (validation && newValidation.qualityScore > validation.qualityScore) {
@@ -226,54 +283,7 @@ export default function DataCollectionPage() {
     toast.success(`Created ${newColumns.length} new features. Dataset updated!`);
   };
 
-  // ── Continue to next step ──────────────────────────────────────────────────
-  const handleContinue = async () => {
-    if (!project || !projectId) return;
-
-    if (!selectedSample && uploadedFiles.length === 0) {
-      toast.error('Please upload files or select a sample dataset');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      let fileUrls: string[] = [];
-
-      // Upload files to storage if any were provided
-      if (uploadedFiles.length > 0) {
-        const userId = user?.id || 'anonymous';
-
-        for (let i = 0; i < uploadedFiles.length; i++) {
-          const url = await storageService.uploadImage(uploadedFiles[i], userId);
-          fileUrls.push(url);
-          setUploadProgress(((i + 1) / uploadedFiles.length) * 100);
-        }
-      }
-
-      // Save dataset record to Supabase
-      await datasetService.create({
-        project_id: projectId,
-        sample_dataset_id: selectedSample,
-        file_urls: fileUrls,
-        labels: [],
-        sample_count: selectedSample
-          ? sampleDatasets.find(s => s.id === selectedSample)?.sample_count || 0
-          : uploadedFiles.length,
-      });
-
-      await projectService.update(projectId, { status: 'learning' });
-      navigate(`/project/${projectId}/learning`);
-    } catch (error) {
-      toast.error('Failed to save dataset');
-      console.error(error);
-    } finally {
-      setLoading(false);
-      setUploadProgress(0);
-    }
-  };
-
-  // ── Loading / project-not-found state ─────────────────────────────────────
+  // ── Loading / project-not-found guard ─────────────────────────────────────
   if (!project) {
     return (
       <AppLayout>
@@ -311,12 +321,13 @@ export default function DataCollectionPage() {
             <p className="text-muted-foreground">{project.title}</p>
           </div>
 
-          {/* ── Guided tour banner ── */}
+          {/* ── Guided tour banner — shown only in tour mode ── */}
           {project.is_guided_tour && (
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Guided Tour Mode: We've pre-selected a sample dataset for you. You can also upload your own data.
+                🎓 <strong>Guided Tour Mode:</strong> A sample dataset has been pre-selected for you.
+                Advancing to the next step automatically in a moment…
               </AlertDescription>
             </Alert>
           )}
@@ -334,7 +345,7 @@ export default function DataCollectionPage() {
                 <CardDescription>
                   {project.model_type === 'image_classification' && `Upload at least ${minSamples} images (JPG, PNG, GIF, WEBP)`}
                   {project.model_type === 'text_classification' && `Upload at least ${minSamples} text samples (TXT, CSV)`}
-                  {project.model_type === 'regression' && `Upload at least ${minSamples} data points (CSV)`}
+                  {project.model_type === 'regression'           && `Upload at least ${minSamples} data points (CSV)`}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -373,14 +384,14 @@ export default function DataCollectionPage() {
                 {/* Upload progress bar */}
                 {uploadProgress > 0 && uploadProgress < 100 && (
                   <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Uploading...</p>
+                    <p className="text-sm text-muted-foreground">Uploading…</p>
                     <Progress value={uploadProgress} />
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Right: Dataset Templates panel (replaces old "Sample Datasets" card) */}
+            {/* Right: Dataset Templates panel */}
             <DatasetTemplatesPanel
               modelType={project.model_type}
               onLoadDataset={handleLoadTemplate}
@@ -414,7 +425,7 @@ export default function DataCollectionPage() {
                 </TabsList>
 
                 {/* Raw data table — first 10 rows */}
-                <TabsContent value="preview" className="space-y-4">
+                <TabsContent value="preview">
                   <DataPreviewTable
                     headers={csvData[0]}
                     rows={csvData.slice(1)}
@@ -424,22 +435,22 @@ export default function DataCollectionPage() {
                 </TabsContent>
 
                 {/* Quality score + issue list */}
-                <TabsContent value="validation" className="space-y-4">
+                <TabsContent value="validation">
                   <DataValidationDisplay validation={validation} />
                 </TabsContent>
 
-                {/* Per-column stats (min/max/mean/nulls…) */}
-                <TabsContent value="statistics" className="space-y-4">
+                {/* Per-column stats: min/max/mean/nulls */}
+                <TabsContent value="statistics">
                   <ColumnStatistics columnInfo={validation.columnInfo} />
                 </TabsContent>
 
                 {/* Distributions, correlations, outliers */}
-                <TabsContent value="profiling" className="space-y-4">
+                <TabsContent value="profiling">
                   <DataProfilingPanel data={csvData} columnInfo={validation.columnInfo} />
                 </TabsContent>
 
                 {/* Feature importance + target selection */}
-                <TabsContent value="features" className="space-y-4">
+                <TabsContent value="features">
                   <FeatureImportancePanel
                     data={csvData}
                     columnInfo={validation.columnInfo}
@@ -447,8 +458,8 @@ export default function DataCollectionPage() {
                   />
                 </TabsContent>
 
-                {/* Automated transformations (log, scale, encode…) */}
-                <TabsContent value="engineering" className="space-y-4">
+                {/* Automated transformations: log, scale, encode */}
+                <TabsContent value="engineering">
                   <FeatureEngineeringPanel
                     data={csvData}
                     columnInfo={validation.columnInfo}
@@ -458,17 +469,17 @@ export default function DataCollectionPage() {
                 </TabsContent>
 
                 {/* Interactive feature engineering playground */}
-                <TabsContent value="workshop" className="space-y-4">
+                <TabsContent value="workshop">
                   <FeatureEngineeringWorkshop />
                 </TabsContent>
 
                 {/* Advanced interaction analysis */}
-                <TabsContent value="interactions" className="space-y-4">
+                <TabsContent value="interactions">
                   <AdvancedFeatureInteractionAnalysis />
                 </TabsContent>
 
                 {/* Imputation, deduplication, outlier removal */}
-                <TabsContent value="cleaning" className="space-y-4">
+                <TabsContent value="cleaning">
                   <DataCleaningPanel
                     data={csvData}
                     columnInfo={validation.columnInfo}
@@ -489,7 +500,7 @@ export default function DataCollectionPage() {
                     {hasEnoughData
                       ? validation && !validation.isValid
                         ? 'Please fix critical data issues before proceeding'
-                        : 'Ready to proceed to learning module'
+                        : 'Ready to proceed to the learning module'
                       : `Need at least ${minSamples} samples to continue`}
                   </p>
                 </div>
@@ -498,7 +509,7 @@ export default function DataCollectionPage() {
                   disabled={!hasEnoughData || loading || (validation !== null && !validation.isValid)}
                   size="lg"
                 >
-                  Continue to Learning
+                  {loading ? 'Saving…' : 'Continue to Learning'}
                   <ArrowRight className="h-5 w-5 ml-2" />
                 </Button>
               </div>
