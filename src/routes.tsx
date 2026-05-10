@@ -252,8 +252,11 @@ export const routes: RouteConfig[] = [
     public: false,
   },
     {
+    name:    'Bulk User Import',
     path:    '/admin/bulk-import',
     element: <BulkUserImportPage />,
+    visible: false,
+    public:  false,
   },
   {
   name:    'Pricing',
