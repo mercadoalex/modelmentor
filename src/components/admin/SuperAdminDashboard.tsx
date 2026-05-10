@@ -1,14 +1,17 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { InstitutionManagement } from '@/components/admin/InstitutionManagement';
-import { CollegeManagement } from '@/components/admin/CollegeManagement';
-import { GroupManagement } from '@/components/admin/GroupManagement';
-import { Building2, GraduationCap, Users, Network } from 'lucide-react';
-import { organizationService } from '@/services/superAdminService';
+import { CollegeManagement }     from '@/components/admin/CollegeManagement';
+import { GroupManagement }       from '@/components/admin/GroupManagement';
+import { Building2, GraduationCap, Users, Network, Upload } from 'lucide-react';
+import { organizationService }   from '@/services/superAdminService';
 
 export function SuperAdminDashboard() {
+  const navigate = useNavigate();
+
   useEffect(() => {
-    // Initialize sample data if needed
     const initData = async () => {
       try {
         await organizationService.initializeSampleData();
@@ -21,11 +24,19 @@ export function SuperAdminDashboard() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-balance">Super Admin Dashboard</h1>
-        <p className="text-muted-foreground text-pretty">
-          Manage institutions, colleges, and groups across the organization
-        </p>
+      <div className="mb-8 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-3xl font-bold text-balance">Super Admin Dashboard</h1>
+          <p className="text-muted-foreground text-pretty">
+            Manage institutions, colleges, and groups across the organization
+          </p>
+        </div>
+
+        {/* Quick actions */}
+        <Button onClick={() => navigate('/admin/bulk-import')}>
+          <Upload className="h-4 w-4 mr-2" />
+          Bulk User Import
+        </Button>
       </div>
 
       <Tabs defaultValue="institutions" className="space-y-6">
