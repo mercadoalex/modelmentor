@@ -33,6 +33,7 @@ import { SuperAdminDashboardPage } from './pages/SuperAdminDashboardPage';
 import type { ReactNode } from 'react';
 import PricingPage from './pages/PricingPage';
 import BulkUserImportPage from './pages/BulkUserImportPage';
+import SharedConfigurationPage from './pages/SharedConfigurationPage';
 
 
 export interface RouteConfig {
@@ -264,5 +265,12 @@ export const routes: RouteConfig[] = [
   element: <PricingPage />,
   visible: true,
   public:  true,
+  },
+  {
+    name:    'Shared Configuration',
+    path:    '/sandbox/shared/:token',
+    element: <SharedConfigurationPage />,
+    visible: false,
+    public:  true,
   },
 ];
