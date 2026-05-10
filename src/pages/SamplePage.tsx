@@ -1,16 +1,18 @@
+import React from 'react';
+
 /**
- * Sample Page
+ * SamplePage
+ * - Intended as a sample or template page.
+ * - Replace the placeholder with actual sample content or use as a template for new pages.
  */
-
-import PageMeta from "../components/common/PageMeta";
-
 export default function SamplePage() {
   return (
-    <>
-      <PageMeta title="Home" description="Home Page Introduction" />
-      <div>
-        <h3>This is a sample page</h3>
-      </div>
-    </>
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-4">Sample Page</h1>
+      <p>
+        {/* TODO: Implement sample content here */}
+        This is a sample page. Implementation coming soon.
+      </p>
+    </div>
   );
 }

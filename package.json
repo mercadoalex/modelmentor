@@ -7,7 +7,7 @@
     "dev": "echo 'Do not use this command, only use lint to check'",
     "build": "NODE_ENV=production vite build",
     "lint": "tsgo -p tsconfig.check.json; npx biome lint; .rules/check.sh;npx tailwindcss -i ./src/index.css -o /dev/null 2>&1 | grep -E '^(CssSyntaxError|Error):.*' || true;.rules/testBuild.sh"
-  },  
+  },
   "overrides": {
     "vite": "5.4.21"
   },
@@ -42,7 +42,7 @@
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@supabase/ssr": "^0.10.2",
-    "@supabase/supabase-js": "^2.105.3",
+    "@supabase/supabase-js": "^2.105.4",
     "@tensorflow/tfjs": "^4.22.0",
     "axios": "^1.13.1",
     "chart.js": "^4.5.1",
@@ -67,6 +67,7 @@
     "react-dom": "^18.0.0",
     "react-dropzone": "^14.3.8",
     "react-easy-crop": "^5.5.7",
+    "react-force-graph": "^1.48.2",
     "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.66.0",
     "react-resizable-panels": "^2.1.8",

@@ -1,19 +1,18 @@
-import { AppLayout } from '@/components/layouts/AppLayout';
-import { KaggleDatasetSearch } from '@/components/KaggleDatasetSearch';
+import React from 'react';
 
+/**
+ * KaggleDatasetsPage
+ * - Intended to list and manage Kaggle datasets.
+ * - Replace the placeholder with actual dataset listing and management logic.
+ */
 export default function KaggleDatasetsPage() {
   return (
-    <AppLayout>
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold">Kaggle Datasets</h1>
-          <p className="text-muted-foreground">
-            Discover and explore datasets from Kaggle's extensive collection
-          </p>
-        </div>
-
-        <KaggleDatasetSearch />
-      </div>
-    </AppLayout>
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-4">Kaggle Datasets</h1>
+      <p>
+        {/* TODO: Implement Kaggle datasets listing here */}
+        This page will list and manage Kaggle datasets. Implementation coming soon.
+      </p>
+    </div>
   );
 }
