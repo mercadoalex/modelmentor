@@ -98,11 +98,11 @@ export const configurationService = {
   async getByShareToken(token: string): Promise<SandboxConfiguration | null> {
     const { data, error } = await supabase
       .from('shared_configurations')
-      .select('sandbox_configurations(*)')
+      .select('*, sandbox_configurations(*)')
       .eq('share_token', token)
-      .maybeSingle();
+      .single();
 
-    if (error) throw error;
-    return (data as any)?.sandbox_configurations ?? null;
+    if (error || !data) return null;
+    return data.sandbox_configurations as SandboxConfiguration;
   },
 };

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { LayoutDashboard, Users, AlertTriangle, TrendingUp, Eye, FileText, Download, Shield } from 'lucide-react';
+import { LayoutDashboard, Users, AlertTriangle, TrendingUp, Eye, FileText, Download, Shield, CheckSquare } from 'lucide-react';
 import { BarChart } from '@/components/charts/ChartComponents';
 import { dashboardService } from '@/services/dashboardService';
 import { exportStudentProgressPDF, exportClassSummaryPDF } from '@/utils/pdfExport';
@@ -29,8 +29,10 @@ export default function TeacherDashboardPage() {
     }
 
     loadDashboardData();
+    // eslint-disable-next-line
   }, [user, profile, navigate]);
 
+  // Loads dashboard data for students and class stats
   const loadDashboardData = async () => {
     setLoading(true);
     const progress = await dashboardService.getAllStudentsProgress();
@@ -40,6 +42,7 @@ export default function TeacherDashboardPage() {
     setLoading(false);
   };
 
+  // Maps concept keys to readable labels
   const getConceptLabel = (concept: string) => {
     const labels: Record<string, string> = {
       gradient_descent: 'Gradient Descent',
@@ -51,14 +54,17 @@ export default function TeacherDashboardPage() {
     return labels[concept] || concept;
   };
 
+  // Navigates to student detail page
   const handleViewStudent = (studentId: string) => {
     navigate(`/dashboard/student/${studentId}`);
   };
 
+  // Navigates to reports page
   const handleGenerateReport = () => {
     navigate('/dashboard/reports');
   };
 
+  // Exports all students' progress as PDF
   const handleExportAllStudents = () => {
     if (studentsProgress.length === 0) {
       toast.error('No student data available to export');
@@ -346,6 +352,18 @@ export default function TeacherDashboardPage() {
                     </div>
                     <Button variant="ghost" size="sm" onClick={() => handleViewStudent(progress.student.id)}>
                       <Eye className="h-4 w-4" />
+                    </Button>
+                    {/* Grading Button: links to assignment grading for this student */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={e => {
+                        e.stopPropagation();
+                        navigate(`/admin/assignment-grading/${progress.student.id}`);
+                      }}
+                    >
+                      <CheckSquare className="h-4 w-4 mr-1" />
+                      Grade Submissions
                     </Button>
                   </div>
                 </div>

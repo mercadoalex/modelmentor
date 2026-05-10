@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { supabase } from '@/db/supabase';
-import { Search, Calendar, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { Search, Calendar, CheckCircle2, Clock, AlertCircle, Paperclip } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { SandboxConfiguration, AssignmentCompletion, AssignmentStatus } from '@/types/types';
+import { assignmentService, AssignmentWithCompletion } from '@/services/assignmentService';
 
 interface MyAssignmentsProps {
   open: boolean;
@@ -23,11 +24,14 @@ interface MyAssignmentsProps {
   modelType: string;
 }
 
-interface AssignmentWithCompletion extends SandboxConfiguration {
-  completion?: AssignmentCompletion;
-  status: AssignmentStatus;
-}
-
+/**
+ * MyAssignments component
+ * - Shows assignments for the logged-in student
+ * - Allows filtering, searching, loading, and marking assignments as completed
+ * - Allows file upload for assignment submissions (PDFs, images, code, etc.)
+ * - Displays teacher feedback and grade if available
+ * - Uses assignmentService for all DB operations
+ */
 export function MyAssignments({
   open,
   onOpenChange,
@@ -39,60 +43,27 @@ export function MyAssignments({
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [dueDateFilter, setDueDateFilter] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Load assignments when dialog opens
   useEffect(() => {
     if (open) {
       loadAssignments();
     }
   }, [open]);
 
+  // Loads assignments and their completion status for the current user
   const loadAssignments = async () => {
     setIsLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
       if (!user) {
         toast.error('You must be logged in to view assignments');
         return;
       }
-
-      // Load all assignments for this model type
-      const { data: configs, error: configError } = await supabase
-        .from('sandbox_configurations')
-        .select('*')
-        .eq('is_assignment', true)
-        .eq('model_type', modelType)
-        .order('created_at', { ascending: false });
-
-      if (configError) throw configError;
-
-      // Load completion status for each assignment
-      const { data: completions, error: completionError } = await supabase
-        .from('assignment_completions')
-        .select('*')
-        .eq('student_id', user.id);
-
-      if (completionError) throw completionError;
-
-      // Merge assignments with completion status
-      const assignmentsWithStatus: AssignmentWithCompletion[] = (configs || []).map((config) => {
-        const completion = completions?.find((c) => c.configuration_id === config.id);
-        let status: AssignmentStatus = 'not_started';
-        
-        if (completion?.completed_at) {
-          status = 'completed';
-        } else if (completion?.loaded_at) {
-          status = 'in_progress';
-        }
-
-        return {
-          ...config,
-          completion,
-          status,
-        };
-      });
-
-      setAssignments(assignmentsWithStatus);
+      const assignments = await assignmentService.getStudentAssignments(user.id, modelType);
+      setAssignments(assignments);
     } catch (error) {
       console.error('Error loading assignments:', error);
       toast.error('Failed to load assignments');
@@ -101,33 +72,13 @@ export function MyAssignments({
     }
   };
 
+  // Handles loading an assignment (marks as loaded in DB)
   const handleLoadAssignment = async (assignment: AssignmentWithCompletion) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Track that assignment was loaded
-      const now = new Date().toISOString();
-      
-      if (assignment.completion) {
-        // Update existing completion record
-        await supabase
-          .from('assignment_completions')
-          .update({
-            loaded_at: assignment.completion.loaded_at || now,
-            updated_at: now,
-          })
-          .eq('id', assignment.completion.id);
-      } else {
-        // Create new completion record
-        await supabase
-          .from('assignment_completions')
-          .insert({
-            configuration_id: assignment.id,
-            student_id: user.id,
-            loaded_at: now,
-          });
-      }
+      await assignmentService.markAssignmentLoaded(assignment.id, user.id);
 
       onLoadAssignment(assignment, assignment.assignment_instructions || '');
       onOpenChange(false);
@@ -138,6 +89,7 @@ export function MyAssignments({
     }
   };
 
+  // Handles marking an assignment as completed (updates DB)
   const handleMarkCompleted = async (assignment: AssignmentWithCompletion) => {
     if (!assignment.completion?.loaded_at) {
       toast.error('Please load the assignment first before marking it as completed');
@@ -145,21 +97,18 @@ export function MyAssignments({
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      await assignmentService.markAssignmentCompleted(
+        assignment.completion.id,
+        assignment.completion.loaded_at
+      );
 
-      const now = new Date().toISOString();
-      const loadedAt = new Date(assignment.completion.loaded_at);
-      const timeSpentSeconds = Math.floor((new Date(now).getTime() - loadedAt.getTime()) / 1000);
-
-      await supabase
-        .from('assignment_completions')
-        .update({
-          completed_at: now,
-          time_spent_seconds: timeSpentSeconds,
-          updated_at: now,
-        })
-        .eq('id', assignment.completion.id);
+      // (Optional) Notify teacher when a student submits
+      // await supabase.from('notifications').insert({
+      //   user_id: 'TEACHER_ID', // Replace with actual teacher ID
+      //   type: 'assignment_submitted',
+      //   message: `A student submitted assignment "${assignment.assignment_title || assignment.name}"`,
+      //   link: `/admin/assignment-grading/${assignment.id}`,
+      // });
 
       toast.success('Assignment marked as completed!');
       loadAssignments();
@@ -169,6 +118,48 @@ export function MyAssignments({
     }
   };
 
+  /**
+   * Handles file upload for assignment submission.
+   * Uploads to Supabase Storage and saves the file URL in assignment_completions.
+   */
+  const handleFileUpload = async (assignment: AssignmentWithCompletion, file: File) => {
+    if (!assignment.completion) {
+      toast.error('Please load the assignment before uploading a file.');
+      return;
+    }
+    setUploadingId(assignment.id);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Upload file to Supabase Storage
+      const filePath = `${user.id}/${assignment.id}/${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('assignment-submissions')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data } = supabase.storage.from('assignment-submissions').getPublicUrl(filePath);
+
+      // Save file URL to assignment_completions
+      await supabase
+        .from('assignment_completions')
+        .update({ file_url: data.publicUrl })
+        .eq('id', assignment.completion.id);
+
+      toast.success('File uploaded successfully!');
+      loadAssignments();
+    } catch (error) {
+      toast.error('File upload failed');
+      console.error(error);
+    } finally {
+      setUploadingId(null);
+    }
+  };
+
+  // Returns a badge for assignment status
   const getStatusBadge = (status: AssignmentStatus) => {
     switch (status) {
       case 'completed':
@@ -180,11 +171,13 @@ export function MyAssignments({
     }
   };
 
+  // Checks if an assignment is overdue
   const isOverdue = (dueDate: string | null) => {
     if (!dueDate) return false;
     return new Date(dueDate) < new Date();
   };
 
+  // Filters assignments based on search and filters
   const filteredAssignments = assignments.filter((assignment) => {
     // Search filter
     const matchesSearch =
@@ -345,8 +338,22 @@ export function MyAssignments({
                     </div>
                   </div>
 
+                  {/* Teacher Feedback and Grade */}
+                  {assignment.completion?.grade !== null && (
+                    <div className="text-sm mt-2">
+                      <span className="font-medium">Grade: </span>
+                      <span>{assignment.completion.grade}</span>
+                    </div>
+                  )}
+                  {assignment.completion?.feedback && (
+                    <div className="text-sm mt-1">
+                      <span className="font-medium">Feedback: </span>
+                      <span>{assignment.completion.feedback}</span>
+                    </div>
+                  )}
+
                   {/* Actions */}
-                  <div className="flex gap-2 pt-2">
+                  <div className="flex gap-2 pt-2 flex-wrap">
                     <Button
                       size="sm"
                       onClick={() => handleLoadAssignment(assignment)}
@@ -355,14 +362,45 @@ export function MyAssignments({
                       Load Assignment
                     </Button>
                     {assignment.status === 'in_progress' && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleMarkCompleted(assignment)}
-                      >
-                        <CheckCircle2 className="h-4 w-4 mr-1" />
-                        Mark as Completed
-                      </Button>
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleMarkCompleted(assignment)}
+                        >
+                          <CheckCircle2 className="h-4 w-4 mr-1" />
+                          Mark as Completed
+                        </Button>
+                        {/* File upload */}
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          style={{ display: 'none' }}
+                          onChange={e => {
+                            if (e.target.files?.[0]) handleFileUpload(assignment, e.target.files[0]);
+                          }}
+                          accept=".pdf,.png,.jpg,.jpeg,.zip,.py,.ipynb,.txt"
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={uploadingId === assignment.id}
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Paperclip className="h-4 w-4 mr-1" />
+                          {uploadingId === assignment.id ? 'Uploading...' : 'Attach File'}
+                        </Button>
+                        {assignment.completion?.file_url && (
+                          <a
+                            href={assignment.completion.file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs underline ml-2"
+                          >
+                            View Submission
+                          </a>
+                        )}
+                      </>
                     )}
                   </div>
                 </CardContent>

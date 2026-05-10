@@ -1,0 +1,10 @@
+email,firstName,lastName,role,organization,group
+student1@testschool.edu,Alice,Johnson,student,Lincoln High,Section A
+student2@testschool.edu,Bob,Martinez,student,Lincoln High,Section A
+student3@testschool.edu,Carol,Lee,student,Lincoln High,Section B
+teacher1@testschool.edu,David,Smith,teacher,Lincoln High,
+teacher2@testschool.edu,Emma,Wilson,teacher,Lincoln High,
+admin1@testschool.edu,Frank,Brown,admin,Lincoln High,
+bad-email,Invalid,User,student,Lincoln High,Section A
+student4@testschool.edu,Grace,Taylor,unknownrole,Lincoln High,Section B
+,Missing,Email,student,Lincoln High,Section A

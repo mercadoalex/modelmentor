@@ -34,7 +34,8 @@ import type { ReactNode } from 'react';
 import PricingPage from './pages/PricingPage';
 import BulkUserImportPage from './pages/BulkUserImportPage';
 import SharedConfigurationPage from './pages/SharedConfigurationPage';
-
+import AssignmentGradingPage from './pages/AssignmentGradingPage';
+import ModelComparisonDashboard from './pages/ModelComparisonDashboard';
 
 export interface RouteConfig {
   name: string;
@@ -272,5 +273,18 @@ export const routes: RouteConfig[] = [
     element: <SharedConfigurationPage />,
     visible: false,
     public:  true,
-  },
+  },{
+  name: 'Assignment Grading',
+  path: '/admin/assignment-grading/:assignmentId',
+  element: <AssignmentGradingPage />,
+  visible: false,
+  public: false,
+},
+{
+  name: 'Model Comparison',
+  path: '/models/compare',
+  element: <ModelComparisonDashboard />,
+  visible: true,
+  public: false,
+},
 ];
