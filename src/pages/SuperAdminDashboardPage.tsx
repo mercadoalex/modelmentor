@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+// Removed: import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
 import ReactModal from 'react-modal';
@@ -24,9 +24,6 @@ async function logAdminAction(adminId: string, targetUserId: string, action: str
 }
 
 export default function SuperAdminDashboardPage() {
-  // Router for navigation (used for route protection)
-  const router = useRouter();
-
   // State for route protection
   const [authChecked, setAuthChecked] = useState(false);
   const [adminUserId, setAdminUserId] = useState<string | null>(null);
@@ -77,7 +74,7 @@ export default function SuperAdminDashboardPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast.error('You must be logged in.');
-        router.replace('/login');
+        window.location.replace('/login');
         return;
       }
       const { data, error } = await supabase
@@ -87,7 +84,7 @@ export default function SuperAdminDashboardPage() {
         .single();
       if (error || !data || data.role !== 'admin') {
         toast.error('Access denied. Superadmin only.');
-        router.replace('/');
+        window.location.replace('/');
         return;
       }
       setAdminUserId(user.id); // Save admin user id for logging
