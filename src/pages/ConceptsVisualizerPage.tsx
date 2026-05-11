@@ -1,10 +1,18 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
-import dynamic from 'next/dynamic';
+import React, { useEffect, useState, useMemo, useRef, Suspense, lazy } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
-// Dynamically import ForceGraph2D to avoid SSR issues
-const ForceGraph2D = dynamic(() => import('react-force-graph').then(mod => mod.ForceGraph2D), { ssr: false });
 
+// Use React.lazy for code splitting instead of next/dynamic (Vite compatible)
+const ForceGraph2D = lazy(() =>
+  import('react-force-graph').then(mod => ({ default: mod.ForceGraph2D }))
+);
+
+/**
+ * ConceptsVisualizerPage
+ * - Visualizes learning concepts as a force-directed graph.
+ * - Allows searching, viewing, and updating progress on concepts.
+ * - Integrates with Supabase for data and user progress.
+ */
 export default function ConceptsVisualizerPage() {
   // State for concepts and UI
   const [concepts, setConcepts] = useState<any[]>([]);
@@ -207,9 +215,6 @@ export default function ConceptsVisualizerPage() {
     }
   };
 
-  // Handler: Save node positions (optional, for persistent layouts)
-  // You can implement this to save positions to Supabase if desired
-
   return (
     <div className="p-4 md:p-8">
       <h1 className="text-2xl font-bold mb-4">Concepts Visualizer</h1>
@@ -242,84 +247,86 @@ export default function ConceptsVisualizerPage() {
         <>
           {/* Graph Visualization */}
           <div className="relative my-6 border rounded p-2 bg-white" style={{ height: 400 }}>
-            <ForceGraph2D
-              ref={fgRef}
-              graphData={graphData}
-              nodeLabel="name"
-              nodeAutoColorBy="id"
-              linkDirectionalArrowLength={6}
-              linkDirectionalArrowRelPos={1}
-              onNodeClick={node => setSelectedConcept(node)}
-              onNodeHover={node => setHoveredNode(node)}
-              onLinkHover={link => setHoveredLink(link)}
-              enableNodeDrag={true}
-              width={typeof window !== 'undefined' ? window.innerWidth - 64 : 800}
-              height={400}
-              nodeCanvasObject={(node, ctx, globalScale) => {
-                // Highlight selected/related nodes
-                const isHighlighted = node.highlighted;
-                const isHovered = hoveredNode && hoveredNode.id === node.id;
-                const label = node.name;
-                const fontSize = 12 / globalScale;
-                ctx.font = `${fontSize}px Sans-Serif`;
-                ctx.beginPath();
-                ctx.arc(node.x!, node.y!, isHighlighted ? 16 : 12, 0, 2 * Math.PI, false);
-                ctx.fillStyle = isHovered ? '#fef9c3' : isHighlighted ? '#e0f2fe' : '#fff';
-                ctx.fill();
-                ctx.lineWidth = isHighlighted ? 4 : 2;
-                ctx.strokeStyle = node.color || (isHighlighted ? '#0284c7' : '#1d4ed8');
-                ctx.stroke();
-                // Progress ring
-                if (typeof node.progress === 'number') {
+            <Suspense fallback={<div className="text-center text-gray-500">Loading graph...</div>}>
+              <ForceGraph2D
+                ref={fgRef}
+                graphData={graphData}
+                nodeLabel="name"
+                nodeAutoColorBy="id"
+                linkDirectionalArrowLength={6}
+                linkDirectionalArrowRelPos={1}
+                onNodeClick={node => setSelectedConcept(node)}
+                onNodeHover={node => setHoveredNode(node)}
+                onLinkHover={link => setHoveredLink(link)}
+                enableNodeDrag={true}
+                width={typeof window !== 'undefined' ? window.innerWidth - 64 : 800}
+                height={400}
+                nodeCanvasObject={(node, ctx, globalScale) => {
+                  // Highlight selected/related nodes
+                  const isHighlighted = node.highlighted;
+                  const isHovered = hoveredNode && hoveredNode.id === node.id;
+                  const label = node.name;
+                  const fontSize = 12 / globalScale;
+                  ctx.font = `${fontSize}px Sans-Serif`;
                   ctx.beginPath();
-                  ctx.arc(
-                    node.x!,
-                    node.y!,
-                    isHighlighted ? 18 : 14,
-                    -Math.PI / 2,
-                    -Math.PI / 2 + 2 * Math.PI * node.progress,
-                    false
-                  );
-                  ctx.strokeStyle = '#3b82f6';
-                  ctx.lineWidth = isHighlighted ? 4 : 3;
+                  ctx.arc(node.x!, node.y!, isHighlighted ? 16 : 12, 0, 2 * Math.PI, false);
+                  ctx.fillStyle = isHovered ? '#fef9c3' : isHighlighted ? '#e0f2fe' : '#fff';
+                  ctx.fill();
+                  ctx.lineWidth = isHighlighted ? 4 : 2;
+                  ctx.strokeStyle = node.color || (isHighlighted ? '#0284c7' : '#1d4ed8');
                   ctx.stroke();
-                }
-                // Draw label
-                ctx.fillStyle = '#222';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(label, node.x!, node.y! + (isHighlighted ? 24 : 20));
-              }}
-              linkCanvasObjectMode={link =>
-                hoveredLink && hoveredLink.source === link.source && hoveredLink.target === link.target
-                  ? 'after'
-                  : undefined
-              }
-              linkCanvasObject={(link, ctx, globalScale) => {
-                // Tooltip for hovered link
-                if (
-                  hoveredLink &&
-                  hoveredLink.source === link.source &&
-                  hoveredLink.target === link.target
-                ) {
-                  const start = link.source;
-                  const end = link.target;
-                  if (start && end) {
-                    const midX = (start.x + end.x) / 2;
-                    const midY = (start.y + end.y) / 2;
-                    ctx.save();
-                    ctx.font = `${14 / globalScale}px Sans-Serif`;
-                    ctx.fillStyle = '#f59e42';
-                    ctx.fillRect(midX - 40, midY - 18, 80, 24);
-                    ctx.fillStyle = '#222';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText('Prerequisite', midX, midY - 6);
-                    ctx.restore();
+                  // Progress ring
+                  if (typeof node.progress === 'number') {
+                    ctx.beginPath();
+                    ctx.arc(
+                      node.x!,
+                      node.y!,
+                      isHighlighted ? 18 : 14,
+                      -Math.PI / 2,
+                      -Math.PI / 2 + 2 * Math.PI * node.progress,
+                      false
+                    );
+                    ctx.strokeStyle = '#3b82f6';
+                    ctx.lineWidth = isHighlighted ? 4 : 3;
+                    ctx.stroke();
                   }
+                  // Draw label
+                  ctx.fillStyle = '#222';
+                  ctx.textAlign = 'center';
+                  ctx.textBaseline = 'middle';
+                  ctx.fillText(label, node.x!, node.y! + (isHighlighted ? 24 : 20));
+                }}
+                linkCanvasObjectMode={link =>
+                  hoveredLink && hoveredLink.source === link.source && hoveredLink.target === link.target
+                    ? 'after'
+                    : undefined
                 }
-              }}
-            />
+                linkCanvasObject={(link, ctx, globalScale) => {
+                  // Tooltip for hovered link
+                  if (
+                    hoveredLink &&
+                    hoveredLink.source === link.source &&
+                    hoveredLink.target === link.target
+                  ) {
+                    const start = link.source;
+                    const end = link.target;
+                    if (start && end) {
+                      const midX = (start.x + end.x) / 2;
+                      const midY = (start.y + end.y) / 2;
+                      ctx.save();
+                      ctx.font = `${14 / globalScale}px Sans-Serif`;
+                      ctx.fillStyle = '#f59e42';
+                      ctx.fillRect(midX - 40, midY - 18, 80, 24);
+                      ctx.fillStyle = '#222';
+                      ctx.textAlign = 'center';
+                      ctx.textBaseline = 'middle';
+                      ctx.fillText('Prerequisite', midX, midY - 6);
+                      ctx.restore();
+                    }
+                  }
+                }}
+              />
+            </Suspense>
             {/* Node Tooltip */}
             {hoveredNode && (
               <div
