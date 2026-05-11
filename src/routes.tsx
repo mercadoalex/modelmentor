@@ -29,7 +29,7 @@ import QuizAnalyticsPage from './pages/QuizAnalyticsPage';
 import ProgressPage from './pages/ProgressPage';
 import ConceptsVisualizerPage from './pages/ConceptsVisualizerPage';
 import TeacherQuestionGeneratorPage from './pages/TeacherQuestionGeneratorPage';
-import { SuperAdminDashboardPage } from './pages/SuperAdminDashboardPage';
+import SuperAdminDashboardPage from './pages/SuperAdminDashboardPage'; // Correct: default import, no braces
 import type { ReactNode } from 'react';
 import PricingPage from './pages/PricingPage';
 import BulkUserImportPage from './pages/BulkUserImportPage';
@@ -253,38 +253,38 @@ export const routes: RouteConfig[] = [
     visible: true,
     public: false,
   },
-    {
-    name:    'Bulk User Import',
-    path:    '/admin/bulk-import',
+  {
+    name: 'Bulk User Import',
+    path: '/admin/bulk-import',
     element: <BulkUserImportPage />,
     visible: false,
-    public:  false,
+    public: false,
   },
   {
-  name:    'Pricing',
-  path:    '/pricing',
-  element: <PricingPage />,
-  visible: true,
-  public:  true,
+    name: 'Pricing',
+    path: '/pricing',
+    element: <PricingPage />,
+    visible: true,
+    public: true,
   },
   {
-    name:    'Shared Configuration',
-    path:    '/sandbox/shared/:token',
+    name: 'Shared Configuration',
+    path: '/sandbox/shared/:token',
     element: <SharedConfigurationPage />,
     visible: false,
-    public:  true,
-  },{
-  name: 'Assignment Grading',
-  path: '/admin/assignment-grading/:assignmentId',
-  element: <AssignmentGradingPage />,
-  visible: false,
-  public: false,
-},
-{
-  name: 'Model Comparison',
-  path: '/models/compare',
-  element: <ModelComparisonDashboard />,
-  visible: true,
-  public: false,
-},
-];
+    public: true,
+  },
+  {
+    name: 'Assignment Grading',
+    path: '/admin/assignment-grading/:assignmentId',
+    element: <AssignmentGradingPage />,
+    visible: false,
+    public: false,
+  },
+  {
+    name: 'Model Comparison',
+    path: '/models/compare',
+    element: <ModelComparisonDashboard />,
+    visible: true,
+    public: false,
+  },
