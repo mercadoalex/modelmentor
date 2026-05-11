@@ -288,3 +288,4 @@ export const routes: RouteConfig[] = [
     visible: true,
     public: false,
   },
+];
