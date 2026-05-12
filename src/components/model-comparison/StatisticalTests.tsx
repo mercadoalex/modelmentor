@@ -1,130 +1,149 @@
-import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { AlertCircle, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
+import type { StatisticalTestsProps, StatisticalTestResult } from '@/types/comparison';
 
 /**
- * Props for StatisticalTests
- * @param modelIds - Array of selected model IDs to compare
+ * Loading skeleton for statistical tests
  */
-interface StatisticalTestsProps {
-  modelIds: string[];
+function StatisticalTestsSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse">
+      <div className="h-6 w-64 bg-gray-200 rounded" />
+      <div className="h-48 bg-gray-200 rounded" />
+    </div>
+  );
 }
 
 /**
- * Example test data structure for demonstration.
- * In production, fetch real test results from backend.
+ * Error display with retry button
  */
-interface StatisticalTestResult {
-  testName: string;
-  modelA: string;
-  modelB: string;
-  pValue: number;
-  significant: boolean;
-  confidenceInterval?: [number, number];
+function StatisticalTestsError({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-8 text-center">
+      <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+      <p className="text-red-600 mb-4">{message}</p>
+      {onRetry && (
+        <Button variant="outline" onClick={onRetry}>
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Retry
+        </Button>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Format test name for display
+ */
+function formatTestName(testName: string): string {
+  switch (testName) {
+    case 'paired_t_test': return 'Paired t-test';
+    case 'mcnemar_test': return 'McNemar test';
+    default: return testName;
+  }
 }
 
 /**
  * StatisticalTests
  * - Shows results of paired t-tests, McNemar test, and confidence intervals
  * - Indicates statistical significance between model pairs
+ * - Accepts data via props from parent dashboard
  */
-export function StatisticalTests({ modelIds }: StatisticalTestsProps) {
-  const [results, setResults] = useState<StatisticalTestResult[]>([]);
-  const [loading, setLoading] = useState(true);
+export function StatisticalTests({
+  modelIds,
+  results,
+  loading = false,
+  error,
+  onRetry,
+}: StatisticalTestsProps) {
+  // Show loading skeleton
+  if (loading) {
+    return <StatisticalTestsSkeleton />;
+  }
 
-  // Fetch statistical test results for selected models
-  useEffect(() => {
-    setLoading(true);
-    // TODO: Replace with real fetch from backend or Supabase
-    // Example placeholder data
-    const example: StatisticalTestResult[] = [
-      {
-        testName: 'Paired t-test',
-        modelA: 'ResNet50 v1',
-        modelB: 'EfficientNet B0',
-        pValue: 0.03,
-        significant: true,
-        confidenceInterval: [0.01, 0.12],
-      },
-      {
-        testName: 'McNemar test',
-        modelA: 'ResNet50 v1',
-        modelB: 'EfficientNet B0',
-        pValue: 0.21,
-        significant: false,
-      },
-      {
-        testName: 'Paired t-test',
-        modelA: 'ResNet50 v1',
-        modelB: 'Custom CNN',
-        pValue: 0.001,
-        significant: true,
-        confidenceInterval: [0.05, 0.18],
-      },
-    ];
-    // Only show tests for selected models
-    setResults(
-      example.filter(
-        r =>
-          modelIds.includes(
-            example.find(e => e.modelA === r.modelA)?.modelA || ''
-          ) &&
-          modelIds.includes(
-            example.find(e => e.modelB === r.modelB)?.modelB || ''
-          )
-      )
+  // Show error state
+  if (error) {
+    return <StatisticalTestsError message={error.message} onRetry={onRetry} />;
+  }
+
+  // Show empty state if no results
+  if (!results || results.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        No statistical tests available. Statistical tests require at least 2 models with prediction data.
+      </div>
     );
-    setLoading(false);
-  }, [modelIds]);
+  }
+
+  // Filter results to only include tests for requested model IDs
+  const filteredResults = results.filter(
+    r => modelIds.includes(r.modelAId) && modelIds.includes(r.modelBId)
+  );
+
+  if (filteredResults.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        No statistical tests available for the selected models.
+      </div>
+    );
+  }
 
   return (
     <div>
       <h3 className="text-lg font-semibold mb-4">Statistical Significance Testing</h3>
-      {loading ? (
-        <div>Loading statistical test results...</div>
-      ) : results.length === 0 ? (
-        <div>No statistical tests available for selected models.</div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-300">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 bg-gray-100 p-1">Test</th>
-                <th className="border border-gray-300 bg-gray-100 p-1">Model A</th>
-                <th className="border border-gray-300 bg-gray-100 p-1">Model B</th>
-                <th className="border border-gray-300 bg-gray-100 p-1">p-value</th>
-                <th className="border border-gray-300 bg-gray-100 p-1">Significant?</th>
-                <th className="border border-gray-300 bg-gray-100 p-1">Confidence Interval</th>
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-300">
+          <thead>
+            <tr>
+              <th className="border border-gray-300 bg-gray-100 p-2">Test</th>
+              <th className="border border-gray-300 bg-gray-100 p-2">Model A</th>
+              <th className="border border-gray-300 bg-gray-100 p-2">Model B</th>
+              <th className="border border-gray-300 bg-gray-100 p-2">p-value</th>
+              <th className="border border-gray-300 bg-gray-100 p-2">Significant?</th>
+              <th className="border border-gray-300 bg-gray-100 p-2">95% CI</th>
+              <th className="border border-gray-300 bg-gray-100 p-2">Effect Size</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredResults.map((r, idx) => (
+              <tr key={`${r.testName}-${r.modelAId}-${r.modelBId}-${idx}`}>
+                <td className="border border-gray-300 text-center p-2">
+                  {formatTestName(r.testName)}
+                </td>
+                <td className="border border-gray-300 text-center p-2">{r.modelAName}</td>
+                <td className="border border-gray-300 text-center p-2">{r.modelBName}</td>
+                <td className="border border-gray-300 text-center p-2">
+                  {r.pValue.toFixed(3)}
+                </td>
+                <td className="border border-gray-300 text-center p-2">
+                  {r.significant ? (
+                    <span className="inline-flex items-center text-green-600 font-bold">
+                      <CheckCircle className="h-4 w-4 mr-1" />
+                      Yes
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center text-gray-500">
+                      <XCircle className="h-4 w-4 mr-1" />
+                      No
+                    </span>
+                  )}
+                </td>
+                <td className="border border-gray-300 text-center p-2">
+                  {r.confidenceInterval
+                    ? `[${r.confidenceInterval[0].toFixed(3)}, ${r.confidenceInterval[1].toFixed(3)}]`
+                    : '—'}
+                </td>
+                <td className="border border-gray-300 text-center p-2">
+                  {r.effectSize !== undefined ? r.effectSize.toFixed(3) : '—'}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {results.map((r, idx) => (
-                <tr key={idx}>
-                  <td className="border border-gray-300 text-center p-1">{r.testName}</td>
-                  <td className="border border-gray-300 text-center p-1">{r.modelA}</td>
-                  <td className="border border-gray-300 text-center p-1">{r.modelB}</td>
-                  <td className="border border-gray-300 text-center p-1">{r.pValue.toFixed(3)}</td>
-                  <td
-                    className="border border-gray-300 text-center p-1"
-                    style={{
-                      color: r.significant ? 'green' : 'gray',
-                      fontWeight: r.significant ? 'bold' : undefined,
-                    }}
-                  >
-                    {r.significant ? 'Yes' : 'No'}
-                  </td>
-                  <td className="border border-gray-300 text-center p-1">
-                    {r.confidenceInterval
-                      ? `[${r.confidenceInterval[0].toFixed(2)}, ${r.confidenceInterval[1].toFixed(2)}]`
-                      : '—'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="text-xs text-muted-foreground mt-2">
-            p-value &lt; 0.05 is considered statistically significant. Confidence intervals shown where available.
-          </div>
+            ))}
+          </tbody>
+        </table>
+        <div className="text-xs text-muted-foreground mt-2">
+          p-value &lt; 0.05 is considered statistically significant. Confidence intervals and effect sizes shown where available.
         </div>
-      )}
+      </div>
     </div>
   );
 }
