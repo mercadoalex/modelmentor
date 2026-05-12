@@ -584,6 +584,9 @@ export interface AssignmentCompletion {
   time_spent_seconds: number | null;
   created_at: string;
   updated_at: string;
+  grade: string | null;
+  feedback: string | null;
+  file_url: string | null;
 }
 
 export interface ScenarioHistoryItem {

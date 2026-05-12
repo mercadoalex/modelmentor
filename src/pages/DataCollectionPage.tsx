@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Database, ArrowRight, X, AlertCircle, FileText, GraduationCap, Zap, Bug, Share2, Eye } from 'lucide-react';
+import { Upload, Database, ArrowRight, X, AlertCircle, FileText, GraduationCap, Zap, Bug, Share2, Eye, RefreshCw, Info } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { MLWorkflowVisualizer } from '@/components/MLWorkflowVisualizer';
 import { DataPreviewTable } from '@/components/data/DataPreviewTable';
@@ -28,6 +28,12 @@ import type { CleaningOperation } from '@/services/dataCleaningService';
 import { contentModeration, imageCompression } from '@/utils/moderation';
 import { toast } from 'sonner';
 import type { Project, SampleDataset } from '@/types/types';
+import { 
+  generateForModelType, 
+  type ImageDatasetRow, 
+  type GeneratedDataset,
+  type ImageGeneratedDataset 
+} from '@/services/syntheticDatasetGeneratorService';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Workflow step definitions — drives the MLWorkflowVisualizer progress bar
@@ -57,6 +63,15 @@ export default function DataCollectionPage() {
   const [selectedSample,   setSelectedSample]   = useState<string | null>(null);
   const [loading,          setLoading]          = useState(false);
 
+  // ── Guided tour fallback state ─────────────────────────────────────────────
+  const [sampleLoadError,  setSampleLoadError]  = useState<string | null>(null);
+  const [sampleLoadEmpty,  setSampleLoadEmpty]  = useState(false);
+  const [retryCount,       setRetryCount]       = useState(0);
+  const [usingSyntheticFallback, setUsingSyntheticFallback] = useState(false);
+
+  // ── Image dataset state (for image classification) ─────────────────────────
+  const [imageDataset, setImageDataset] = useState<ImageDatasetRow[] | null>(null);
+
   // ── CSV / validation state ─────────────────────────────────────────────────
   const [csvData,          setCsvData]          = useState<string[][] | null>(null);
   const [validation,       setValidation]       = useState<DataValidationResult | null>(null);
@@ -71,6 +86,74 @@ export default function DataCollectionPage() {
     loadProject();
   }, [projectId]);
 
+  // ── Retry loading samples (for guided tour error recovery) ─────────────────
+  const retryLoadSamples = () => {
+    setSampleLoadError(null);
+    setSampleLoadEmpty(false);
+    setRetryCount(prev => prev + 1);
+    loadProject();
+  };
+
+  /**
+   * Auto-select a synthetic template based on the project's model type.
+   * This is called when Supabase sample datasets are unavailable in guided tour mode.
+   */
+  const autoSelectSyntheticTemplate = useCallback((modelType: Project['model_type']) => {
+    try {
+      setUsingSyntheticFallback(true);
+      
+      const dataset = generateForModelType(modelType);
+      
+      if (modelType === 'image_classification') {
+        // Handle image classification dataset
+        const imageDataset = dataset as ImageGeneratedDataset;
+        setImageDataset(imageDataset.images);
+        
+        // Create placeholder files for the image dataset
+        const placeholderFiles = imageDataset.images.map((img, idx) => {
+          // Convert data URI to blob
+          const byteString = atob(img.imageDataUri.split(',')[1]);
+          const mimeString = img.imageDataUri.split(',')[0].split(':')[1].split(';')[0];
+          const ab = new ArrayBuffer(byteString.length);
+          const ia = new Uint8Array(ab);
+          for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+          }
+          const blob = new Blob([ab], { type: mimeString });
+          return new File([blob], img.filename, { type: mimeString });
+        });
+        
+        setUploadedFiles(placeholderFiles);
+        toast.success(`✅ Loaded synthetic shapes dataset — ${imageDataset.images.length} images ready!`);
+      } else {
+        // Handle tabular datasets (text_classification, classification, regression)
+        const tabularDataset = dataset as GeneratedDataset;
+        
+        // Convert to CSV format
+        const csvRows = [tabularDataset.headers, ...tabularDataset.rows];
+        const csvText = csvRows.map(row => row.map(v => `"${v}"`).join(',')).join('\n');
+        
+        // Parse and validate
+        const parsedData = dataValidationService.parseCSV(csvText);
+        const validationResult = dataValidationService.validateData(parsedData);
+        
+        setCsvData(parsedData);
+        setValidation(validationResult);
+        setShowPreview(true);
+        
+        // Create a File object for the upload flow
+        const blob = new Blob([csvText], { type: 'text/csv' });
+        const file = new File([blob], `synthetic-${modelType}-sample.csv`, { type: 'text/csv' });
+        setUploadedFiles([file]);
+        
+        toast.success(`✅ Loaded synthetic dataset — ${tabularDataset.rows.length} rows ready!`);
+      }
+    } catch (error) {
+      console.error('Failed to auto-select synthetic template:', error);
+      toast.error('Failed to load synthetic dataset. Please select a template manually.');
+    }
+  }, []);
+
   const loadProject = async () => {
     if (!projectId) return;
 
@@ -78,13 +161,34 @@ export default function DataCollectionPage() {
     if (projectData) {
       setProject(projectData);
 
-      // Fetch sample datasets so guided-tour auto-select works
-      const samples = await sampleDatasetService.list(projectData.model_type);
-      setSampleDatasets(samples);
+      // Fetch sample datasets with error handling for guided tour mode
+      try {
+        const samples = await sampleDatasetService.list(projectData.model_type);
+        setSampleDatasets(samples);
+        setSampleLoadError(null);
 
-      // Guided tour: pre-select first available sample dataset
-      if (projectData.is_guided_tour && samples.length > 0) {
-        setSelectedSample(samples[0].id);
+        // Check if samples are empty in guided tour mode
+        if (projectData.is_guided_tour && samples.length === 0) {
+          setSampleLoadEmpty(true);
+          // Auto-select synthetic template for guided tour fallback
+          autoSelectSyntheticTemplate(projectData.model_type);
+        } else {
+          setSampleLoadEmpty(false);
+          setUsingSyntheticFallback(false);
+          // Guided tour: pre-select first available sample dataset
+          if (projectData.is_guided_tour && samples.length > 0) {
+            setSelectedSample(samples[0].id);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load sample datasets:', error);
+        // In guided tour mode, show error with retry option and auto-select synthetic
+        if (projectData.is_guided_tour) {
+          setSampleLoadError('Failed to load sample datasets. Using built-in synthetic data instead.');
+          setSampleLoadEmpty(true);
+          // Auto-select synthetic template as fallback
+          autoSelectSyntheticTemplate(projectData.model_type);
+        }
       }
     }
   };
@@ -130,7 +234,17 @@ export default function DataCollectionPage() {
       await projectService.update(projectId, { status: 'learning' });
       navigate(`/project/${projectId}/learning`);
     } catch (error) {
-      toast.error('Failed to save dataset');
+      // In guided tour mode, show more specific error with guidance
+      if (project.is_guided_tour) {
+        toast.error('Failed to save dataset. Please try again or select a different template.', {
+          action: {
+            label: 'Retry',
+            onClick: () => handleContinue(),
+          },
+        });
+      } else {
+        toast.error('Failed to save dataset');
+      }
       console.error(error);
     } finally {
       setLoading(false);
@@ -138,16 +252,20 @@ export default function DataCollectionPage() {
     }
   }, [project, projectId, selectedSample, uploadedFiles, sampleDatasets, user, navigate]);
 
-  // Auto-advance guided tour 2 seconds after sample is auto-selected
+  // Auto-advance guided tour 2 seconds after sample is auto-selected or synthetic data is loaded
   useEffect(() => {
-    if (!project?.is_guided_tour || !selectedSample || loading) return;
+    if (!project?.is_guided_tour || loading) return;
+    
+    // Auto-advance if we have a selected sample OR synthetic fallback data
+    const hasData = selectedSample || (usingSyntheticFallback && uploadedFiles.length > 0);
+    if (!hasData) return;
 
     const timer = setTimeout(() => {
       handleContinue();
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [project?.is_guided_tour, selectedSample, loading, handleContinue]);
+  }, [project?.is_guided_tour, selectedSample, usingSyntheticFallback, uploadedFiles.length, loading, handleContinue]);
 
   // ── File drop handler ──────────────────────────────────────────────────────
   const onDrop = async (acceptedFiles: File[]) => {
@@ -244,6 +362,35 @@ export default function DataCollectionPage() {
     }
   };
 
+  /**
+   * Called by DatasetTemplatesPanel when an image classification template is loaded.
+   * Converts image data URIs to File objects for the upload flow.
+   */
+  const handleLoadImageDataset = (images: ImageDatasetRow[], template: DatasetTemplate) => {
+    try {
+      setImageDataset(images);
+      
+      // Convert data URIs to File objects
+      const imageFiles = images.map((img) => {
+        const byteString = atob(img.imageDataUri.split(',')[1]);
+        const mimeString = img.imageDataUri.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([ab], { type: mimeString });
+        return new File([blob], img.filename, { type: mimeString });
+      });
+      
+      setUploadedFiles(imageFiles);
+      toast.success(`"${template.name}" loaded — ${images.length} images ready!`);
+    } catch (error) {
+      console.error('Failed to load image dataset:', error);
+      toast.error('Failed to load image dataset');
+    }
+  };
+
   // ── Data cleaning callback ─────────────────────────────────────────────────
   /**
    * Called by DataCleaningPanel after operations are applied.
@@ -323,13 +470,65 @@ export default function DataCollectionPage() {
 
           {/* ── Guided tour banner — shown only in tour mode ── */}
           {project.is_guided_tour && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                🎓 <strong>Guided Tour Mode:</strong> A sample dataset has been pre-selected for you.
-                Advancing to the next step automatically in a moment…
-              </AlertDescription>
-            </Alert>
+            <>
+              {/* Error state with retry */}
+              {sampleLoadError && !usingSyntheticFallback && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="flex items-center justify-between">
+                    <span>
+                      🎓 <strong>Guided Tour Mode:</strong> {sampleLoadError}
+                    </span>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={retryLoadSamples}
+                      className="ml-4"
+                    >
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Retry
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Synthetic fallback state - using built-in data */}
+              {usingSyntheticFallback && uploadedFiles.length > 0 && (
+                <Alert className="border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30">
+                  <Info className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <AlertDescription className="text-emerald-700 dark:text-emerald-300">
+                    🎓 <strong>Guided Tour Mode:</strong> Using built-in synthetic data for your learning experience.
+                    {project.model_type === 'image_classification' 
+                      ? ` Loaded ${uploadedFiles.length} shape images.`
+                      : ` Loaded ${csvData ? csvData.length - 1 : 0} sample rows.`
+                    }
+                    {' '}Advancing to the next step automatically in a moment…
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Fallback state when no sample datasets available and no synthetic loaded yet */}
+              {sampleLoadEmpty && !sampleLoadError && !usingSyntheticFallback && (
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
+                    🎓 <strong>Guided Tour Mode:</strong> No pre-made dataset is available for this project type.
+                    Don't worry — select a template dataset below to continue your learning journey!
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Normal guided tour state with auto-advance */}
+              {!sampleLoadEmpty && !sampleLoadError && !usingSyntheticFallback && selectedSample && (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    🎓 <strong>Guided Tour Mode:</strong> A sample dataset has been pre-selected for you.
+                    Advancing to the next step automatically in a moment…
+                  </AlertDescription>
+                </Alert>
+              )}
+            </>
           )}
 
           {/* ── Upload + Template panel (side-by-side on md+) ── */}
@@ -356,6 +555,7 @@ export default function DataCollectionPage() {
                   className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
                     isDragActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary'
                   }`}
+                  data-tour="upload-area"
                 >
                   <input {...getInputProps()} />
                   <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
@@ -395,12 +595,13 @@ export default function DataCollectionPage() {
             <DatasetTemplatesPanel
               modelType={project.model_type}
               onLoadDataset={handleLoadTemplate}
+              onLoadImageDataset={handleLoadImageDataset}
             />
           </div>
 
           {/* ── Data Preview & Validation tabs (shown after upload or template load) ── */}
           {showPreview && csvData && validation && (
-            <div className="space-y-6">
+            <div className="space-y-6" data-tour="data-preview">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-semibold flex items-center gap-2">
                   <Eye className="h-6 w-6" />
@@ -450,7 +651,7 @@ export default function DataCollectionPage() {
                 </TabsContent>
 
                 {/* Feature importance + target selection */}
-                <TabsContent value="features">
+                <TabsContent value="features" data-tour="column-mapping">
                   <FeatureImportancePanel
                     data={csvData}
                     columnInfo={validation.columnInfo}
@@ -508,6 +709,7 @@ export default function DataCollectionPage() {
                   onClick={handleContinue}
                   disabled={!hasEnoughData || loading || (validation !== null && !validation.isValid)}
                   size="lg"
+                  data-tour="continue-button"
                 >
                   {loading ? 'Saving…' : 'Continue to Learning'}
                   <ArrowRight className="h-5 w-5 ml-2" />

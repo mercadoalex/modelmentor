@@ -448,7 +448,7 @@ export default function TestingPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'single' | 'batch')}>
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'single' | 'batch')} data-tour="test-tabs">
               <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="single">
                   <Play className="h-4 w-4 mr-2" />
@@ -463,7 +463,7 @@ export default function TestingPage() {
               {/* Single prediction */}
               <TabsContent value="single" className="space-y-6">
                 {project.model_type === 'text_classification' || project.model_type === 'regression' ? (
-                  <div className="space-y-4">
+                  <div className="space-y-4" data-tour="test-input">
                     <Textarea
                       placeholder={
                         project.model_type === 'text_classification'
@@ -481,7 +481,7 @@ export default function TestingPage() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-4" data-tour="test-input">
                     <input
                       id="image-upload-input"
                       type="file"
@@ -553,7 +553,7 @@ export default function TestingPage() {
                 )}
 
                 {prediction && (
-                  <Alert>
+                  <Alert data-tour="prediction-results">
                     <CheckCircle2 className="h-4 w-4" />
                     <AlertDescription>
                       <div className="space-y-2">
@@ -640,11 +640,13 @@ export default function TestingPage() {
 
         {/* Confusion matrix */}
         {confusionMatrix && testLabels.length > 0 && (
-          <ConfusionMatrixDisplay
-            matrix={confusionMatrix}
-            labels={testLabels}
-            accuracy={activeAccuracy}
-          />
+          <div data-tour="confusion-matrix">
+            <ConfusionMatrixDisplay
+              matrix={confusionMatrix}
+              labels={testLabels}
+              accuracy={activeAccuracy}
+            />
+          </div>
         )}
 
         {/* Actions */}
@@ -661,6 +663,7 @@ export default function TestingPage() {
                   variant="outline"
                   size="lg"
                   disabled={batchResults.length === 0 && !prediction}
+                  data-tour="export-results"
                 >
                   <FileDown className="h-5 w-5 mr-2" />
                   Export PDF

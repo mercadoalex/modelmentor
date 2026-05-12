@@ -4,3 +4,6 @@ export interface Option {
   icon?: React.ComponentType<{ className?: string }>;
   withCount?: boolean;
 }
+
+// Re-export comparison types
+export * from './comparison';

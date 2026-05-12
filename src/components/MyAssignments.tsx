@@ -342,13 +342,13 @@ export function MyAssignments({
                   {assignment.completion?.grade !== null && (
                     <div className="text-sm mt-2">
                       <span className="font-medium">Grade: </span>
-                      <span>{assignment.completion.grade}</span>
+                      <span>{assignment.completion?.grade}</span>
                     </div>
                   )}
                   {assignment.completion?.feedback && (
                     <div className="text-sm mt-1">
                       <span className="font-medium">Feedback: </span>
-                      <span>{assignment.completion.feedback}</span>
+                      <span>{assignment.completion?.feedback}</span>
                     </div>
                   )}
 
