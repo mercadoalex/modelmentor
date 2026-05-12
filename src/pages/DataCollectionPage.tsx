@@ -213,8 +213,13 @@ export default function DataCollectionPage() {
     try {
       let fileUrls: string[] = [];
 
-      // Upload any manually-dropped files to Supabase storage
-      if (uploadedFiles.length > 0) {
+      // For synthetic fallback data in guided tour mode, skip actual file upload
+      // The synthetic data is just for learning purposes and doesn't need to be stored
+      if (usingSyntheticFallback && project.is_guided_tour) {
+        // Use placeholder URLs for synthetic data
+        fileUrls = uploadedFiles.map((file, idx) => `synthetic://${project.model_type}/${file.name}`);
+      } else if (uploadedFiles.length > 0) {
+        // Upload any manually-dropped files to Supabase storage
         const userId = user?.id || 'anonymous';
 
         for (let i = 0; i < uploadedFiles.length; i++) {
@@ -255,7 +260,7 @@ export default function DataCollectionPage() {
       setLoading(false);
       setUploadProgress(0);
     }
-  }, [project, projectId, selectedSample, uploadedFiles, sampleDatasets, user, navigate]);
+  }, [project, projectId, selectedSample, uploadedFiles, sampleDatasets, user, navigate, usingSyntheticFallback]);
 
   // Auto-advance guided tour 2 seconds after sample is auto-selected or synthetic data is loaded
   useEffect(() => {
