@@ -513,29 +513,73 @@ export default function ProjectCreationPage() {
   const parseDescription = (desc: string): { modelType: ModelType; title: string } | null => {
     const lowerDesc = desc.toLowerCase();
     
-    if (lowerDesc.includes('image') || lowerDesc.includes('photo') || lowerDesc.includes('picture') || lowerDesc.includes('classify')) {
-      return {
-        modelType: 'image_classification',
-        title: desc.substring(0, 100)
-      };
-    }
-    
-    if (lowerDesc.includes('text') || lowerDesc.includes('sentiment') || lowerDesc.includes('spam')) {
+    // Check for text classification keywords FIRST (before generic "classify")
+    // This ensures "classify toxic comments" is detected as text, not image
+    if (lowerDesc.includes('text') || 
+        lowerDesc.includes('sentiment') || 
+        lowerDesc.includes('spam') ||
+        lowerDesc.includes('comment') ||
+        lowerDesc.includes('review') ||
+        lowerDesc.includes('email') ||
+        lowerDesc.includes('message') ||
+        lowerDesc.includes('toxic') ||
+        lowerDesc.includes('hate speech') ||
+        lowerDesc.includes('news') ||
+        lowerDesc.includes('article') ||
+        lowerDesc.includes('tweet') ||
+        lowerDesc.includes('post')) {
       return {
         modelType: 'text_classification',
         title: desc.substring(0, 100)
       };
     }
     
-    if (lowerDesc.includes('predict') || lowerDesc.includes('price') || lowerDesc.includes('forecast') || lowerDesc.includes('regression')) {
+    // Check for image classification keywords
+    if (lowerDesc.includes('image') || 
+        lowerDesc.includes('photo') || 
+        lowerDesc.includes('picture') ||
+        lowerDesc.includes('face') ||
+        lowerDesc.includes('object') ||
+        lowerDesc.includes('animal') ||
+        lowerDesc.includes('flower') ||
+        lowerDesc.includes('digit') ||
+        lowerDesc.includes('shape')) {
+      return {
+        modelType: 'image_classification',
+        title: desc.substring(0, 100)
+      };
+    }
+    
+    // Check for regression keywords
+    if (lowerDesc.includes('predict') || 
+        lowerDesc.includes('price') || 
+        lowerDesc.includes('forecast') || 
+        lowerDesc.includes('regression') ||
+        lowerDesc.includes('salary') ||
+        lowerDesc.includes('cost') ||
+        lowerDesc.includes('value') ||
+        lowerDesc.includes('estimate')) {
       return {
         modelType: 'regression',
         title: desc.substring(0, 100)
       };
     }
     
+    // Check for generic classification (tabular data)
+    if (lowerDesc.includes('classify') ||
+        lowerDesc.includes('classification') ||
+        lowerDesc.includes('categorize') ||
+        lowerDesc.includes('detect') ||
+        lowerDesc.includes('identify')) {
+      return {
+        modelType: 'classification',
+        title: desc.substring(0, 100)
+      };
+    }
+    
+    // Default to classification for ambiguous cases
     return {
-      modelType: 'image_classification',
+      modelType: 'classification',
       title: desc.substring(0, 100)
     };
   };

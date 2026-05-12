@@ -316,6 +316,130 @@ const TEMPLATES: DatasetTemplate[] = [
     },
   },
 
+  {
+    id: 'toxic-comments',
+    name: 'Toxic Comments 🚫',
+    description: 'Classify comments as toxic or non-toxic. Learn content moderation techniques.',
+    modelType: 'text_classification',
+    tags: ['NLP', 'moderation', 'safety'],
+    difficulty: 'intermediate',
+    rows: 100,
+    columns: ['comment_text', 'label'],
+    realWorldUse: 'Social media platforms use this to automatically flag harmful content and protect users.',
+    icon: FileText,
+    iconColor: 'text-red-500',
+    generateData: () => {
+      // Note: These are synthetic examples for educational purposes only
+      // Real toxic comment detection requires much more nuanced training data
+      const toxic = [
+        'You are so stupid, I cannot believe anyone listens to you.',
+        'This is the worst idea ever. You should be ashamed.',
+        'Nobody cares about your opinion. Just shut up already.',
+        'What a complete waste of time. You are an idiot.',
+        'I hate everything about this. You are terrible at your job.',
+        'This is garbage. The person who made this should quit.',
+        'You are completely worthless and should just give up.',
+        'What a joke. This is pathetic and so are you.',
+        'I cannot stand people like you. You ruin everything.',
+        'This is so bad it makes me angry. You are the worst.',
+        'Stop posting this nonsense. Nobody wants to hear from you.',
+        'You have no idea what you are talking about. Shut up.',
+        'This is embarrassing. How can you be so clueless?',
+        'I wish people like you would just disappear.',
+        'Your opinion is worthless. Stop wasting everyone\'s time.',
+      ];
+      const nonToxic = [
+        'I respectfully disagree with your point of view.',
+        'Thanks for sharing your perspective on this topic.',
+        'I think there might be a better approach to consider.',
+        'Great discussion! I learned something new today.',
+        'While I see your point, I have a different opinion.',
+        'This is an interesting take. Can you explain more?',
+        'I appreciate you taking the time to write this.',
+        'Good points raised here. Food for thought.',
+        'I understand where you are coming from on this.',
+        'Thanks for the thoughtful response to my question.',
+        'I had not considered that angle before. Interesting!',
+        'Well said. I agree with most of your points.',
+        'This is a complex topic with many valid viewpoints.',
+        'I appreciate the civil discussion happening here.',
+        'Good feedback. I will take this into consideration.',
+      ];
+      const rows: string[][] = [];
+      for (let i = 0; i < 100; i++) {
+        rows.push(i % 2 === 0
+          ? [randomChoice(toxic), 'toxic']
+          : [randomChoice(nonToxic), 'non_toxic'],
+        );
+      }
+      return rows;
+    },
+  },
+
+  {
+    id: 'news-topics',
+    name: 'News Topics 📰',
+    description: 'Classify news headlines by topic (sports, tech, politics, entertainment).',
+    modelType: 'text_classification',
+    tags: ['NLP', 'news', 'multiclass'],
+    difficulty: 'intermediate',
+    rows: 100,
+    columns: ['headline', 'topic'],
+    realWorldUse: 'News aggregators use topic classification to organize content and personalize feeds.',
+    icon: FileText,
+    iconColor: 'text-blue-500',
+    generateData: () => {
+      const sports = [
+        'Team wins championship in overtime thriller',
+        'Star player signs record-breaking contract extension',
+        'Coach announces retirement after legendary career',
+        'Underdog team upsets favorites in playoff game',
+        'Athlete breaks world record at international competition',
+        'Trade deadline sees major moves across the league',
+        'Injury sidelines key player for rest of season',
+      ];
+      const tech = [
+        'New smartphone features revolutionary AI assistant',
+        'Tech giant announces major acquisition deal',
+        'Startup raises billions in latest funding round',
+        'Software update brings significant performance improvements',
+        'Company unveils next-generation processor chip',
+        'Cybersecurity breach affects millions of users',
+        'Electric vehicle maker reports record quarterly sales',
+      ];
+      const politics = [
+        'Senate passes landmark legislation after debate',
+        'President announces new economic policy initiative',
+        'Election results show shift in voter preferences',
+        'International summit addresses climate change concerns',
+        'Governor signs controversial bill into law',
+        'Political parties clash over budget proposal',
+        'Diplomatic talks resume between rival nations',
+      ];
+      const entertainment = [
+        'Blockbuster movie breaks opening weekend records',
+        'Popular TV series renewed for another season',
+        'Music artist announces world tour dates',
+        'Award show celebrates best performances of the year',
+        'Streaming service releases highly anticipated series',
+        'Celebrity couple announces engagement news',
+        'Film festival premieres groundbreaking documentary',
+      ];
+      const topics = [
+        { headlines: sports, label: 'sports' },
+        { headlines: tech, label: 'tech' },
+        { headlines: politics, label: 'politics' },
+        { headlines: entertainment, label: 'entertainment' },
+      ];
+      const rows: string[][] = [];
+      for (let i = 0; i < 100; i++) {
+        const topic = topics[i % 4];
+        rows.push([randomChoice(topic.headlines), topic.label]);
+      }
+      return rows;
+    },
+  },
+
   // ── Image Classification ───────────────────────────────────────────────────
 
   {
