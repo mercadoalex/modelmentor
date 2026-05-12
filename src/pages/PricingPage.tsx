@@ -1,12 +1,15 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layouts/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { CheckCircle2, X, Zap, GraduationCap, Building2 } from 'lucide-react';
+import { CheckCircle2, X, Zap, GraduationCap, Building2, Clock, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 
 const plans = [
   {
@@ -106,13 +109,69 @@ const faqs = [
 ];
 
 export default function PricingPage() {
-  const navigate    = useNavigate();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [yearly, setYearly] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
-  const handleCTA = (planId: string) => {
-    if (planId === 'free')       return navigate('/signup');
-    if (planId === 'enterprise') return window.open('mailto:sales@modelmentor.ai', '_blank');
-    return navigate('/signup?plan=pro');
+  const { isAuthenticated } = useAuth();
+  const subscription = useSubscription();
+
+  // Handle checkout success/cancel redirects
+  useEffect(() => {
+    const checkoutStatus = searchParams.get('checkout');
+    if (checkoutStatus === 'success') {
+      toast.success('Payment successful! Your plan has been upgraded.');
+      setSearchParams({}, { replace: true });
+    } else if (checkoutStatus === 'cancelled') {
+      toast.info('Checkout was cancelled. No changes were made to your plan.');
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  const handleCTA = async (planId: string) => {
+    if (!isAuthenticated) {
+      return navigate('/signup');
+    }
+
+    if (planId === 'free') {
+      // Already on free or navigating to signup
+      return navigate('/dashboard');
+    }
+
+    if (planId === 'enterprise') {
+      return window.open('mailto:sales@modelmentor.ai', '_blank');
+    }
+
+    // Initiate Stripe checkout for pro/enterprise
+    const billingPeriod = yearly ? 'yearly' : 'monthly';
+    const tier = planId as 'pro' | 'enterprise';
+
+    setCheckoutLoading(planId);
+    try {
+      await subscription.initiateCheckout(tier, billingPeriod);
+    } catch {
+      // Error toast is handled by SubscriptionContext
+    } finally {
+      setCheckoutLoading(null);
+    }
+  };
+
+  const getButtonLabel = (plan: typeof plans[number]) => {
+    if (!isAuthenticated) {
+      return 'Sign up to get started';
+    }
+
+    // If this is the user's current tier, show "Current Plan"
+    if (plan.id === subscription.tier) {
+      return 'Current Plan';
+    }
+
+    return plan.cta;
+  };
+
+  const isCurrentPlan = (planId: string) => {
+    return isAuthenticated && planId === subscription.tier;
   };
 
   return (
@@ -125,6 +184,27 @@ export default function PricingPage() {
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             Start free. Upgrade when you're ready. No hidden fees.
           </p>
+
+          {/* Trial status banner */}
+          {isAuthenticated && subscription.isOnTrial && (
+            <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium">
+              <Clock className="h-4 w-4" />
+              <span>
+                You're on a free trial — {subscription.trialDaysRemaining} day{subscription.trialDaysRemaining !== 1 ? 's' : ''} remaining
+              </span>
+            </div>
+          )}
+
+          {/* Usage summary for authenticated users */}
+          {isAuthenticated && (
+            <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground pt-1">
+              <span>Current plan: <Badge variant="secondary" className="ml-1">{subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</Badge></span>
+              <span>•</span>
+              <span>{subscription.usage.training_sessions} training sessions used this month</span>
+              <span>•</span>
+              <span>{subscription.usage.storage_mb} MB storage used</span>
+            </div>
+          )}
 
           {/* Billing toggle */}
           <div className="flex items-center justify-center gap-3 pt-2">
@@ -147,16 +227,25 @@ export default function PricingPage() {
             const Icon  = plan.icon;
             const price = yearly ? plan.yearlyPrice : plan.monthlyPrice;
             const isPopular = plan.badge === 'Most Popular';
+            const isCurrent = isCurrentPlan(plan.id);
 
             return (
               <Card
                 key={plan.id}
-                className={`relative flex flex-col ${isPopular ? 'border-primary shadow-lg scale-105' : ''}`}
+                className={`relative flex flex-col ${isPopular ? 'border-primary shadow-lg scale-105' : ''} ${isCurrent ? 'ring-2 ring-primary' : ''}`}
               >
                 {plan.badge && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <Badge className={isPopular ? 'bg-primary text-primary-foreground' : ''}>
                       {plan.badge}
+                    </Badge>
+                  </div>
+                )}
+
+                {isCurrent && (
+                  <div className="absolute -top-3 right-4">
+                    <Badge variant="outline" className="bg-background">
+                      Your Plan
                     </Badge>
                   </div>
                 )}
@@ -201,8 +290,16 @@ export default function PricingPage() {
                     variant={plan.ctaStyle}
                     className="w-full"
                     onClick={() => handleCTA(plan.id)}
+                    disabled={isCurrent || checkoutLoading !== null}
                   >
-                    {plan.cta}
+                    {checkoutLoading === plan.id ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Redirecting...
+                      </span>
+                    ) : (
+                      getButtonLabel(plan)
+                    )}
                   </Button>
                 </CardContent>
               </Card>

@@ -275,8 +275,8 @@ This plan implements backend-powered ML training, persistent dataset storage, us
 - [x] 9. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 10. Integration wiring and final validation
-  - [ ] 10.1 Connect training page to real backend
+- [x] 10. Integration wiring and final validation
+  - [x] 10.1 Connect training page to real backend
     - Update `src/pages/TrainingPage.tsx` to use `TrainingContext` when authenticated
     - Show real-time progress from Realtime subscription
     - Display actual metrics on completion
@@ -284,21 +284,21 @@ This plan implements backend-powered ML training, persistent dataset storage, us
     - Show quota/limit errors with upgrade prompts
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.11, 1.2_
 
-  - [ ] 10.2 Connect dataset upload to storage service
+  - [x] 10.2 Connect dataset upload to storage service
     - Update dataset upload components to use `datasetStorageService` when authenticated
     - Validate file format and size before upload
     - Show storage quota usage and remaining space
     - Display error with remaining space when quota exceeded
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6_
 
-  - [ ] 10.3 Connect pricing page to Stripe checkout
+  - [x] 10.3 Connect pricing page to Stripe checkout
     - Update `src/pages/PricingPage.tsx` to use `SubscriptionContext.initiateCheckout()`
     - Display current tier, trial status, and usage summary
     - Show trial days remaining when on trial
     - Handle checkout success/cancel redirects
     - _Requirements: 6.3, 6.6, 6.7_
 
-  - [ ] 10.4 Add usage dashboard to settings
+  - [x] 10.4 Add usage dashboard to settings
     - Update `src/pages/SettingsPage.tsx` to display current usage vs tier limits
     - Show progress bars for each resource type
     - Highlight resources at ≥80% with warning styling
@@ -317,7 +317,7 @@ This plan implements backend-powered ML training, persistent dataset storage, us
     - Test failed training does not consume quota
     - _Requirements: 4.1, 4.5, 5.1, 5.4, 5.5_
 
-- [ ] 11. Final checkpoint - Ensure all tests pass
+- [x] 11. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
