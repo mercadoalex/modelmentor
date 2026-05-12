@@ -168,17 +168,22 @@ export default function DataCollectionPage() {
         setSampleLoadError(null);
 
         // Check if samples are empty in guided tour mode
-        if (projectData.is_guided_tour && samples.length === 0) {
-          setSampleLoadEmpty(true);
-          // Auto-select synthetic template for guided tour fallback
-          autoSelectSyntheticTemplate(projectData.model_type);
+        // For image_classification, always use synthetic fallback since we have bundled images
+        // that work offline and provide a consistent learning experience
+        if (projectData.is_guided_tour) {
+          if (samples.length === 0 || projectData.model_type === 'image_classification') {
+            setSampleLoadEmpty(true);
+            // Auto-select synthetic template for guided tour fallback
+            autoSelectSyntheticTemplate(projectData.model_type);
+          } else {
+            setSampleLoadEmpty(false);
+            setUsingSyntheticFallback(false);
+            // Guided tour: pre-select first available sample dataset
+            setSelectedSample(samples[0].id);
+          }
         } else {
           setSampleLoadEmpty(false);
           setUsingSyntheticFallback(false);
-          // Guided tour: pre-select first available sample dataset
-          if (projectData.is_guided_tour && samples.length > 0) {
-            setSelectedSample(samples[0].id);
-          }
         }
       } catch (error) {
         console.error('Failed to load sample datasets:', error);
