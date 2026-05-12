@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Download, Search, Sparkles, FileText, Image, TrendingUp, Users, Heart, Home, Star, Eye, Package } from 'lucide-react';
 import type { ModelType } from '@/types/types';
 import { toast } from 'sonner';
-import { generateImageClassification, type ImageDatasetRow } from '@/services/syntheticDatasetGeneratorService';
+import { generateImageClassification, generateColorPatterns, generateDigits, generateAnimalSilhouettes, type ImageDatasetRow } from '@/services/syntheticDatasetGeneratorService';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -345,29 +345,57 @@ const TEMPLATES: DatasetTemplate[] = [
     modelType: 'image_classification',
     tags: ['images', 'colors', 'beginner-friendly'],
     difficulty: 'beginner',
-    rows: 0, // User needs to upload their own images
+    rows: 36, // 12 per color class
     columns: ['image', 'label'],
     realWorldUse: 'Color detection is used in quality control, fashion apps, and accessibility tools.',
     icon: Image,
     iconColor: 'text-rose-500',
-    bundledImages: false,
+    bundledImages: true,
     generateData: () => [],
+    generateImageData: () => {
+      const dataset = generateColorPatterns();
+      return dataset.images;
+    },
   },
 
   {
-    id: 'objects-classification',
-    name: 'Everyday Objects 📦',
-    description: 'Classify common objects like cups, books, phones. Build your own object detector!',
+    id: 'digits-classification',
+    name: 'Handwritten Digits 🔢',
+    description: 'Classify handwritten digits 0-9. The classic MNIST-inspired dataset for beginners.',
     modelType: 'image_classification',
-    tags: ['images', 'objects', 'practical'],
-    difficulty: 'intermediate',
-    rows: 0, // User needs to upload their own images
+    tags: ['images', 'digits', 'classic'],
+    difficulty: 'beginner',
+    rows: 40, // 4 per digit
     columns: ['image', 'label'],
-    realWorldUse: 'Object detection powers inventory systems, robotics, and smart home devices.',
+    realWorldUse: 'Digit recognition powers check processing, postal sorting, and form digitization.',
+    icon: Image,
+    iconColor: 'text-indigo-500',
+    bundledImages: true,
+    generateData: () => [],
+    generateImageData: () => {
+      const dataset = generateDigits();
+      return dataset.images;
+    },
+  },
+
+  {
+    id: 'animals-classification',
+    name: 'Animal Silhouettes 🐱',
+    description: 'Classify animal silhouettes (cat, dog, bird). Learn shape-based recognition.',
+    modelType: 'image_classification',
+    tags: ['images', 'animals', 'shapes'],
+    difficulty: 'intermediate',
+    rows: 36, // 12 per animal
+    columns: ['image', 'label'],
+    realWorldUse: 'Animal detection is used in wildlife monitoring, pet apps, and smart cameras.',
     icon: Image,
     iconColor: 'text-amber-500',
-    bundledImages: false,
+    bundledImages: true,
     generateData: () => [],
+    generateImageData: () => {
+      const dataset = generateAnimalSilhouettes();
+      return dataset.images;
+    },
   },
 ];
 

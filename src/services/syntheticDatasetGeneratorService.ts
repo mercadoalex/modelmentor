@@ -500,6 +500,239 @@ function generateFallbackImageDataset(rng: SeededRandom): ImageGeneratedDataset 
   };
 }
 
+/**
+ * Generate a color patterns dataset - images with dominant colors
+ * Great for teaching how models learn to recognize color features
+ */
+export function generateColorPatterns(options?: GeneratorOptions): ImageGeneratedDataset {
+  const rng = new SeededRandom(options?.seed);
+  const images: ImageDatasetRow[] = [];
+
+  // Color definitions with variations
+  const colorClasses = [
+    { name: 'red', baseColors: ['#FF0000', '#FF4444', '#CC0000', '#FF6666', '#EE0000', '#DD2222'] },
+    { name: 'green', baseColors: ['#00FF00', '#44FF44', '#00CC00', '#66FF66', '#00EE00', '#22DD22'] },
+    { name: 'blue', baseColors: ['#0000FF', '#4444FF', '#0000CC', '#6666FF', '#0000EE', '#2222DD'] },
+  ];
+
+  // Generate 12 images per color class (36 total)
+  for (const colorClass of colorClasses) {
+    for (let i = 0; i < 12; i++) {
+      const mainColor = rng.choice(colorClass.baseColors);
+      const patternType = rng.between(0, 3);
+      
+      let svg: string;
+      
+      switch (patternType) {
+        case 0: // Solid with gradient
+          svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+            <defs>
+              <linearGradient id="grad${i}" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:${mainColor};stop-opacity:1" />
+                <stop offset="100%" style="stop-color:${mainColor};stop-opacity:0.6" />
+              </linearGradient>
+            </defs>
+            <rect width="64" height="64" fill="url(#grad${i})"/>
+          </svg>`;
+          break;
+        case 1: // Circles pattern
+          const circleCount = rng.between(3, 6);
+          let circles = '';
+          for (let c = 0; c < circleCount; c++) {
+            const cx = rng.between(10, 54);
+            const cy = rng.between(10, 54);
+            const r = rng.between(5, 15);
+            circles += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${mainColor}" opacity="${rng.between(5, 10) / 10}"/>`;
+          }
+          svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+            <rect width="64" height="64" fill="#f5f5f5"/>
+            ${circles}
+          </svg>`;
+          break;
+        case 2: // Stripes
+          const stripeWidth = rng.between(8, 16);
+          let stripes = '';
+          for (let s = 0; s < 64; s += stripeWidth * 2) {
+            stripes += `<rect x="${s}" y="0" width="${stripeWidth}" height="64" fill="${mainColor}"/>`;
+          }
+          svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+            <rect width="64" height="64" fill="#f5f5f5"/>
+            ${stripes}
+          </svg>`;
+          break;
+        default: // Large centered shape
+          svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+            <rect width="64" height="64" fill="#f5f5f5"/>
+            <rect x="8" y="8" width="48" height="48" fill="${mainColor}" rx="4"/>
+          </svg>`;
+      }
+      
+      const dataUri = `data:image/svg+xml;base64,${btoa(svg)}`;
+      images.push({
+        imageDataUri: dataUri,
+        label: colorClass.name,
+        filename: `${colorClass.name}_${String(i + 1).padStart(3, '0')}.svg`,
+      });
+    }
+  }
+
+  const shuffledImages = rng.shuffle(images);
+  return {
+    images: shuffledImages,
+    labels: colorClasses.map(c => c.name),
+  };
+}
+
+/**
+ * Generate a handwritten digits dataset (simplified MNIST-like)
+ * Uses SVG paths to create digit-like shapes
+ */
+export function generateDigits(options?: GeneratorOptions): ImageGeneratedDataset {
+  const rng = new SeededRandom(options?.seed);
+  const images: ImageDatasetRow[] = [];
+
+  // SVG paths for digits 0-9 (simplified representations)
+  const digitPaths: Record<string, string[]> = {
+    '0': [
+      'M32 8 C16 8 12 20 12 32 C12 44 16 56 32 56 C48 56 52 44 52 32 C52 20 48 8 32 8 Z',
+      'M32 10 Q14 10 14 32 Q14 54 32 54 Q50 54 50 32 Q50 10 32 10 Z',
+    ],
+    '1': [
+      'M24 16 L32 8 L32 56 M24 56 L40 56',
+      'M28 14 L34 8 L34 56 M26 56 L42 56',
+    ],
+    '2': [
+      'M16 16 Q16 8 32 8 Q48 8 48 20 Q48 32 32 40 L16 56 L48 56',
+      'M14 18 Q14 8 32 8 Q50 8 50 18 Q50 32 32 42 L14 56 L50 56',
+    ],
+    '3': [
+      'M16 8 L48 8 L32 28 Q48 28 48 42 Q48 56 32 56 Q16 56 16 48',
+      'M14 8 L50 8 L32 26 Q50 26 50 41 Q50 56 32 56 Q14 56 14 46',
+    ],
+    '4': [
+      'M40 56 L40 8 L12 40 L52 40',
+      'M42 56 L42 8 L10 42 L54 42',
+    ],
+    '5': [
+      'M48 8 L16 8 L16 28 Q32 24 44 32 Q52 40 44 52 Q36 56 24 56',
+      'M50 8 L14 8 L14 26 Q32 22 46 30 Q54 38 46 50 Q38 56 22 56',
+    ],
+    '6': [
+      'M44 8 Q16 16 16 40 Q16 56 32 56 Q48 56 48 44 Q48 32 32 32 Q16 32 16 40',
+      'M46 8 Q14 18 14 38 Q14 56 32 56 Q50 56 50 42 Q50 30 32 30 Q14 30 14 38',
+    ],
+    '7': [
+      'M16 8 L48 8 L28 56',
+      'M14 8 L50 8 L26 56',
+    ],
+    '8': [
+      'M32 8 Q16 8 16 20 Q16 32 32 32 Q48 32 48 20 Q48 8 32 8 M32 32 Q16 32 16 44 Q16 56 32 56 Q48 56 48 44 Q48 32 32 32',
+      'M32 8 Q14 8 14 18 Q14 30 32 30 Q50 30 50 18 Q50 8 32 8 M32 30 Q14 30 14 43 Q14 56 32 56 Q50 56 50 43 Q50 30 32 30',
+    ],
+    '9': [
+      'M48 48 Q48 56 32 56 Q16 56 16 44 Q16 32 32 32 Q48 32 48 20 Q48 8 32 8 Q16 8 16 20',
+      'M50 46 Q50 56 32 56 Q14 56 14 42 Q14 30 32 30 Q50 30 50 18 Q50 8 32 8 Q14 8 14 18',
+    ],
+  };
+
+  const colors = ['#1a1a1a', '#333333', '#4a4a4a', '#2d2d2d', '#404040'];
+
+  // Generate 4 images per digit (40 total)
+  for (let digit = 0; digit <= 9; digit++) {
+    const paths = digitPaths[digit.toString()];
+    for (let i = 0; i < 4; i++) {
+      const path = rng.choice(paths);
+      const color = rng.choice(colors);
+      const strokeWidth = rng.between(3, 5);
+      
+      // Add slight random offset for variation
+      const offsetX = rng.between(-2, 2);
+      const offsetY = rng.between(-2, 2);
+      
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+        <rect width="64" height="64" fill="#f5f5f5"/>
+        <g transform="translate(${offsetX}, ${offsetY})">
+          <path d="${path}" fill="none" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+      </svg>`;
+      
+      const dataUri = `data:image/svg+xml;base64,${btoa(svg)}`;
+      images.push({
+        imageDataUri: dataUri,
+        label: digit.toString(),
+        filename: `digit_${digit}_${String(i + 1).padStart(3, '0')}.svg`,
+      });
+    }
+  }
+
+  const shuffledImages = rng.shuffle(images);
+  return {
+    images: shuffledImages,
+    labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+  };
+}
+
+/**
+ * Generate an animals silhouettes dataset
+ * Simple animal shapes for classification
+ */
+export function generateAnimalSilhouettes(options?: GeneratorOptions): ImageGeneratedDataset {
+  const rng = new SeededRandom(options?.seed);
+  const images: ImageDatasetRow[] = [];
+
+  // Simple animal silhouette paths
+  const animalPaths: Record<string, string[]> = {
+    'cat': [
+      // Cat sitting silhouette
+      'M20 50 Q15 45 15 35 L15 25 Q15 20 20 18 L22 12 L26 18 L38 18 L42 12 L44 18 Q49 20 49 25 L49 35 Q49 45 44 50 Z M24 28 L24 32 M40 28 L40 32 M28 38 Q32 42 36 38',
+      'M18 52 Q12 46 12 34 L12 24 Q12 18 18 16 L21 8 L26 16 L38 16 L43 8 L46 16 Q52 18 52 24 L52 34 Q52 46 46 52 Z',
+    ],
+    'dog': [
+      // Dog silhouette
+      'M12 45 L12 30 Q12 22 20 20 L20 12 Q22 8 28 10 L32 14 L40 14 Q48 14 50 22 L50 30 L55 35 L55 45 Q55 50 50 50 L45 50 L45 55 L35 55 L35 50 L25 50 L25 55 L15 55 L15 50 Q12 50 12 45 Z',
+      'M10 46 L10 28 Q10 20 18 18 L18 10 Q20 6 26 8 L30 12 L42 12 Q50 12 52 20 L52 28 L58 34 L58 46 Q58 52 52 52 L46 52 L46 58 L36 58 L36 52 L24 52 L24 58 L14 58 L14 52 Q10 52 10 46 Z',
+    ],
+    'bird': [
+      // Bird silhouette
+      'M8 32 Q8 28 12 26 L20 26 Q24 20 32 20 Q44 20 50 28 L56 28 L54 32 L50 32 Q48 40 40 44 L32 44 Q24 44 20 40 L16 44 L12 40 Q8 36 8 32 Z M40 28 L42 28',
+      'M6 34 Q6 28 12 26 L22 26 Q26 18 34 18 Q48 18 54 28 L60 28 L58 34 L52 34 Q50 44 40 48 L32 48 Q22 48 18 42 L14 48 L10 42 Q6 38 6 34 Z',
+    ],
+  };
+
+  const colors = ['#2c3e50', '#34495e', '#1a252f', '#2d3436', '#353b48'];
+
+  // Generate 12 images per animal (36 total)
+  for (const [animal, paths] of Object.entries(animalPaths)) {
+    for (let i = 0; i < 12; i++) {
+      const path = rng.choice(paths);
+      const color = rng.choice(colors);
+      const scale = rng.between(90, 110) / 100;
+      const offsetX = rng.between(-3, 3);
+      const offsetY = rng.between(-3, 3);
+      
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+        <rect width="64" height="64" fill="#f5f5f5"/>
+        <g transform="translate(${32 + offsetX}, ${32 + offsetY}) scale(${scale}) translate(-32, -32)">
+          <path d="${path}" fill="${color}"/>
+        </g>
+      </svg>`;
+      
+      const dataUri = `data:image/svg+xml;base64,${btoa(svg)}`;
+      images.push({
+        imageDataUri: dataUri,
+        label: animal,
+        filename: `${animal}_${String(i + 1).padStart(3, '0')}.svg`,
+      });
+    }
+  }
+
+  const shuffledImages = rng.shuffle(images);
+  return {
+    images: shuffledImages,
+    labels: Object.keys(animalPaths),
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Unified Service Interface
 // ─────────────────────────────────────────────────────────────────────────────
@@ -563,6 +796,9 @@ export const syntheticDatasetGeneratorService = {
   generateClassification,
   generateRegression,
   generateImageClassification,
+  generateColorPatterns,
+  generateDigits,
+  generateAnimalSilhouettes,
   generateForModelType,
   getGeneratorForModelType,
   isModelTypeSupported,
