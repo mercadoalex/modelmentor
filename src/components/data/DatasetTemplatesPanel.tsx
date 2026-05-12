@@ -156,6 +156,72 @@ const TEMPLATES: DatasetTemplate[] = [
     },
   },
 
+  {
+    id: 'customer-churn',
+    name: 'Customer Churn 📉',
+    description: 'Predict if a customer will cancel their subscription based on usage patterns.',
+    modelType: 'classification',
+    tags: ['business', 'binary', 'retention'],
+    difficulty: 'intermediate',
+    rows: 200,
+    columns: ['tenure_months', 'monthly_charges', 'total_charges', 'contract_type', 'support_tickets', 'churned'],
+    realWorldUse: 'Subscription services use this to identify at-risk customers and improve retention.',
+    icon: Users,
+    iconColor: 'text-orange-500',
+    generateData: () => {
+      const rows: string[][] = [];
+      for (let i = 0; i < 200; i++) {
+        const tenure = randomBetween(1, 72);
+        const monthlyCharges = randomBetween(20, 120);
+        const totalCharges = tenure * monthlyCharges + randomBetween(-100, 100);
+        const contractType = randomChoice(['month-to-month', 'one-year', 'two-year']);
+        const supportTickets = randomBetween(0, 10);
+        // Churn probability based on realistic factors
+        const churnProb =
+          (contractType === 'month-to-month' ? 0.3 : 0.05) +
+          (tenure < 12 ? 0.2 : 0) +
+          (supportTickets > 5 ? 0.2 : 0) +
+          (monthlyCharges > 80 ? 0.1 : 0);
+        const churned = Math.random() < churnProb ? 1 : 0;
+        rows.push([tenure.toString(), monthlyCharges.toString(), Math.round(totalCharges).toString(), contractType, supportTickets.toString(), churned.toString()]);
+      }
+      return rows;
+    },
+  },
+
+  {
+    id: 'diabetes',
+    name: 'Diabetes Prediction 🩺',
+    description: 'Predict diabetes risk from patient health metrics. Classic medical ML dataset.',
+    modelType: 'classification',
+    tags: ['healthcare', 'binary', 'medical'],
+    difficulty: 'intermediate',
+    rows: 200,
+    columns: ['glucose', 'blood_pressure', 'bmi', 'age', 'insulin', 'has_diabetes'],
+    realWorldUse: 'Healthcare providers use this for early diabetes screening and prevention.',
+    icon: Heart,
+    iconColor: 'text-teal-500',
+    generateData: () => {
+      const rows: string[][] = [];
+      for (let i = 0; i < 200; i++) {
+        const glucose = randomBetween(70, 200);
+        const bp = randomBetween(60, 120);
+        const bmi = randomBetween(18, 45, 1);
+        const age = randomBetween(21, 81);
+        const insulin = randomBetween(0, 300);
+        // Diabetes probability based on medical risk factors
+        const diabetesProb =
+          (glucose > 140 ? 0.4 : 0) +
+          (bmi > 30 ? 0.2 : 0) +
+          (age > 45 ? 0.15 : 0) +
+          (insulin > 150 ? 0.1 : 0);
+        const hasDiabetes = Math.random() < diabetesProb ? 1 : 0;
+        rows.push([glucose.toString(), bp.toString(), bmi.toString(), age.toString(), insulin.toString(), hasDiabetes.toString()]);
+      }
+      return rows;
+    },
+  },
+
   // ── Regression ─────────────────────────────────────────────────────────────
 
   {
@@ -221,6 +287,111 @@ const TEMPLATES: DatasetTemplate[] = [
           randomBetween(-5000, 5000),
         );
         rows.push([exp.toString(), edu.toString(), role.toString(), skills.toString(), salary.toString()]);
+      }
+      return rows;
+    },
+  },
+
+  {
+    id: 'weather-temperature',
+    name: 'Weather Temperature 🌡️',
+    description: 'Predict temperature based on weather conditions and historical patterns.',
+    modelType: 'regression',
+    tags: ['weather', 'forecasting', 'numeric'],
+    difficulty: 'beginner',
+    rows: 200,
+    columns: ['humidity', 'wind_speed', 'pressure', 'cloud_cover', 'month', 'temperature'],
+    realWorldUse: 'Weather apps and climate models use this for temperature forecasting.',
+    icon: TrendingUp,
+    iconColor: 'text-sky-500',
+    generateData: () => {
+      const rows: string[][] = [];
+      for (let i = 0; i < 200; i++) {
+        const month = randomBetween(1, 12);
+        const humidity = randomBetween(20, 95);
+        const windSpeed = randomBetween(0, 30);
+        const pressure = randomBetween(990, 1030);
+        const cloudCover = randomBetween(0, 100);
+        // Temperature based on month (seasonal) and other factors
+        const baseTemp = month <= 6 ? 10 + month * 5 : 40 - (month - 6) * 5;
+        const temperature = Math.round(
+          baseTemp -
+          humidity * 0.1 -
+          windSpeed * 0.3 +
+          (pressure - 1010) * 0.2 -
+          cloudCover * 0.05 +
+          randomBetween(-5, 5)
+        );
+        rows.push([humidity.toString(), windSpeed.toString(), pressure.toString(), cloudCover.toString(), month.toString(), temperature.toString()]);
+      }
+      return rows;
+    },
+  },
+
+  {
+    id: 'song-popularity',
+    name: 'Song Popularity 🎵',
+    description: 'Predict song popularity score based on audio features like tempo and energy.',
+    modelType: 'regression',
+    tags: ['music', 'entertainment', 'numeric'],
+    difficulty: 'intermediate',
+    rows: 200,
+    columns: ['tempo', 'energy', 'danceability', 'loudness', 'duration_sec', 'popularity'],
+    realWorldUse: 'Spotify and music platforms use this to recommend songs and predict hits.',
+    icon: TrendingUp,
+    iconColor: 'text-emerald-500',
+    generateData: () => {
+      const rows: string[][] = [];
+      for (let i = 0; i < 200; i++) {
+        const tempo = randomBetween(60, 180);
+        const energy = randomBetween(10, 100);
+        const danceability = randomBetween(10, 100);
+        const loudness = randomBetween(-20, 0);
+        const duration = randomBetween(120, 360);
+        // Popularity formula based on typical hit song characteristics
+        const popularity = Math.min(100, Math.max(0, Math.round(
+          30 +
+          (energy > 60 ? 15 : 0) +
+          (danceability > 60 ? 15 : 0) +
+          (tempo > 100 && tempo < 140 ? 10 : 0) +
+          (duration > 180 && duration < 270 ? 10 : 0) +
+          randomBetween(-15, 15)
+        )));
+        rows.push([tempo.toString(), energy.toString(), danceability.toString(), loudness.toString(), duration.toString(), popularity.toString()]);
+      }
+      return rows;
+    },
+  },
+
+  {
+    id: 'car-prices',
+    name: 'Used Car Prices 🚗',
+    description: 'Predict used car prices based on mileage, age, and features.',
+    modelType: 'regression',
+    tags: ['automotive', 'pricing', 'numeric'],
+    difficulty: 'beginner',
+    rows: 200,
+    columns: ['year', 'mileage', 'engine_size', 'horsepower', 'fuel_efficiency', 'price'],
+    realWorldUse: 'Car dealerships and marketplaces use this to price vehicles accurately.',
+    icon: TrendingUp,
+    iconColor: 'text-slate-500',
+    generateData: () => {
+      const rows: string[][] = [];
+      for (let i = 0; i < 200; i++) {
+        const year = randomBetween(2010, 2024);
+        const mileage = randomBetween(5000, 150000);
+        const engineSize = randomChoice([1.4, 1.6, 2.0, 2.5, 3.0, 3.5]);
+        const horsepower = Math.round(engineSize * 60 + randomBetween(-20, 40));
+        const fuelEfficiency = Math.round(40 - engineSize * 5 + randomBetween(-3, 3));
+        // Price formula
+        const basePrice = 15000 + (year - 2010) * 2000;
+        const price = Math.round(
+          basePrice -
+          mileage * 0.05 +
+          horsepower * 50 +
+          randomBetween(-2000, 2000)
+        );
+        rows.push([year.toString(), mileage.toString(), engineSize.toString(), horsepower.toString(), fuelEfficiency.toString(), Math.max(5000, price).toString()]);
       }
       return rows;
     },
@@ -435,6 +606,247 @@ const TEMPLATES: DatasetTemplate[] = [
       for (let i = 0; i < 100; i++) {
         const topic = topics[i % 4];
         rows.push([randomChoice(topic.headlines), topic.label]);
+      }
+      return rows;
+    },
+  },
+
+  {
+    id: 'language-detection',
+    name: 'Language Detection 🌍',
+    description: 'Detect the language of a given text (English, Spanish, French, German, Italian).',
+    modelType: 'text_classification',
+    tags: ['NLP', 'language', 'multilingual'],
+    difficulty: 'intermediate',
+    rows: 100,
+    columns: ['text', 'language'],
+    realWorldUse: 'Translation services and international platforms use this to route content to the right language model.',
+    icon: FileText,
+    iconColor: 'text-emerald-500',
+    generateData: () => {
+      const english = [
+        'The weather is beautiful today and I feel great.',
+        'Can you help me find the nearest coffee shop?',
+        'I love reading books about science and technology.',
+        'The meeting has been rescheduled to next Monday.',
+        'Thank you for your help with this project.',
+        'What time does the train leave for the city?',
+        'I would like to order a pizza with extra cheese.',
+      ];
+      const spanish = [
+        'El clima está hermoso hoy y me siento muy bien.',
+        'Me puedes ayudar a encontrar la cafetería más cercana?',
+        'Me encanta leer libros sobre ciencia y tecnología.',
+        'La reunión se ha reprogramado para el próximo lunes.',
+        'Gracias por tu ayuda con este proyecto.',
+        'A qué hora sale el tren hacia la ciudad?',
+        'Me gustaría pedir una pizza con queso extra.',
+      ];
+      const french = [
+        'Le temps est magnifique aujourd hui et je me sens bien.',
+        'Pouvez-vous m aider à trouver le café le plus proche?',
+        'J adore lire des livres sur la science et la technologie.',
+        'La réunion a été reportée à lundi prochain.',
+        'Merci pour votre aide sur ce projet.',
+        'À quelle heure part le train pour la ville?',
+        'Je voudrais commander une pizza avec du fromage supplémentaire.',
+      ];
+      const german = [
+        'Das Wetter ist heute wunderschön und ich fühle mich großartig.',
+        'Können Sie mir helfen das nächste Café zu finden?',
+        'Ich liebe es Bücher über Wissenschaft und Technologie zu lesen.',
+        'Das Meeting wurde auf nächsten Montag verschoben.',
+        'Vielen Dank für Ihre Hilfe bei diesem Projekt.',
+        'Wann fährt der Zug in die Stadt ab?',
+        'Ich möchte eine Pizza mit extra Käse bestellen.',
+      ];
+      const italian = [
+        'Il tempo è bellissimo oggi e mi sento benissimo.',
+        'Puoi aiutarmi a trovare il bar più vicino?',
+        'Adoro leggere libri di scienza e tecnologia.',
+        'La riunione è stata riprogrammata per lunedì prossimo.',
+        'Grazie per il tuo aiuto con questo progetto.',
+        'A che ora parte il treno per la città?',
+        'Vorrei ordinare una pizza con formaggio extra.',
+      ];
+      const languages = [
+        { texts: english, label: 'english' },
+        { texts: spanish, label: 'spanish' },
+        { texts: french, label: 'french' },
+        { texts: german, label: 'german' },
+        { texts: italian, label: 'italian' },
+      ];
+      const rows: string[][] = [];
+      for (let i = 0; i < 100; i++) {
+        const lang = languages[i % 5];
+        rows.push([randomChoice(lang.texts), lang.label]);
+      }
+      return rows;
+    },
+  },
+
+  {
+    id: 'fake-news',
+    name: 'Fake News Detection 📢',
+    description: 'Classify news articles as real or fake. Learn to identify misinformation.',
+    modelType: 'text_classification',
+    tags: ['NLP', 'news', 'misinformation'],
+    difficulty: 'advanced',
+    rows: 100,
+    columns: ['headline', 'label'],
+    realWorldUse: 'Social media platforms and fact-checkers use this to combat misinformation.',
+    icon: FileText,
+    iconColor: 'text-rose-500',
+    generateData: () => {
+      // Synthetic examples for educational purposes
+      const fake = [
+        'Scientists discover that the moon is actually made of cheese',
+        'Celebrity secretly replaced by robot clone says insider',
+        'New study proves that sleeping makes you taller overnight',
+        'Government hiding evidence of time travel technology',
+        'Eating chocolate for breakfast cures all diseases',
+        'Famous landmark disappears overnight baffling experts',
+        'Secret society controls all world weather patterns',
+        'Ancient civilization found living under major city',
+        'Popular drink found to grant temporary superpowers',
+        'Aliens confirmed to be running major tech companies',
+      ];
+      const real = [
+        'Stock market closes higher after positive economic data',
+        'New research shows benefits of regular exercise',
+        'City council approves budget for infrastructure repairs',
+        'Scientists publish findings on climate change effects',
+        'Tech company announces quarterly earnings results',
+        'Health officials recommend updated vaccination schedule',
+        'University researchers develop new renewable energy method',
+        'International trade agreement signed by member nations',
+        'Local hospital expands emergency department capacity',
+        'Transportation department announces road construction plans',
+      ];
+      const rows: string[][] = [];
+      for (let i = 0; i < 100; i++) {
+        rows.push(i % 2 === 0
+          ? [randomChoice(fake), 'fake']
+          : [randomChoice(real), 'real'],
+        );
+      }
+      return rows;
+    },
+  },
+
+  {
+    id: 'star-ratings',
+    name: 'Star Ratings ⭐',
+    description: 'Classify product reviews by star rating (1-5 stars). Multiclass sentiment analysis.',
+    modelType: 'text_classification',
+    tags: ['NLP', 'sentiment', 'multiclass'],
+    difficulty: 'intermediate',
+    rows: 100,
+    columns: ['review_text', 'stars'],
+    realWorldUse: 'E-commerce platforms use this to automatically categorize and analyze customer feedback.',
+    icon: FileText,
+    iconColor: 'text-amber-500',
+    generateData: () => {
+      const oneStarReviews = [
+        'Absolutely terrible. Complete waste of money. Avoid at all costs.',
+        'Worst purchase ever. Broke immediately. No refund offered.',
+        'Horrible quality. Nothing like the description. Very angry.',
+      ];
+      const twoStarReviews = [
+        'Pretty disappointing. Expected much better for the price.',
+        'Not great. Has some issues but somewhat usable.',
+        'Below average. Would not recommend to others.',
+      ];
+      const threeStarReviews = [
+        'It is okay. Nothing special but gets the job done.',
+        'Average product. Some pros and cons. Decent value.',
+        'Middle of the road. Not bad but not impressive either.',
+      ];
+      const fourStarReviews = [
+        'Good product overall. Minor issues but mostly satisfied.',
+        'Pretty happy with this purchase. Works well.',
+        'Nice quality. Would consider buying again.',
+      ];
+      const fiveStarReviews = [
+        'Absolutely perfect! Exceeded all my expectations!',
+        'Best purchase I have ever made. Highly recommend!',
+        'Amazing quality and fast shipping. Love it!',
+      ];
+      const ratings = [
+        { reviews: oneStarReviews, stars: '1' },
+        { reviews: twoStarReviews, stars: '2' },
+        { reviews: threeStarReviews, stars: '3' },
+        { reviews: fourStarReviews, stars: '4' },
+        { reviews: fiveStarReviews, stars: '5' },
+      ];
+      const rows: string[][] = [];
+      for (let i = 0; i < 100; i++) {
+        const rating = ratings[i % 5];
+        rows.push([randomChoice(rating.reviews), rating.stars]);
+      }
+      return rows;
+    },
+  },
+
+  {
+    id: 'email-categories',
+    name: 'Email Categories 📬',
+    description: 'Sort emails into categories (work, personal, promotions, social).',
+    modelType: 'text_classification',
+    tags: ['NLP', 'email', 'organization'],
+    difficulty: 'intermediate',
+    rows: 100,
+    columns: ['email_subject', 'category'],
+    realWorldUse: 'Email clients like Gmail use this to automatically organize your inbox.',
+    icon: FileText,
+    iconColor: 'text-violet-500',
+    generateData: () => {
+      const work = [
+        'Q3 Budget Review Meeting - Action Required',
+        'Project deadline extended to Friday',
+        'Please review the attached proposal',
+        'Team standup notes from today',
+        'Your performance review is scheduled',
+        'Client feedback on the latest deliverable',
+        'Updated project timeline attached',
+      ];
+      const personal = [
+        'Happy Birthday! Hope you have a great day',
+        'Family reunion this weekend - RSVP',
+        'Photos from our vacation last month',
+        'Dinner plans for Saturday night?',
+        'Miss you! Let us catch up soon',
+        'Your package has been delivered',
+        'Reminder: Doctor appointment tomorrow',
+      ];
+      const promotions = [
+        'SALE: 50% off everything this weekend only!',
+        'Your exclusive member discount inside',
+        'Flash sale starts in 2 hours!',
+        'New arrivals you will love - Shop now',
+        'Limited time offer: Free shipping on all orders',
+        'Your cart is waiting - Complete your purchase',
+        'Special deal just for you - 30% off',
+      ];
+      const social = [
+        'John commented on your photo',
+        'You have 5 new connection requests',
+        'Sarah mentioned you in a post',
+        'Your friend just joined the platform',
+        'Weekly digest: See what you missed',
+        'New message from your group',
+        'Event reminder: Tech meetup tonight',
+      ];
+      const categories = [
+        { subjects: work, category: 'work' },
+        { subjects: personal, category: 'personal' },
+        { subjects: promotions, category: 'promotions' },
+        { subjects: social, category: 'social' },
+      ];
+      const rows: string[][] = [];
+      for (let i = 0; i < 100; i++) {
+        const cat = categories[i % 4];
+        rows.push([randomChoice(cat.subjects), cat.category]);
       }
       return rows;
     },
