@@ -43,6 +43,64 @@
 - [x] Added `isComparing` state for explicit comparison trigger
 - [x] All lint checks passing
 
+### 6. Learning Moments ✅
+**Spec:** `.kiro/specs/learning-moments/`
+
+- [x] Contextual educational content at 3 workflow points (Learn: Data, Learn: Model, Learn: Next Steps)
+- [x] Three-step modal (Content → Quiz → Summary) with progress indicator
+- [x] Gamification integration (50/75/100 points per moment)
+- [x] Auto-open for guided tour, notification prompt for non-guided
+
+### 7. Smart Dataset Matching ✅
+
+- [x] Added Plant Diseases dataset for agricultural AI learning
+- [x] Added Dog Breeds dataset for pet recognition projects
+- [x] Added Facial Expressions dataset for emotion AI projects
+- [x] Implemented smart template matching based on project description
+- [x] "Best Match" badge for most relevant dataset per project
+- [x] Templates sorted by relevance score, then difficulty
+
+---
+
+## 🔄 IN PROGRESS
+
+### 8. Backend Subscription Integration 🚧
+**Spec:** `.kiro/specs/backend-subscription-integration/`
+
+Real backend integration with Supabase for dataset storage, authentication, ML model training, and subscription-based tiers.
+
+#### Phase 1: Database & Services ✅
+- [x] Database migrations (enum types, extended tables, RLS policies, storage buckets)
+- [x] Extended subscription types with TierLimits, API interfaces
+- [x] Shared utility functions (username validation, path construction, tier limits, trial calculations)
+- [x] Subscription service (tier management, Stripe checkout, trial logic)
+- [x] Extended usage tracking service (event-based tracking, daily rate limits, compute budget)
+- [x] Dataset storage service (upload/download/delete with quota enforcement)
+- [x] Training job service (job submission, validation, Realtime progress)
+- [x] Migration service (offline-to-authenticated data migration)
+- [x] Feature gating service (tier-based feature access control)
+
+#### Phase 2: Edge Functions 🔜
+- [ ] `train-model` — Server-side ML training with TensorFlow.js
+- [ ] `create-checkout` — Stripe Checkout session creation
+- [ ] `stripe-webhook` — Payment event handling (upgrade/downgrade/cancel)
+- [ ] `check-usage` — Usage summary and limits API
+- [ ] `migrate-local-data` — Offline project migration
+
+#### Phase 3: Frontend Integration 🔜
+- [ ] Extended AuthContext with profile management
+- [ ] SubscriptionContext (tier, usage, limits, trial status)
+- [ ] TrainingContext (active jobs, Realtime progress)
+- [ ] Wire contexts into App shell
+- [ ] Migration prompt UI (offline → authenticated)
+- [ ] Feature gating UI components (FeatureGate, UpgradePrompt)
+
+#### Phase 4: Page Wiring 🔜
+- [ ] Connect training page to real backend
+- [ ] Connect dataset upload to storage service
+- [ ] Connect pricing page to Stripe checkout
+- [ ] Add usage dashboard to settings page
+
 ---
 
 ## 🔄 SUGGESTED IMPROVEMENTS
@@ -53,9 +111,6 @@
 - [ ] **Accessibility Audit** - Run axe-core and fix a11y issues
 
 ### Feature Enhancements
-- [ ] **Real Backend Integration** - Replace mock data with Supabase queries
-- [ ] **Model Training Pipeline** - Implement actual ML model training
-- [ ] **User Authentication** - Complete auth flow with Supabase Auth
 - [ ] **Assignment Submission** - Enable file uploads and grading
 
 ### Performance & UX
@@ -80,13 +135,18 @@
 | Tests Passing | 11/11 ✅ |
 | Tests Skipped | 3 (intentional) |
 | Tests Todo | 3 |
+| Specs Completed | 7 ✅ |
+| Specs In Progress | 1 🚧 |
 
 ---
 
 ## 📁 SPEC DOCUMENTATION
 
-All completed specs are documented in `.kiro/specs/`:
-- `guided-tour-dataset-fix/` - Bugfix spec
-- `sample-dataset-generators/` - Feature spec
-- `feature-engineering-workshop/` - Feature spec (5 phases)
-- `typescript-errors-fix/` - Bugfix spec
+All specs are documented in `.kiro/specs/`:
+- `guided-tour-dataset-fix/` - Bugfix spec ✅
+- `sample-dataset-generators/` - Feature spec ✅
+- `feature-engineering-workshop/` - Feature spec (5 phases) ✅
+- `typescript-errors-fix/` - Bugfix spec ✅
+- `learning-moments/` - Feature spec ✅
+- `model-comparison-enhancement/` - Feature spec ✅
+- `backend-subscription-integration/` - Feature spec 🚧 (Phase 1 complete)
