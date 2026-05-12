@@ -221,8 +221,8 @@ This plan implements backend-powered ML training, persistent dataset storage, us
 - [x] 7. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 8. Frontend contexts and integration
-  - [ ] 8.1 Extend AuthContext with profile management
+- [x] 8. Frontend contexts and integration
+  - [x] 8.1 Extend AuthContext with profile management
     - Update `src/contexts/AuthContext.tsx`
     - Add `updateProfile(updates: Partial<Profile>): Promise<void>` method
     - Add `isAuthenticated: boolean` computed property
@@ -231,7 +231,7 @@ This plan implements backend-powered ML training, persistent dataset storage, us
     - Add username validation using `validateUsername` utility before signup
     - _Requirements: 1.1, 1.2, 2.1, 2.2, 2.6, 2.7, 3.1, 3.2, 3.3, 9.4_
 
-  - [ ] 8.2 Create SubscriptionContext
+  - [x] 8.2 Create SubscriptionContext
     - Create `src/contexts/SubscriptionContext.tsx`
     - Provide: `tier`, `status`, `isOnTrial`, `trialDaysRemaining`, `usage`, `limits`, `warnings`
     - Fetch subscription and usage data on mount and after relevant actions
@@ -241,7 +241,7 @@ This plan implements backend-powered ML training, persistent dataset storage, us
     - Show warning notifications when resources hit 80% threshold
     - _Requirements: 6.1, 6.2, 6.6, 6.7, 7.2, 7.4, 7.5, 8.2_
 
-  - [ ] 8.3 Create TrainingContext
+  - [x] 8.3 Create TrainingContext
     - Create `src/contexts/TrainingContext.tsx`
     - Provide: `activeJobs`, `jobHistory`, `currentProgress`
     - Implement `startTraining(request): Promise<TrainModelResponse>` — submits job via trainingJobService
@@ -250,13 +250,13 @@ This plan implements backend-powered ML training, persistent dataset storage, us
     - Track job completion and update history
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.11_
 
-  - [ ] 8.4 Wire contexts into App shell
+  - [x] 8.4 Wire contexts into App shell
     - Update `src/App.tsx` to wrap with `SubscriptionProvider` and `TrainingProvider` (inside `AuthProvider`)
     - Ensure contexts are only active when user is authenticated
     - Add graceful degradation: if Supabase unreachable, fall back to offline mode with banner
     - _Requirements: 1.1, 1.2, 1.3_
 
-  - [ ] 8.5 Implement offline-to-authenticated migration flow
+  - [x] 8.5 Implement offline-to-authenticated migration flow
     - Create `src/components/MigrationPrompt.tsx`
     - Show migration prompt when user signs up and local projects exist
     - Call `migrationService.migrateLocalData()` on acceptance
@@ -265,14 +265,14 @@ This plan implements backend-powered ML training, persistent dataset storage, us
     - Clear local data for successfully migrated items
     - _Requirements: 9.1, 9.2, 9.3_
 
-  - [ ] 8.6 Implement feature gating UI components
+  - [x] 8.6 Implement feature gating UI components
     - Create `src/components/common/FeatureGate.tsx` — wrapper component that checks tier access
     - Create `src/components/common/UpgradePrompt.tsx` — contextual upgrade dialog
     - Add gated feature badge/icon to navigation items and feature cards
     - Show read-only preview of gated feature descriptions for free tier
     - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-- [ ] 9. Checkpoint - Ensure all tests pass
+- [x] 9. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 10. Integration wiring and final validation
