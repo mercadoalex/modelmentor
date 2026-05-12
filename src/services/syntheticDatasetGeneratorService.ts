@@ -930,6 +930,369 @@ export function generateFlowers(options?: GeneratorOptions): ImageGeneratedDatas
   };
 }
 
+/**
+ * Generate plant disease classification dataset
+ * Classifies leaf conditions: healthy, bacterial_spot, early_blight, late_blight
+ * Inspired by PlantVillage dataset for educational purposes
+ */
+export function generatePlantDiseases(options?: GeneratorOptions): ImageGeneratedDataset {
+  const rng = new SeededRandom(options?.seed);
+  const images: ImageDatasetRow[] = [];
+
+  // Disease types with visual characteristics
+  const diseaseTypes: Record<string, { leafColor: string; spotColors: string[]; spotCount: [number, number]; spotSize: [number, number] }> = {
+    'healthy': { 
+      leafColor: '#27ae60', 
+      spotColors: [], 
+      spotCount: [0, 0], 
+      spotSize: [0, 0] 
+    },
+    'bacterial_spot': { 
+      leafColor: '#2ecc71', 
+      spotColors: ['#8b4513', '#654321', '#5d4037'], 
+      spotCount: [8, 15], 
+      spotSize: [2, 4] 
+    },
+    'early_blight': { 
+      leafColor: '#27ae60', 
+      spotColors: ['#8b4513', '#654321', '#d4a574'], 
+      spotCount: [3, 6], 
+      spotSize: [6, 10] 
+    },
+    'late_blight': { 
+      leafColor: '#1e8449', 
+      spotColors: ['#2c3e50', '#34495e', '#5d6d7e', '#85929e'], 
+      spotCount: [4, 8], 
+      spotSize: [8, 14] 
+    },
+  };
+
+  // Generate 10 images per disease type (40 total)
+  for (const [disease, config] of Object.entries(diseaseTypes)) {
+    for (let i = 0; i < 10; i++) {
+      const rotation = rng.between(-15, 15);
+      const scale = rng.between(85, 100) / 100;
+      
+      // Generate leaf shape (simplified tomato/potato leaf)
+      const leafPath = `M32,8 Q48,16 52,32 Q48,48 32,56 Q16,48 12,32 Q16,16 32,8 Z`;
+      
+      // Generate spots based on disease type
+      let spots = '';
+      if (config.spotColors.length > 0) {
+        const numSpots = rng.between(config.spotCount[0], config.spotCount[1]);
+        for (let s = 0; s < numSpots; s++) {
+          const spotX = rng.between(18, 46);
+          const spotY = rng.between(18, 46);
+          const spotR = rng.between(config.spotSize[0], config.spotSize[1]);
+          const spotColor = rng.choice(config.spotColors);
+          
+          // Add some variation to spot shapes
+          if (disease === 'early_blight') {
+            // Concentric ring pattern for early blight
+            spots += `<circle cx="${spotX}" cy="${spotY}" r="${spotR}" fill="${spotColor}" opacity="0.8"/>`;
+            spots += `<circle cx="${spotX}" cy="${spotY}" r="${spotR * 0.6}" fill="${rng.choice(config.spotColors)}" opacity="0.6"/>`;
+          } else if (disease === 'late_blight') {
+            // Irregular patches for late blight
+            const rx = spotR + rng.between(-2, 2);
+            const ry = spotR + rng.between(-2, 2);
+            spots += `<ellipse cx="${spotX}" cy="${spotY}" rx="${rx}" ry="${ry}" fill="${spotColor}" opacity="0.85"/>`;
+          } else {
+            // Small circular spots for bacterial spot
+            spots += `<circle cx="${spotX}" cy="${spotY}" r="${spotR}" fill="${spotColor}" opacity="0.9"/>`;
+          }
+        }
+      }
+      
+      // Add leaf veins
+      const veins = `
+        <line x1="32" y1="12" x2="32" y2="52" stroke="#1e8449" stroke-width="1" opacity="0.5"/>
+        <line x1="32" y1="24" x2="22" y2="18" stroke="#1e8449" stroke-width="0.5" opacity="0.4"/>
+        <line x1="32" y1="24" x2="42" y2="18" stroke="#1e8449" stroke-width="0.5" opacity="0.4"/>
+        <line x1="32" y1="36" x2="20" y2="32" stroke="#1e8449" stroke-width="0.5" opacity="0.4"/>
+        <line x1="32" y1="36" x2="44" y2="32" stroke="#1e8449" stroke-width="0.5" opacity="0.4"/>
+        <line x1="32" y1="44" x2="24" y2="46" stroke="#1e8449" stroke-width="0.5" opacity="0.4"/>
+        <line x1="32" y1="44" x2="40" y2="46" stroke="#1e8449" stroke-width="0.5" opacity="0.4"/>
+      `;
+      
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+        <rect width="64" height="64" fill="#f5f5dc"/>
+        <g transform="translate(32, 32) scale(${scale}) rotate(${rotation}) translate(-32, -32)">
+          <path d="${leafPath}" fill="${config.leafColor}" stroke="#1e8449" stroke-width="1"/>
+          ${veins}
+          ${spots}
+        </g>
+      </svg>`;
+      
+      const dataUri = `data:image/svg+xml;base64,${btoa(svg)}`;
+      images.push({
+        imageDataUri: dataUri,
+        label: disease,
+        filename: `${disease}_${String(i + 1).padStart(3, '0')}.svg`,
+      });
+    }
+  }
+
+  const shuffledImages = rng.shuffle(images);
+  return {
+    images: shuffledImages,
+    labels: Object.keys(diseaseTypes),
+  };
+}
+
+/**
+ * Generate dog breeds classification dataset
+ * Classifies dog silhouettes: labrador, german_shepherd, bulldog, poodle
+ * Inspired by Stanford Dogs dataset for educational purposes
+ */
+export function generateDogBreeds(options?: GeneratorOptions): ImageGeneratedDataset {
+  const rng = new SeededRandom(options?.seed);
+  const images: ImageDatasetRow[] = [];
+
+  // Dog breed characteristics (simplified silhouettes)
+  const breeds: Record<string, { bodyColor: string; earType: string; tailType: string; bodyShape: string }> = {
+    'labrador': {
+      bodyColor: '#d4a574',
+      earType: 'floppy',
+      tailType: 'thick',
+      bodyShape: 'athletic'
+    },
+    'german_shepherd': {
+      bodyColor: '#8b4513',
+      earType: 'pointed',
+      tailType: 'bushy',
+      bodyShape: 'athletic'
+    },
+    'bulldog': {
+      bodyColor: '#d2b48c',
+      earType: 'small',
+      tailType: 'short',
+      bodyShape: 'stocky'
+    },
+    'poodle': {
+      bodyColor: '#f5f5f5',
+      earType: 'floppy',
+      tailType: 'pom',
+      bodyShape: 'elegant'
+    },
+  };
+
+  // Generate 10 images per breed (40 total)
+  for (const [breed, config] of Object.entries(breeds)) {
+    for (let i = 0; i < 10; i++) {
+      const scale = rng.between(90, 105) / 100;
+      const flip = rng.between(0, 1) > 0.5 ? -1 : 1;
+      
+      let body = '';
+      let head = '';
+      let ears = '';
+      let tail = '';
+      let legs = '';
+      
+      // Body shape based on breed
+      if (config.bodyShape === 'stocky') {
+        body = `<ellipse cx="32" cy="38" rx="16" ry="12" fill="${config.bodyColor}"/>`;
+        head = `<circle cx="18" cy="28" r="10" fill="${config.bodyColor}"/>`;
+        legs = `
+          <rect x="20" y="46" width="5" height="10" fill="${config.bodyColor}" rx="2"/>
+          <rect x="38" y="46" width="5" height="10" fill="${config.bodyColor}" rx="2"/>
+        `;
+      } else if (config.bodyShape === 'elegant') {
+        body = `<ellipse cx="32" cy="36" rx="12" ry="10" fill="${config.bodyColor}"/>`;
+        head = `<circle cx="20" cy="24" r="8" fill="${config.bodyColor}"/>`;
+        // Poodle pom-poms
+        body += `<circle cx="32" cy="36" r="6" fill="${config.bodyColor}" stroke="#ddd" stroke-width="1"/>`;
+        legs = `
+          <rect x="24" y="44" width="3" height="12" fill="${config.bodyColor}" rx="1"/>
+          <rect x="36" y="44" width="3" height="12" fill="${config.bodyColor}" rx="1"/>
+          <circle cx="25.5" cy="54" r="3" fill="${config.bodyColor}"/>
+          <circle cx="37.5" cy="54" r="3" fill="${config.bodyColor}"/>
+        `;
+      } else {
+        // Athletic (labrador, german shepherd)
+        body = `<ellipse cx="32" cy="36" rx="14" ry="10" fill="${config.bodyColor}"/>`;
+        head = `<ellipse cx="18" cy="26" rx="8" ry="7" fill="${config.bodyColor}"/>`;
+        legs = `
+          <rect x="22" y="44" width="4" height="12" fill="${config.bodyColor}" rx="1"/>
+          <rect x="38" y="44" width="4" height="12" fill="${config.bodyColor}" rx="1"/>
+        `;
+      }
+      
+      // Ears based on type
+      if (config.earType === 'pointed') {
+        ears = `
+          <polygon points="12,20 16,10 20,20" fill="${config.bodyColor}"/>
+          <polygon points="20,20 24,10 28,20" fill="${config.bodyColor}"/>
+        `;
+      } else if (config.earType === 'floppy') {
+        ears = `
+          <ellipse cx="12" cy="28" rx="4" ry="8" fill="${config.bodyColor}"/>
+          <ellipse cx="24" cy="28" rx="4" ry="8" fill="${config.bodyColor}"/>
+        `;
+      } else {
+        // Small ears (bulldog)
+        ears = `
+          <ellipse cx="14" cy="22" rx="3" ry="4" fill="${config.bodyColor}"/>
+          <ellipse cx="22" cy="22" rx="3" ry="4" fill="${config.bodyColor}"/>
+        `;
+      }
+      
+      // Tail based on type
+      if (config.tailType === 'thick') {
+        tail = `<ellipse cx="50" cy="34" rx="6" ry="3" fill="${config.bodyColor}"/>`;
+      } else if (config.tailType === 'bushy') {
+        tail = `<path d="M46,34 Q54,28 52,36 Q50,44 46,38" fill="${config.bodyColor}"/>`;
+      } else if (config.tailType === 'pom') {
+        tail = `<circle cx="48" cy="32" r="4" fill="${config.bodyColor}"/>`;
+      } else {
+        // Short tail (bulldog)
+        tail = `<ellipse cx="48" cy="36" rx="3" ry="2" fill="${config.bodyColor}"/>`;
+      }
+      
+      // Add eyes and nose
+      const face = `
+        <circle cx="15" cy="25" r="2" fill="#2c3e50"/>
+        <ellipse cx="12" cy="30" rx="2" ry="1.5" fill="#2c3e50"/>
+      `;
+      
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+        <rect width="64" height="64" fill="#e8f4f8"/>
+        <g transform="translate(32, 32) scale(${scale * flip}, ${scale}) translate(-32, -32)">
+          ${body}
+          ${legs}
+          ${tail}
+          ${head}
+          ${ears}
+          ${face}
+        </g>
+      </svg>`;
+      
+      const dataUri = `data:image/svg+xml;base64,${btoa(svg)}`;
+      images.push({
+        imageDataUri: dataUri,
+        label: breed,
+        filename: `${breed}_${String(i + 1).padStart(3, '0')}.svg`,
+      });
+    }
+  }
+
+  const shuffledImages = rng.shuffle(images);
+  return {
+    images: shuffledImages,
+    labels: Object.keys(breeds),
+  };
+}
+
+/**
+ * Generate facial expressions classification dataset
+ * Classifies emotions: happy, sad, angry, surprised
+ * Inspired by FER2013 dataset for educational purposes
+ */
+export function generateFacialExpressions(options?: GeneratorOptions): ImageGeneratedDataset {
+  const rng = new SeededRandom(options?.seed);
+  const images: ImageDatasetRow[] = [];
+
+  // Expression characteristics
+  const expressions: Record<string, { mouthPath: string; eyebrowAngle: number; eyeShape: string }> = {
+    'happy': {
+      mouthPath: 'M22,42 Q32,52 42,42',
+      eyebrowAngle: 0,
+      eyeShape: 'normal'
+    },
+    'sad': {
+      mouthPath: 'M22,48 Q32,42 42,48',
+      eyebrowAngle: 15,
+      eyeShape: 'droopy'
+    },
+    'angry': {
+      mouthPath: 'M24,46 L40,46',
+      eyebrowAngle: -20,
+      eyeShape: 'narrow'
+    },
+    'surprised': {
+      mouthPath: 'M28,44 Q32,52 36,44 Q32,52 28,44',
+      eyebrowAngle: 10,
+      eyeShape: 'wide'
+    },
+  };
+
+  // Generate 10 images per expression (40 total)
+  for (const [expression, config] of Object.entries(expressions)) {
+    for (let i = 0; i < 10; i++) {
+      const skinTone = rng.choice(['#f5d0c5', '#d4a574', '#c68642', '#8d5524', '#6b4423']);
+      const hairColor = rng.choice(['#2c3e50', '#8b4513', '#d4a574', '#1a1a1a', '#654321']);
+      
+      // Face
+      const face = `<ellipse cx="32" cy="34" rx="18" ry="22" fill="${skinTone}"/>`;
+      
+      // Hair (simple)
+      const hair = `<ellipse cx="32" cy="18" rx="16" ry="10" fill="${hairColor}"/>`;
+      
+      // Eyes based on expression
+      let eyes = '';
+      if (config.eyeShape === 'wide') {
+        eyes = `
+          <ellipse cx="24" cy="30" rx="4" ry="5" fill="white"/>
+          <ellipse cx="40" cy="30" rx="4" ry="5" fill="white"/>
+          <circle cx="24" cy="30" r="2" fill="#2c3e50"/>
+          <circle cx="40" cy="30" r="2" fill="#2c3e50"/>
+        `;
+      } else if (config.eyeShape === 'narrow') {
+        eyes = `
+          <ellipse cx="24" cy="30" rx="4" ry="2" fill="white"/>
+          <ellipse cx="40" cy="30" rx="4" ry="2" fill="white"/>
+          <circle cx="24" cy="30" r="1.5" fill="#2c3e50"/>
+          <circle cx="40" cy="30" r="1.5" fill="#2c3e50"/>
+        `;
+      } else if (config.eyeShape === 'droopy') {
+        eyes = `
+          <ellipse cx="24" cy="32" rx="3" ry="3" fill="white"/>
+          <ellipse cx="40" cy="32" rx="3" ry="3" fill="white"/>
+          <circle cx="24" cy="33" r="1.5" fill="#2c3e50"/>
+          <circle cx="40" cy="33" r="1.5" fill="#2c3e50"/>
+        `;
+      } else {
+        eyes = `
+          <ellipse cx="24" cy="30" rx="3" ry="3" fill="white"/>
+          <ellipse cx="40" cy="30" rx="3" ry="3" fill="white"/>
+          <circle cx="24" cy="30" r="1.5" fill="#2c3e50"/>
+          <circle cx="40" cy="30" r="1.5" fill="#2c3e50"/>
+        `;
+      }
+      
+      // Eyebrows
+      const eyebrows = `
+        <line x1="20" y1="24" x2="28" y2="${24 + config.eyebrowAngle/5}" stroke="${hairColor}" stroke-width="2" stroke-linecap="round"/>
+        <line x1="36" y1="${24 + config.eyebrowAngle/5}" x2="44" y2="24" stroke="${hairColor}" stroke-width="2" stroke-linecap="round"/>
+      `;
+      
+      // Mouth
+      const mouth = `<path d="${config.mouthPath}" stroke="#c0392b" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+      
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+        <rect width="64" height="64" fill="#ecf0f1"/>
+        ${hair}
+        ${face}
+        ${eyes}
+        ${eyebrows}
+        ${mouth}
+      </svg>`;
+      
+      const dataUri = `data:image/svg+xml;base64,${btoa(svg)}`;
+      images.push({
+        imageDataUri: dataUri,
+        label: expression,
+        filename: `${expression}_${String(i + 1).padStart(3, '0')}.svg`,
+      });
+    }
+  }
+
+  const shuffledImages = rng.shuffle(images);
+  return {
+    images: shuffledImages,
+    labels: Object.keys(expressions),
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Unified Service Interface
 // ─────────────────────────────────────────────────────────────────────────────
@@ -999,6 +1362,9 @@ export const syntheticDatasetGeneratorService = {
   generateFashionItems,
   generateVehicles,
   generateFlowers,
+  generatePlantDiseases,
+  generateDogBreeds,
+  generateFacialExpressions,
   generateForModelType,
   getGeneratorForModelType,
   isModelTypeSupported,

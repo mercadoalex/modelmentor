@@ -621,6 +621,7 @@ export default function DataCollectionPage() {
             {showTemplatesPanel ? (
               <DatasetTemplatesPanel
                 modelType={project.model_type}
+                projectDescription={project.description}
                 onLoadDataset={handleLoadTemplate}
                 onLoadImageDataset={handleLoadImageDataset}
               />
