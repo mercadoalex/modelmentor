@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Download, Search, Sparkles, FileText, Image, TrendingUp, Users, Heart, Home, Star, Eye, Package } from 'lucide-react';
 import type { ModelType } from '@/types/types';
 import { toast } from 'sonner';
-import { generateImageClassification, generateColorPatterns, generateDigits, generateAnimalSilhouettes, type ImageDatasetRow } from '@/services/syntheticDatasetGeneratorService';
+import { generateImageClassification, generateColorPatterns, generateDigits, generateAnimalSilhouettes, generateFashionItems, generateVehicles, generateFlowers, type ImageDatasetRow } from '@/services/syntheticDatasetGeneratorService';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -392,6 +392,79 @@ const TEMPLATES: DatasetTemplate[] = [
           randomBetween(-2000, 2000)
         );
         rows.push([year.toString(), mileage.toString(), engineSize.toString(), horsepower.toString(), fuelEfficiency.toString(), Math.max(5000, price).toString()]);
+      }
+      return rows;
+    },
+  },
+
+  {
+    id: 'sales-forecasting',
+    name: 'Sales Forecasting 📊',
+    description: 'Predict product sales based on historical data, seasonality, and marketing spend.',
+    modelType: 'regression',
+    tags: ['business', 'forecasting', 'retail'],
+    difficulty: 'intermediate',
+    rows: 200,
+    columns: ['month', 'marketing_spend', 'price', 'competitor_price', 'holiday_flag', 'units_sold'],
+    realWorldUse: 'Retailers use sales forecasting to optimize inventory, staffing, and marketing budgets.',
+    icon: TrendingUp,
+    iconColor: 'text-emerald-500',
+    generateData: () => {
+      const rows: string[][] = [];
+      for (let i = 0; i < 200; i++) {
+        const month = randomBetween(1, 12);
+        const marketingSpend = randomBetween(1000, 10000);
+        const price = randomBetween(20, 100);
+        const competitorPrice = price + randomBetween(-15, 15);
+        const holidayFlag = randomChoice([0, 0, 0, 1]); // 25% chance of holiday
+        // Sales formula with seasonality and marketing effect
+        const seasonalFactor = month === 11 || month === 12 ? 1.5 : month === 1 || month === 2 ? 0.7 : 1.0;
+        const priceFactor = competitorPrice > price ? 1.2 : 0.9;
+        const baseSales = 100 + marketingSpend * 0.01;
+        const unitsSold = Math.round(
+          baseSales * seasonalFactor * priceFactor +
+          (holidayFlag ? 50 : 0) +
+          randomBetween(-20, 20)
+        );
+        rows.push([month.toString(), marketingSpend.toString(), price.toString(), competitorPrice.toString(), holidayFlag.toString(), Math.max(10, unitsSold).toString()]);
+      }
+      return rows;
+    },
+  },
+
+  {
+    id: 'stock-indicators',
+    name: 'Stock Price Movement 📈',
+    description: 'Predict stock price changes based on technical indicators and market data.',
+    modelType: 'regression',
+    tags: ['finance', 'trading', 'numeric'],
+    difficulty: 'advanced',
+    rows: 200,
+    columns: ['open_price', 'volume', 'moving_avg_5', 'moving_avg_20', 'rsi', 'price_change'],
+    realWorldUse: 'Quantitative traders use technical indicators to predict short-term price movements.',
+    icon: TrendingUp,
+    iconColor: 'text-green-600',
+    generateData: () => {
+      const rows: string[][] = [];
+      let prevPrice = 100;
+      for (let i = 0; i < 200; i++) {
+        const openPrice = prevPrice + randomBetween(-5, 5, 2);
+        const volume = randomBetween(100000, 1000000);
+        const ma5 = openPrice + randomBetween(-3, 3, 2);
+        const ma20 = openPrice + randomBetween(-8, 8, 2);
+        const rsi = randomBetween(20, 80);
+        // Price change based on indicators
+        const trendSignal = ma5 > ma20 ? 1 : -1;
+        const rsiSignal = rsi < 30 ? 1 : rsi > 70 ? -1 : 0;
+        const volumeSignal = volume > 500000 ? 0.5 : 0;
+        const priceChange = (
+          trendSignal * randomBetween(0, 3, 2) +
+          rsiSignal * randomBetween(0, 2, 2) +
+          volumeSignal * randomBetween(-1, 1, 2) +
+          randomBetween(-2, 2, 2)
+        );
+        prevPrice = openPrice + priceChange;
+        rows.push([openPrice.toFixed(2), volume.toString(), ma5.toFixed(2), ma20.toFixed(2), rsi.toString(), priceChange.toFixed(2)]);
       }
       return rows;
     },
@@ -852,6 +925,70 @@ const TEMPLATES: DatasetTemplate[] = [
     },
   },
 
+  {
+    id: 'scientific-papers',
+    name: 'Scientific Papers 📚',
+    description: 'Classify research paper abstracts by field (physics, biology, computer science, medicine).',
+    modelType: 'text_classification',
+    tags: ['NLP', 'academic', 'multiclass'],
+    difficulty: 'advanced',
+    rows: 100,
+    columns: ['abstract', 'field'],
+    realWorldUse: 'Academic databases use this to categorize papers and help researchers find relevant work.',
+    icon: FileText,
+    iconColor: 'text-indigo-500',
+    generateData: () => {
+      const physics = [
+        'We present a novel approach to quantum entanglement using superconducting qubits at near absolute zero temperatures.',
+        'This study investigates the properties of dark matter through gravitational lensing observations.',
+        'Our research demonstrates a new method for achieving nuclear fusion with improved plasma confinement.',
+        'We analyze the behavior of particles in high-energy collisions at the Large Hadron Collider.',
+        'This paper presents theoretical predictions for gravitational waves from binary black hole mergers.',
+        'We propose a unified field theory that reconciles quantum mechanics with general relativity.',
+        'Our experiments reveal new insights into the nature of antimatter and its interactions.',
+      ];
+      const biology = [
+        'We discovered a novel gene editing technique using modified CRISPR-Cas9 systems for precise DNA modification.',
+        'This study examines the role of gut microbiome in immune system development and disease prevention.',
+        'Our research identifies new biomarkers for early detection of neurodegenerative diseases.',
+        'We present findings on cellular regeneration mechanisms in stem cell therapy applications.',
+        'This paper analyzes the evolutionary adaptations of deep-sea organisms to extreme pressure.',
+        'We investigate the molecular pathways involved in cancer cell metastasis and tumor growth.',
+        'Our study reveals the genetic basis of antibiotic resistance in bacterial populations.',
+      ];
+      const computerScience = [
+        'We introduce a transformer architecture that achieves state-of-the-art results in natural language processing.',
+        'This paper presents a novel algorithm for distributed computing with improved fault tolerance.',
+        'Our research develops new techniques for privacy-preserving machine learning on encrypted data.',
+        'We propose an efficient method for training deep neural networks with limited computational resources.',
+        'This study introduces a blockchain-based system for secure and transparent supply chain management.',
+        'We present advances in computer vision for autonomous vehicle navigation and obstacle detection.',
+        'Our work demonstrates improved methods for detecting and preventing cybersecurity threats.',
+      ];
+      const medicine = [
+        'We report clinical trial results for a new immunotherapy treatment showing improved cancer survival rates.',
+        'This study evaluates the efficacy of mRNA vaccines against emerging viral variants.',
+        'Our research identifies novel drug targets for treating autoimmune disorders.',
+        'We present findings on the long-term effects of COVID-19 on cardiovascular health.',
+        'This paper analyzes the effectiveness of telemedicine in improving patient outcomes.',
+        'We investigate the role of inflammation in chronic disease progression and treatment.',
+        'Our clinical study demonstrates improved outcomes with personalized medicine approaches.',
+      ];
+      const fields = [
+        { abstracts: physics, field: 'physics' },
+        { abstracts: biology, field: 'biology' },
+        { abstracts: computerScience, field: 'computer_science' },
+        { abstracts: medicine, field: 'medicine' },
+      ];
+      const rows: string[][] = [];
+      for (let i = 0; i < 100; i++) {
+        const f = fields[i % 4];
+        rows.push([randomChoice(f.abstracts), f.field]);
+      }
+      return rows;
+    },
+  },
+
   // ── Image Classification ───────────────────────────────────────────────────
 
   {
@@ -930,6 +1067,66 @@ const TEMPLATES: DatasetTemplate[] = [
     generateData: () => [],
     generateImageData: () => {
       const dataset = generateAnimalSilhouettes();
+      return dataset.images;
+    },
+  },
+
+  {
+    id: 'fashion-items',
+    name: 'Fashion Items 👕',
+    description: 'Classify clothing items (shirt, pants, shoe, bag). Fashion-MNIST inspired dataset.',
+    modelType: 'image_classification',
+    tags: ['images', 'fashion', 'clothing'],
+    difficulty: 'beginner',
+    rows: 40, // 10 per item
+    columns: ['image', 'label'],
+    realWorldUse: 'Fashion recognition powers e-commerce search, virtual try-on, and inventory management.',
+    icon: Image,
+    iconColor: 'text-pink-500',
+    bundledImages: true,
+    generateData: () => [],
+    generateImageData: () => {
+      const dataset = generateFashionItems();
+      return dataset.images;
+    },
+  },
+
+  {
+    id: 'vehicles-classification',
+    name: 'Vehicle Types 🚗',
+    description: 'Classify vehicle types (car, truck, motorcycle, bicycle). Learn transportation recognition.',
+    modelType: 'image_classification',
+    tags: ['images', 'vehicles', 'transportation'],
+    difficulty: 'beginner',
+    rows: 40, // 10 per vehicle
+    columns: ['image', 'label'],
+    realWorldUse: 'Vehicle detection is used in traffic monitoring, parking systems, and autonomous driving.',
+    icon: Image,
+    iconColor: 'text-blue-500',
+    bundledImages: true,
+    generateData: () => [],
+    generateImageData: () => {
+      const dataset = generateVehicles();
+      return dataset.images;
+    },
+  },
+
+  {
+    id: 'flowers-classification',
+    name: 'Flower Types 🌸',
+    description: 'Classify flower types (rose, tulip, sunflower, daisy). Beautiful botanical classification.',
+    modelType: 'image_classification',
+    tags: ['images', 'flowers', 'nature'],
+    difficulty: 'beginner',
+    rows: 40, // 10 per flower
+    columns: ['image', 'label'],
+    realWorldUse: 'Plant identification apps use this to help gardeners and botanists identify species.',
+    icon: Image,
+    iconColor: 'text-rose-400',
+    bundledImages: true,
+    generateData: () => [],
+    generateImageData: () => {
+      const dataset = generateFlowers();
       return dataset.images;
     },
   },

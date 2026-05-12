@@ -733,6 +733,203 @@ export function generateAnimalSilhouettes(options?: GeneratorOptions): ImageGene
   };
 }
 
+/**
+ * Generate a fashion items dataset (simplified Fashion-MNIST-like)
+ * Classifies clothing items: shirt, pants, shoe, bag
+ */
+export function generateFashionItems(options?: GeneratorOptions): ImageGeneratedDataset {
+  const rng = new SeededRandom(options?.seed);
+  const images: ImageDatasetRow[] = [];
+
+  // Simple fashion item silhouette paths
+  const fashionPaths: Record<string, string[]> = {
+    'shirt': [
+      // T-shirt shape
+      'M16 16 L24 8 L40 8 L48 16 L48 20 L44 20 L44 56 L20 56 L20 20 L16 20 Z M28 8 L28 16 L36 16 L36 8',
+      'M14 18 L22 8 L42 8 L50 18 L50 22 L46 22 L46 54 L18 54 L18 22 L14 22 Z',
+    ],
+    'pants': [
+      // Pants/trousers shape
+      'M18 8 L46 8 L46 20 L40 20 L40 56 L36 56 L32 28 L28 56 L24 56 L24 20 L18 20 Z',
+      'M16 8 L48 8 L48 22 L42 22 L42 56 L38 56 L32 30 L26 56 L22 56 L22 22 L16 22 Z',
+    ],
+    'shoe': [
+      // Shoe/sneaker shape
+      'M8 40 L8 32 Q8 24 16 24 L48 24 Q56 24 56 32 L56 44 Q56 48 52 48 L12 48 Q8 48 8 44 Z M16 32 L20 32 M44 32 L48 32',
+      'M6 42 L6 30 Q6 22 14 22 L50 22 Q58 22 58 30 L58 46 Q58 50 54 50 L10 50 Q6 50 6 46 Z',
+    ],
+    'bag': [
+      // Handbag/tote shape
+      'M16 20 Q16 12 24 12 L40 12 Q48 12 48 20 L48 52 Q48 56 44 56 L20 56 Q16 56 16 52 Z M24 12 L24 8 Q24 4 32 4 Q40 4 40 8 L40 12',
+      'M14 22 Q14 12 22 12 L42 12 Q50 12 50 22 L50 50 Q50 56 44 56 L20 56 Q14 56 14 50 Z M22 12 L22 6 Q22 2 32 2 Q42 2 42 6 L42 12',
+    ],
+  };
+
+  const colors = ['#3498db', '#e74c3c', '#2ecc71', '#9b59b6', '#f39c12', '#1abc9c', '#34495e', '#e91e63'];
+
+  // Generate 10 images per item (40 total)
+  for (const [item, paths] of Object.entries(fashionPaths)) {
+    for (let i = 0; i < 10; i++) {
+      const path = rng.choice(paths);
+      const color = rng.choice(colors);
+      const scale = rng.between(92, 108) / 100;
+      const offsetX = rng.between(-2, 2);
+      const offsetY = rng.between(-2, 2);
+      
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+        <rect width="64" height="64" fill="#f5f5f5"/>
+        <g transform="translate(${32 + offsetX}, ${32 + offsetY}) scale(${scale}) translate(-32, -32)">
+          <path d="${path}" fill="${color}"/>
+        </g>
+      </svg>`;
+      
+      const dataUri = `data:image/svg+xml;base64,${btoa(svg)}`;
+      images.push({
+        imageDataUri: dataUri,
+        label: item,
+        filename: `${item}_${String(i + 1).padStart(3, '0')}.svg`,
+      });
+    }
+  }
+
+  const shuffledImages = rng.shuffle(images);
+  return {
+    images: shuffledImages,
+    labels: Object.keys(fashionPaths),
+  };
+}
+
+/**
+ * Generate a vehicles dataset
+ * Classifies vehicle types: car, truck, motorcycle, bicycle
+ */
+export function generateVehicles(options?: GeneratorOptions): ImageGeneratedDataset {
+  const rng = new SeededRandom(options?.seed);
+  const images: ImageDatasetRow[] = [];
+
+  // Simple vehicle silhouette paths
+  const vehiclePaths: Record<string, string[]> = {
+    'car': [
+      // Sedan car shape
+      'M8 40 L8 36 L12 36 L16 28 L44 28 L52 36 L56 36 L56 40 L52 40 Q52 46 46 46 Q40 46 40 40 L24 40 Q24 46 18 46 Q12 46 12 40 Z',
+      'M6 42 L6 38 L10 38 L14 28 L46 28 L54 38 L58 38 L58 42 L54 42 Q54 48 48 48 Q42 48 42 42 L22 42 Q22 48 16 48 Q10 48 10 42 Z',
+    ],
+    'truck': [
+      // Pickup truck shape
+      'M4 40 L4 32 L8 32 L8 24 L28 24 L28 32 L36 32 L44 28 L56 28 L56 40 L52 40 Q52 46 46 46 Q40 46 40 40 L20 40 Q20 46 14 46 Q8 46 8 40 Z',
+      'M2 42 L2 30 L6 30 L6 22 L30 22 L30 30 L38 30 L46 26 L58 26 L58 42 L54 42 Q54 48 48 48 Q42 48 42 42 L18 42 Q18 48 12 48 Q6 48 6 42 Z',
+    ],
+    'motorcycle': [
+      // Motorcycle shape
+      'M12 44 Q12 38 18 38 L22 38 L26 32 L38 32 L42 28 L48 28 L52 32 L52 38 Q58 38 58 44 Q58 50 52 50 Q46 50 46 44 L22 44 Q22 50 16 50 Q10 50 12 44 Z M30 32 L30 38',
+      'M10 46 Q10 40 16 40 L20 40 L24 34 L40 34 L44 30 L50 30 L54 34 L54 40 Q60 40 60 46 Q60 52 54 52 Q48 52 48 46 L20 46 Q20 52 14 52 Q8 52 10 46 Z',
+    ],
+    'bicycle': [
+      // Bicycle shape
+      'M16 44 Q16 38 22 38 L26 38 L32 28 L38 28 L44 38 L48 38 Q54 38 54 44 Q54 50 48 50 Q42 50 42 44 L28 44 Q28 50 22 50 Q16 50 16 44 Z M32 28 L32 38 M26 38 L38 38',
+      'M14 46 Q14 40 20 40 L24 40 L30 28 L40 28 L46 40 L50 40 Q56 40 56 46 Q56 52 50 52 Q44 52 44 46 L26 46 Q26 52 20 52 Q14 52 14 46 Z',
+    ],
+  };
+
+  const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#34495e', '#e91e63'];
+
+  // Generate 10 images per vehicle (40 total)
+  for (const [vehicle, paths] of Object.entries(vehiclePaths)) {
+    for (let i = 0; i < 10; i++) {
+      const path = rng.choice(paths);
+      const color = rng.choice(colors);
+      const scale = rng.between(92, 108) / 100;
+      const offsetX = rng.between(-2, 2);
+      const offsetY = rng.between(-2, 2);
+      
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+        <rect width="64" height="64" fill="#f5f5f5"/>
+        <g transform="translate(${32 + offsetX}, ${32 + offsetY}) scale(${scale}) translate(-32, -32)">
+          <path d="${path}" fill="${color}"/>
+        </g>
+      </svg>`;
+      
+      const dataUri = `data:image/svg+xml;base64,${btoa(svg)}`;
+      images.push({
+        imageDataUri: dataUri,
+        label: vehicle,
+        filename: `${vehicle}_${String(i + 1).padStart(3, '0')}.svg`,
+      });
+    }
+  }
+
+  const shuffledImages = rng.shuffle(images);
+  return {
+    images: shuffledImages,
+    labels: Object.keys(vehiclePaths),
+  };
+}
+
+/**
+ * Generate a simple flowers dataset
+ * Classifies flower types: rose, tulip, sunflower, daisy
+ */
+export function generateFlowers(options?: GeneratorOptions): ImageGeneratedDataset {
+  const rng = new SeededRandom(options?.seed);
+  const images: ImageDatasetRow[] = [];
+
+  // Flower colors by type
+  const flowerColors: Record<string, string[]> = {
+    'rose': ['#e74c3c', '#c0392b', '#ff6b6b', '#ee5a5a', '#d63031'],
+    'tulip': ['#9b59b6', '#8e44ad', '#e91e63', '#ff4081', '#f06292'],
+    'sunflower': ['#f1c40f', '#f39c12', '#ffeb3b', '#ffc107', '#ffca28'],
+    'daisy': ['#ecf0f1', '#bdc3c7', '#ffffff', '#f5f5f5', '#e0e0e0'],
+  };
+
+  // Generate 10 images per flower (40 total)
+  for (const [flower, colors] of Object.entries(flowerColors)) {
+    for (let i = 0; i < 10; i++) {
+      const petalColor = rng.choice(colors);
+      const centerColor = flower === 'sunflower' ? '#8b4513' : flower === 'daisy' ? '#f1c40f' : '#2c3e50';
+      const stemColor = '#27ae60';
+      const rotation = rng.between(0, 360);
+      const scale = rng.between(90, 110) / 100;
+      
+      let petals = '';
+      const petalCount = flower === 'sunflower' ? 16 : flower === 'daisy' ? 12 : 8;
+      const petalLength = flower === 'sunflower' ? 18 : flower === 'tulip' ? 20 : 14;
+      
+      for (let p = 0; p < petalCount; p++) {
+        const angle = (p * 360 / petalCount) + rng.between(-5, 5);
+        if (flower === 'tulip') {
+          // Tulip has cup-shaped petals
+          petals += `<ellipse cx="32" cy="${32 - petalLength/2}" rx="6" ry="${petalLength}" fill="${petalColor}" transform="rotate(${angle}, 32, 32)"/>`;
+        } else {
+          // Other flowers have round petals
+          petals += `<ellipse cx="32" cy="${32 - petalLength}" rx="5" ry="${petalLength/2}" fill="${petalColor}" transform="rotate(${angle}, 32, 32)"/>`;
+        }
+      }
+      
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+        <rect width="64" height="64" fill="#f5f5f5"/>
+        <g transform="translate(32, 32) scale(${scale}) rotate(${rotation}) translate(-32, -32)">
+          <line x1="32" y1="40" x2="32" y2="60" stroke="${stemColor}" stroke-width="3"/>
+          ${petals}
+          <circle cx="32" cy="32" r="${flower === 'sunflower' ? 8 : 5}" fill="${centerColor}"/>
+        </g>
+      </svg>`;
+      
+      const dataUri = `data:image/svg+xml;base64,${btoa(svg)}`;
+      images.push({
+        imageDataUri: dataUri,
+        label: flower,
+        filename: `${flower}_${String(i + 1).padStart(3, '0')}.svg`,
+      });
+    }
+  }
+
+  const shuffledImages = rng.shuffle(images);
+  return {
+    images: shuffledImages,
+    labels: Object.keys(flowerColors),
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Unified Service Interface
 // ─────────────────────────────────────────────────────────────────────────────
@@ -799,6 +996,9 @@ export const syntheticDatasetGeneratorService = {
   generateColorPatterns,
   generateDigits,
   generateAnimalSilhouettes,
+  generateFashionItems,
+  generateVehicles,
+  generateFlowers,
   generateForModelType,
   getGeneratorForModelType,
   isModelTypeSupported,
