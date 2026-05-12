@@ -21,6 +21,7 @@ import { FeatureEngineeringPanel } from '@/components/data/FeatureEngineeringPan
 import { FeatureEngineeringWorkshop } from '@/components/data/FeatureEngineeringWorkshop';
 import { AdvancedFeatureInteractionAnalysis } from '@/components/data/AdvancedFeatureInteractionAnalysis';
 import { DatasetTemplatesPanel, type DatasetTemplate } from '@/components/data/DatasetTemplatesPanel';
+import { DatasetUploadGuidance } from '@/components/data/DatasetUploadGuidance';
 import { projectService, datasetService, sampleDatasetService, storageService } from '@/services/supabase';
 import { dataValidationService } from '@/services/dataValidationService';
 import type { DataValidationResult } from '@/services/dataValidationService';
@@ -81,10 +82,24 @@ export default function DataCollectionPage() {
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [targetColumn,     setTargetColumn]     = useState<string>('');
 
+  // ── "Start with My Data" flow state ────────────────────────────────────────
+  // When true, shows DatasetTemplatesPanel; when false, shows DatasetUploadGuidance
+  // For guided tour: always show templates (auto-selects dataset)
+  // For "Start with My Data": show guidance first, user can switch to templates
+  const [showTemplatesPanel, setShowTemplatesPanel] = useState(true);
+
   // ── Load project on mount ──────────────────────────────────────────────────
   useEffect(() => {
     loadProject();
   }, [projectId]);
+
+  // ── Set initial panel state based on project mode ──────────────────────────
+  // For "Start with My Data" (non-guided-tour), show guidance panel by default
+  useEffect(() => {
+    if (project && !project.is_guided_tour) {
+      setShowTemplatesPanel(false);
+    }
+  }, [project?.is_guided_tour]);
 
   // ── Retry loading samples (for guided tour error recovery) ─────────────────
   const retryLoadSamples = () => {
@@ -541,7 +556,7 @@ export default function DataCollectionPage() {
             </>
           )}
 
-          {/* ── Upload + Template panel (side-by-side on md+) ── */}
+          {/* ── Upload + Template/Guidance panel (side-by-side on md+) ── */}
           <div className="grid md:grid-cols-2 gap-6">
 
             {/* Left: manual file upload */}
@@ -555,6 +570,7 @@ export default function DataCollectionPage() {
                   {project.model_type === 'image_classification' && `Upload at least ${minSamples} images (JPG, PNG, GIF, WEBP)`}
                   {project.model_type === 'text_classification' && `Upload at least ${minSamples} text samples (TXT, CSV)`}
                   {project.model_type === 'regression'           && `Upload at least ${minSamples} data points (CSV)`}
+                  {project.model_type === 'classification'       && `Upload at least ${minSamples} data points (CSV)`}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -601,12 +617,19 @@ export default function DataCollectionPage() {
               </CardContent>
             </Card>
 
-            {/* Right: Dataset Templates panel */}
-            <DatasetTemplatesPanel
-              modelType={project.model_type}
-              onLoadDataset={handleLoadTemplate}
-              onLoadImageDataset={handleLoadImageDataset}
-            />
+            {/* Right: Dataset Templates panel OR Upload Guidance panel */}
+            {showTemplatesPanel ? (
+              <DatasetTemplatesPanel
+                modelType={project.model_type}
+                onLoadDataset={handleLoadTemplate}
+                onLoadImageDataset={handleLoadImageDataset}
+              />
+            ) : (
+              <DatasetUploadGuidance
+                modelType={project.model_type}
+                onUsePremadeTemplate={() => setShowTemplatesPanel(true)}
+              />
+            )}
           </div>
 
           {/* ── Data Preview & Validation tabs (shown after upload or template load) ── */}
