@@ -60,46 +60,35 @@
 - [x] "Best Match" badge for most relevant dataset per project
 - [x] Templates sorted by relevance score, then difficulty
 
+### 8. Backend Subscription Integration ✅
+**Spec:** `.kiro/specs/backend-subscription-integration/`
+
+- [x] **Phase 1:** Database & Services (migrations, types, utilities, 6 services)
+- [x] **Phase 2:** Edge Functions (train-model, create-checkout, stripe-webhook, check-usage, migrate-local-data)
+- [x] **Phase 3:** Frontend Contexts (AuthContext extended, SubscriptionContext, TrainingContext, MigrationPrompt, FeatureGate, UpgradePrompt)
+- [x] **Phase 4:** Page Wiring (TrainingPage, DataCollectionPage, PricingPage, SettingsPage usage dashboard)
+
 ---
 
 ## 🔄 IN PROGRESS
 
-### 8. Backend Subscription Integration 🚧
-**Spec:** `.kiro/specs/backend-subscription-integration/`
+### 9. Domain & Deployment ⏳
 
-Real backend integration with Supabase for dataset storage, authentication, ML model training, and subscription-based tiers.
+- [x] Domain registered on AWS Route 53 (`modelmentor.link`)
+- [x] Cloudflare Pages project created
+- [x] Registrar nameservers updated to Cloudflare (`meadow.ns.cloudflare.com`, `tanner.ns.cloudflare.com`)
+- [x] Deleted orphaned Route 53 hosted zone
+- [ ] **Waiting:** `.link` TLD registry propagation (AWS → Cloudflare NS update, typically 30-120 min)
+- [ ] Cloudflare zone activation (auto-verifies once registry propagates)
+- [ ] Add custom domain `modelmentor.link` in Cloudflare Pages
+- [ ] Add custom domain `www.modelmentor.link` in Cloudflare Pages
+- [ ] Verify site is live at `https://modelmentor.link`
 
-#### Phase 1: Database & Services ✅
-- [x] Database migrations (enum types, extended tables, RLS policies, storage buckets)
-- [x] Extended subscription types with TierLimits, API interfaces
-- [x] Shared utility functions (username validation, path construction, tier limits, trial calculations)
-- [x] Subscription service (tier management, Stripe checkout, trial logic)
-- [x] Extended usage tracking service (event-based tracking, daily rate limits, compute budget)
-- [x] Dataset storage service (upload/download/delete with quota enforcement)
-- [x] Training job service (job submission, validation, Realtime progress)
-- [x] Migration service (offline-to-authenticated data migration)
-- [x] Feature gating service (tier-based feature access control)
-
-#### Phase 2: Edge Functions 🔜
-- [ ] `train-model` — Server-side ML training with TensorFlow.js
-- [ ] `create-checkout` — Stripe Checkout session creation
-- [ ] `stripe-webhook` — Payment event handling (upgrade/downgrade/cancel)
-- [ ] `check-usage` — Usage summary and limits API
-- [ ] `migrate-local-data` — Offline project migration
-
-#### Phase 3: Frontend Integration 🔜
-- [ ] Extended AuthContext with profile management
-- [ ] SubscriptionContext (tier, usage, limits, trial status)
-- [ ] TrainingContext (active jobs, Realtime progress)
-- [ ] Wire contexts into App shell
-- [ ] Migration prompt UI (offline → authenticated)
-- [ ] Feature gating UI components (FeatureGate, UpgradePrompt)
-
-#### Phase 4: Page Wiring 🔜
-- [ ] Connect training page to real backend
-- [ ] Connect dataset upload to storage service
-- [ ] Connect pricing page to Stripe checkout
-- [ ] Add usage dashboard to settings page
+**Verification command:**
+```bash
+dig modelmentor.link NS @ns10.trs-dns.info +short
+# Should return: meadow.ns.cloudflare.com / tanner.ns.cloudflare.com
+```
 
 ---
 
@@ -135,8 +124,8 @@ Real backend integration with Supabase for dataset storage, authentication, ML m
 | Tests Passing | 11/11 ✅ |
 | Tests Skipped | 3 (intentional) |
 | Tests Todo | 3 |
-| Specs Completed | 7 ✅ |
-| Specs In Progress | 1 🚧 |
+| Specs Completed | 8 ✅ |
+| Domain | ⏳ Pending DNS propagation |
 
 ---
 
@@ -149,4 +138,4 @@ All specs are documented in `.kiro/specs/`:
 - `typescript-errors-fix/` - Bugfix spec ✅
 - `learning-moments/` - Feature spec ✅
 - `model-comparison-enhancement/` - Feature spec ✅
-- `backend-subscription-integration/` - Feature spec 🚧 (Phase 1 complete)
+- `backend-subscription-integration/` - Feature spec ✅
