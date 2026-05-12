@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEntranceAnimation } from '@/hooks/useEntranceAnimation';
@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Sparkles, BookOpen, AlertCircle, FileText, Database, GraduationCap, Zap, Bug, Share2, Copy, Image, MessageSquare, TrendingUp, Star, ShoppingBag, Music, Leaf, Heart, Brain, Dog, Car, Smile, Mail, ThumbsUp, DollarSign, CloudRain, Users, Fingerprint, Languages, Mic, FileImage, Newspaper, Globe, ExternalLink } from 'lucide-react';
+import { Sparkles, BookOpen, AlertCircle, FileText, Database, GraduationCap, Zap, Bug, Share2, ArrowUp, Image, MessageSquare, TrendingUp, Star, ShoppingBag, Music, Leaf, Heart, Brain, Dog, Car, Smile, Mail, ThumbsUp, DollarSign, CloudRain, Users, Fingerprint, Languages, Mic, FileImage, Newspaper, Globe, ExternalLink, ChevronDown } from 'lucide-react';
 import { MLWorkflowVisualizer } from '@/components/MLWorkflowVisualizer';
 import { DatasetConnectionWizard } from '@/components/DatasetConnectionWizard';
 import { WelcomeModal } from '@/components/onboarding/WelcomeModal';
@@ -470,6 +470,7 @@ export default function ProjectCreationPage() {
   
   const { user } = useAuth();
   const navigate = useNavigate();
+  const formCardRef = useRef<HTMLDivElement>(null);
   const { elementRef: heroRef, shouldAnimate } = useEntranceAnimation({
     threshold: 0.1,
     sessionKey: 'hero-branding-animation'
@@ -507,7 +508,20 @@ export default function ProjectCreationPage() {
 
   const copyExampleToInput = (exampleText: string) => {
     setDescription(exampleText);
-    toast.success('Example copied to input');
+    
+    // Scroll to the form card with smooth animation
+    setTimeout(() => {
+      formCardRef.current?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+    }, 100);
+    
+    // Show a more prominent toast with action hint
+    toast.success('Example loaded! Click "Analyze Project" to continue', {
+      duration: 4000,
+      icon: <ArrowUp className="h-4 w-4" />,
+    });
   };
 
   const parseDescription = (desc: string): { modelType: ModelType; title: string } | null => {
@@ -682,11 +696,20 @@ export default function ProjectCreationPage() {
 
         {/* Main Content */}
         <div className="max-w-4xl mx-auto space-y-8">
-          <Card>
+          <Card ref={formCardRef}>
             <CardHeader>
               <CardTitle>Step 1: Describe Your Project</CardTitle>
               <CardDescription>
-                Tell us what you want to build. For example: "I want to train an AI to tell if a fruit is ripe from a photo"
+                Tell us what you want to build, or <button 
+                  type="button"
+                  onClick={() => {
+                    const examplesSection = document.getElementById('example-projects');
+                    examplesSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+                >
+                  browse example projects below <ChevronDown className="h-3 w-3" />
+                </button>
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -695,7 +718,7 @@ export default function ProjectCreationPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={6}
-                className="resize-none"
+                className={`resize-none transition-all ${description ? 'ring-2 ring-primary/50' : ''}`}
                 data-tour="project-title"
               />
               
@@ -761,11 +784,11 @@ export default function ProjectCreationPage() {
           )}
 
           {/* Example Projects - Grouped by Category */}
-          <div className="space-y-12">
+          <div id="example-projects" className="space-y-12 scroll-mt-8">
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-semibold">Example Projects</h2>
               <p className="text-muted-foreground">
-                Click the copy icon to use any example as a starting point
+                Click any project to use it as your starting point
               </p>
             </div>
 
@@ -798,10 +821,19 @@ export default function ProjectCreationPage() {
                     return (
                       <div
                         key={exampleIndex}
-                        className="group flex items-start gap-3 p-4 rounded-lg border border-border hover:border-primary transition-colors bg-background"
+                        onClick={() => copyExampleToInput(example.text)}
+                        className="group flex items-start gap-3 p-4 rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-all cursor-pointer bg-background"
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            copyExampleToInput(example.text);
+                          }
+                        }}
                       >
                         <div className="flex-shrink-0 mt-0.5">
-                          <Icon className="h-5 w-5 text-muted-foreground" />
+                          <Icon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
                         </div>
                         <div className="flex-1 min-w-0 space-y-2">
                           <div className="flex items-start gap-2">
@@ -834,7 +866,8 @@ export default function ProjectCreationPage() {
                                     variant="link"
                                     size="sm"
                                     className="h-auto p-0 text-xs"
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                      e.stopPropagation();
                                       setSelectedDataset({
                                         url: example.datasetUrl!,
                                         name: example.text,
@@ -851,15 +884,12 @@ export default function ProjectCreationPage() {
                             </div>
                           )}
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => copyExampleToInput(example.text)}
-                          className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                          aria-label="Copy example to input"
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
+                        <div className="flex-shrink-0 self-center">
+                          <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded-full">
+                            <ArrowUp className="h-3 w-3" />
+                            Use
+                          </span>
+                        </div>
                       </div>
                     );
                   })}
