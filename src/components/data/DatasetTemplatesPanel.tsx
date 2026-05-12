@@ -3,9 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Download, Search, Sparkles, FileText, Image, TrendingUp, Users, Heart, Home, Star, Eye } from 'lucide-react';
+import { Download, Search, Sparkles, FileText, Image, TrendingUp, Users, Heart, Home, Star, Eye, Package } from 'lucide-react';
 import type { ModelType } from '@/types/types';
 import { toast } from 'sonner';
+import { generateImageClassification, type ImageDatasetRow } from '@/services/syntheticDatasetGeneratorService';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -18,16 +19,20 @@ export interface DatasetTemplate {
   modelType: ModelType;
   tags: string[];
   difficulty: 'beginner' | 'intermediate' | 'advanced';
-  /** Number of rows that will be generated */
+  /** Number of rows/images that will be generated */
   rows: number;
-  /** CSV column names */
+  /** CSV column names (empty for image datasets) */
   columns: string[];
   /** One-liner about how this is used in industry */
   realWorldUse: string;
   icon: React.ElementType;
   iconColor: string;
-  /** Returns synthetic rows (excluding header) */
+  /** Returns synthetic rows (excluding header) for tabular data */
   generateData: () => string[][];
+  /** Whether this template uses bundled/synthetic data (no network required) */
+  bundledImages?: boolean;
+  /** For image templates: generates image dataset */
+  generateImageData?: () => ImageDatasetRow[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -314,19 +319,23 @@ const TEMPLATES: DatasetTemplate[] = [
   // ── Image Classification ───────────────────────────────────────────────────
 
   {
-    id: 'image-guide',
-    name: 'Image Classification Guide 🖼️',
-    description: 'Learn how to collect and structure image data for classification projects.',
+    id: 'shapes-classification',
+    name: 'Shapes Classification 🔷',
+    description: 'Classify geometric shapes (circles, squares, triangles). Perfect for learning image classification basics.',
     modelType: 'image_classification',
-    tags: ['images', 'guide', 'setup'],
+    tags: ['images', 'shapes', 'beginner-friendly'],
     difficulty: 'beginner',
-    rows: 0,
-    columns: [],
-    realWorldUse: 'Google Photos, medical imaging, autonomous vehicles all use image classification.',
+    rows: 36, // 12 circles + 12 squares + 12 triangles
+    columns: ['image', 'label'],
+    realWorldUse: 'Same technique powers Google Photos, medical imaging, and autonomous vehicles.',
     icon: Image,
     iconColor: 'text-cyan-500',
-    // Images cannot be generated — user must upload their own
-    generateData: () => [],
+    bundledImages: true,
+    generateData: () => [], // Not used for image datasets
+    generateImageData: () => {
+      const dataset = generateImageClassification();
+      return dataset.images;
+    },
   },
 ];
 
@@ -351,9 +360,11 @@ interface DatasetTemplatesPanelProps {
   modelType: ModelType;
   /** Called with the generated CSV text, filename, and template metadata */
   onLoadDataset: (csvText: string, filename: string, template: DatasetTemplate) => void;
+  /** Called with image dataset for image classification templates */
+  onLoadImageDataset?: (images: ImageDatasetRow[], template: DatasetTemplate) => void;
 }
 
-export function DatasetTemplatesPanel({ modelType, onLoadDataset }: DatasetTemplatesPanelProps) {
+export function DatasetTemplatesPanel({ modelType, onLoadDataset, onLoadImageDataset }: DatasetTemplatesPanelProps) {
   const [search, setSearch] = useState('');
   const [loadingId, setLoadingId] = useState<string | null>(null);
   // Controls which template's info panel is expanded
@@ -375,21 +386,47 @@ export function DatasetTemplatesPanel({ modelType, onLoadDataset }: DatasetTempl
 
   /** Generate data, convert to CSV, and hand off to the parent page */
   const handleLoad = async (template: DatasetTemplate) => {
-    // Image datasets cannot be generated — show guidance instead
-    if (template.modelType === 'image_classification') {
-      toast.info('For image classification, upload images organised by folder — one folder per class.');
-      return;
-    }
-
     setLoadingId(template.id);
     await new Promise(r => setTimeout(r, 400)); // brief delay for UX feedback
 
-    const rows = template.generateData();
-    const csv = toCSV(template.columns, rows);
-    onLoadDataset(csv, `${template.id}-sample.csv`, template);
+    try {
+      // Handle image classification templates with bundled images
+      if (template.modelType === 'image_classification' && template.bundledImages && template.generateImageData) {
+        const images = template.generateImageData();
+        
+        if (onLoadImageDataset) {
+          onLoadImageDataset(images, template);
+          toast.success(`✅ Loaded "${template.name}" — ${images.length} images ready!`);
+        } else {
+          // Fallback: convert to CSV format for compatibility
+          const csvRows = images.map(img => [img.filename, img.label]);
+          const csv = toCSV(['filename', 'label'], csvRows);
+          onLoadDataset(csv, `${template.id}-sample.csv`, template);
+          toast.success(`✅ Loaded "${template.name}" — ${images.length} images ready!`);
+        }
+        
+        setLoadingId(null);
+        return;
+      }
 
-    toast.success(`✅ Loaded "${template.name}" — ${rows.length} rows ready!`);
+      // Handle tabular datasets
+      const rows = template.generateData();
+      const csv = toCSV(template.columns, rows);
+      onLoadDataset(csv, `${template.id}-sample.csv`, template);
+
+      toast.success(`✅ Loaded "${template.name}" — ${rows.length} rows ready!`);
+    } catch (error) {
+      console.error('Failed to load template:', error);
+      toast.error('Failed to load template data. Please try again.');
+    }
+    
     setLoadingId(null);
+  };
+
+  /** Check if template can be loaded (has data or bundled images) */
+  const canLoadTemplate = (template: DatasetTemplate): boolean => {
+    if (template.bundledImages) return true;
+    return template.rows > 0;
   };
 
   return (
@@ -430,6 +467,7 @@ export function DatasetTemplatesPanel({ modelType, onLoadDataset }: DatasetTempl
           const Icon = template.icon;
           const isLoading = loadingId === template.id;
           const isPreview = previewId === template.id;
+          const canLoad = canLoadTemplate(template);
 
           return (
             <div
@@ -450,12 +488,28 @@ export function DatasetTemplatesPanel({ modelType, onLoadDataset }: DatasetTempl
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">{template.description}</p>
                 </div>
-                {/* Row count badge — hidden for image guide (0 rows) */}
-                {template.rows > 0 && (
-                  <Badge variant="secondary" className="shrink-0 text-xs">
-                    {template.rows} rows
-                  </Badge>
-                )}
+                {/* Row/image count badge with bundled indicator */}
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  {template.bundledImages ? (
+                    <>
+                      <Badge variant="secondary" className="text-xs">
+                        {template.rows} images
+                      </Badge>
+                      <Badge variant="outline" className="text-xs text-emerald-600 border-emerald-300 dark:text-emerald-400 dark:border-emerald-700">
+                        <Package className="h-3 w-3 mr-1" />
+                        Bundled
+                      </Badge>
+                    </>
+                  ) : template.rows > 0 ? (
+                    <Badge variant="secondary" className="text-xs">
+                      {template.rows} rows
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-xs text-orange-600 border-orange-300 dark:text-orange-400 dark:border-orange-700">
+                      Upload Required
+                    </Badge>
+                  )}
+                </div>
               </div>
 
               {/* ── Tags ── */}
@@ -484,6 +538,11 @@ export function DatasetTemplatesPanel({ modelType, onLoadDataset }: DatasetTempl
                       </div>
                     </>
                   )}
+                  {template.bundledImages && (
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2">
+                      ✓ Works offline — images are bundled with the app
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -493,7 +552,7 @@ export function DatasetTemplatesPanel({ modelType, onLoadDataset }: DatasetTempl
                   size="sm"
                   className="flex-1"
                   onClick={() => handleLoad(template)}
-                  disabled={isLoading}
+                  disabled={isLoading || !canLoad}
                 >
                   {isLoading
                     ? <><span className="animate-spin mr-2">⏳</span>Loading...</>

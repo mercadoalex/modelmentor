@@ -628,11 +628,13 @@ export default function TrainingPage() {
           <div className="lg:col-span-1 space-y-6">
 
             {!isTraining && !isCompleted && (
-              <TrainingConfigPanel
-                config={trainingConfig}
-                onChange={setTrainingConfig}
-                disabled={isTraining}
-              />
+              <div data-tour="training-config">
+                <TrainingConfigPanel
+                  config={trainingConfig}
+                  onChange={setTrainingConfig}
+                  disabled={isTraining}
+                />
+              </div>
             )}
 
             {(isTraining || isCompleted) && (
@@ -682,16 +684,18 @@ export default function TrainingPage() {
 
             {/* Live metrics display */}
             {(isTraining || isCompleted) && (
-              <TrainingMetricsDisplay
-                currentEpoch={currentEpoch}
-                totalEpochs={trainingConfig.epochs}
-                currentLoss={currentMetrics.currentLoss}
-                currentAccuracy={currentMetrics.currentAccuracy}
-                bestLoss={currentMetrics.bestLoss}
-                bestAccuracy={currentMetrics.bestAccuracy}
-                elapsedTime={elapsedTime}
-                estimatedTimeRemaining={estimatedTimeRemaining}
-              />
+              <div data-tour="training-metrics">
+                <TrainingMetricsDisplay
+                  currentEpoch={currentEpoch}
+                  totalEpochs={trainingConfig.epochs}
+                  currentLoss={currentMetrics.currentLoss}
+                  currentAccuracy={currentMetrics.currentAccuracy}
+                  bestLoss={currentMetrics.bestLoss}
+                  bestAccuracy={currentMetrics.bestAccuracy}
+                  elapsedTime={elapsedTime}
+                  estimatedTimeRemaining={estimatedTimeRemaining}
+                />
+              </div>
             )}
 
             {/* Pre-training tabbed panels */}
@@ -792,7 +796,7 @@ export default function TrainingPage() {
 
                 <div className="flex flex-wrap gap-3">
                   {!isTraining && !isCompleted && (
-                    <Button onClick={startTraining} size="lg" className="flex-1 min-w-[200px]">
+                    <Button onClick={startTraining} size="lg" className="flex-1 min-w-[200px]" data-tour="start-training">
                       <Play className="h-5 w-5 mr-2" />
                       Start Training
                     </Button>
@@ -850,12 +854,14 @@ export default function TrainingPage() {
 
             {/* Training logs */}
             {logs.length > 0 && (
-              <TrainingLogs logs={logs} maxHeight="400px" autoScroll={true} />
+              <div data-tour="training-logs">
+                <TrainingLogs logs={logs} maxHeight="400px" autoScroll={true} />
+              </div>
             )}
 
             {/* Live metrics chart */}
             {metrics.length > 0 && (
-              <Card>
+              <Card data-tour="training-chart">
                 <CardHeader>
                   <CardTitle>Training Metrics</CardTitle>
                   <CardDescription>Real-time accuracy and loss per epoch</CardDescription>

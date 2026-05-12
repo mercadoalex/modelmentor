@@ -652,6 +652,7 @@ export default function ProjectCreationPage() {
                 onChange={(e) => setDescription(e.target.value)}
                 rows={6}
                 className="resize-none"
+                data-tour="project-title"
               />
               
               <Button onClick={handleAnalyze} className="w-full" size="lg">
@@ -669,14 +670,14 @@ export default function ProjectCreationPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
-                  <div>
+                  <div data-tour="model-type">
                     <p className="text-sm text-muted-foreground mb-2">Detected Model Type</p>
                     <Badge variant="secondary" className="text-base px-4 py-2">
                       {parsedInfo.modelType.replace('_', ' ').toUpperCase()}
                     </Badge>
                   </div>
                   
-                  <div>
+                  <div data-tour="project-description">
                     <p className="text-sm text-muted-foreground mb-2">Your Journey</p>
                     <p className="text-sm">
                       {parsedInfo.modelType === 'image_classification' && 
@@ -695,6 +696,7 @@ export default function ProjectCreationPage() {
                     disabled={loading}
                     className="flex-1"
                     size="lg"
+                    data-tour="create-button"
                   >
                     Start with My Data
                   </Button>
@@ -704,6 +706,7 @@ export default function ProjectCreationPage() {
                     variant="outline"
                     className="flex-1"
                     size="lg"
+                    data-tour="create-project-button"
                   >
                     <BookOpen className="h-5 w-5 mr-2" />
                     Start Guided Tour

@@ -308,9 +308,9 @@ export default function ConceptsVisualizerPage() {
                     hoveredLink.source === link.source &&
                     hoveredLink.target === link.target
                   ) {
-                    const start = link.source;
-                    const end = link.target;
-                    if (start && end) {
+                    const start = link.source as { x?: number; y?: number } | undefined;
+                    const end = link.target as { x?: number; y?: number } | undefined;
+                    if (start && end && typeof start.x === 'number' && typeof start.y === 'number' && typeof end.x === 'number' && typeof end.y === 'number') {
                       const midX = (start.x + end.x) / 2;
                       const midY = (start.y + end.y) / 2;
                       ctx.save();
