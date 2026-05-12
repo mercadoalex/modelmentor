@@ -77,6 +77,7 @@ export default function DataCollectionPage() {
   const [sampleLoadEmpty,  setSampleLoadEmpty]  = useState(false);
   const [retryCount,       setRetryCount]       = useState(0);
   const [usingSyntheticFallback, setUsingSyntheticFallback] = useState(false);
+  const [autoAdvanceFailed, setAutoAdvanceFailed] = useState(false);
 
   // ── Image dataset state (for image classification) ─────────────────────────
   const [imageDataset, setImageDataset] = useState<ImageDatasetRow[] | null>(null);
@@ -263,8 +264,20 @@ export default function DataCollectionPage() {
       // The synthetic data is just for learning purposes and doesn't need to be stored
       if (usingSyntheticFallback && project.is_guided_tour) {
         // Use placeholder URLs for synthetic data
-        fileUrls = uploadedFiles.map((file, idx) => `synthetic://${project.model_type}/${file.name}`);
-      } else if (uploadedFiles.length > 0) {
+        fileUrls = uploadedFiles.map((file) => `synthetic://${project.model_type}/${file.name}`);
+
+        // Skip Supabase dataset creation for synthetic data — just advance the project
+        try {
+          await projectService.update(projectId, { status: 'learning' });
+        } catch {
+          // If project update fails (e.g., Supabase unreachable), still navigate
+          // The learning page will work with local data
+        }
+        navigate(`/project/${projectId}/learning`);
+        return;
+      }
+
+      if (uploadedFiles.length > 0) {
         // Upload any manually-dropped files to Supabase storage
         const userId = user?.id || 'anonymous';
 
@@ -299,10 +312,14 @@ export default function DataCollectionPage() {
     } catch (error) {
       // In guided tour mode, show more specific error with guidance
       if (project.is_guided_tour) {
+        setAutoAdvanceFailed(true); // Prevent auto-advance from re-triggering
         toast.error('Failed to save dataset. Please try again or select a different template.', {
           action: {
             label: 'Retry',
-            onClick: () => handleContinue(),
+            onClick: () => {
+              setAutoAdvanceFailed(false);
+              handleContinue();
+            },
           },
         });
       } else {
@@ -317,7 +334,7 @@ export default function DataCollectionPage() {
 
   // Auto-advance guided tour 2 seconds after sample is auto-selected or synthetic data is loaded
   useEffect(() => {
-    if (!project?.is_guided_tour || loading) return;
+    if (!project?.is_guided_tour || loading || autoAdvanceFailed) return;
     
     // Auto-advance if we have a selected sample OR synthetic fallback data
     const hasData = selectedSample || (usingSyntheticFallback && uploadedFiles.length > 0);
@@ -328,7 +345,7 @@ export default function DataCollectionPage() {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [project?.is_guided_tour, selectedSample, usingSyntheticFallback, uploadedFiles.length, loading, handleContinue]);
+  }, [project?.is_guided_tour, selectedSample, usingSyntheticFallback, uploadedFiles.length, loading, handleContinue, autoAdvanceFailed]);
 
   // ── File drop handler ──────────────────────────────────────────────────────
   const onDrop = async (acceptedFiles: File[]) => {
