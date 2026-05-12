@@ -1,98 +1,156 @@
-import { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
+import { Button } from '@/components/ui/button';
+import { AlertCircle, RefreshCw } from 'lucide-react';
+import type { TrainingCurvesOverlayProps, TrainingCurveData } from '@/types/comparison';
+
+// Color palette for distinct model colors
+const MODEL_COLORS = [
+  { train: 'rgba(54, 162, 235, 1)', val: 'rgba(54, 162, 235, 0.6)' },
+  { train: 'rgba(255, 99, 132, 1)', val: 'rgba(255, 99, 132, 0.6)' },
+  { train: 'rgba(75, 192, 192, 1)', val: 'rgba(75, 192, 192, 0.6)' },
+  { train: 'rgba(255, 206, 86, 1)', val: 'rgba(255, 206, 86, 0.6)' },
+  { train: 'rgba(153, 102, 255, 1)', val: 'rgba(153, 102, 255, 0.6)' },
+  { train: 'rgba(255, 159, 64, 1)', val: 'rgba(255, 159, 64, 0.6)' },
+  { train: 'rgba(46, 204, 113, 1)', val: 'rgba(46, 204, 113, 0.6)' },
+  { train: 'rgba(231, 76, 60, 1)', val: 'rgba(231, 76, 60, 0.6)' },
+  { train: 'rgba(52, 73, 94, 1)', val: 'rgba(52, 73, 94, 0.6)' },
+  { train: 'rgba(155, 89, 182, 1)', val: 'rgba(155, 89, 182, 0.6)' },
+];
 
 /**
- * Props for TrainingCurvesOverlay
- * @param modelIds - Array of selected model IDs to compare
+ * Loading skeleton for training curves
  */
-interface TrainingCurvesOverlayProps {
-  modelIds: string[];
+function TrainingCurvesSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse">
+      <div className="h-6 w-48 bg-gray-200 rounded" />
+      <div className="h-64 bg-gray-200 rounded" />
+      <div className="h-6 w-48 bg-gray-200 rounded mt-8" />
+      <div className="h-64 bg-gray-200 rounded" />
+    </div>
+  );
+}
+
+/**
+ * Error display with retry button
+ */
+function TrainingCurvesError({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-8 text-center">
+      <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+      <p className="text-red-600 mb-4">{message}</p>
+      {onRetry && (
+        <Button variant="outline" onClick={onRetry}>
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Retry
+        </Button>
+      )}
+    </div>
+  );
 }
 
 /**
  * TrainingCurvesOverlay
  * - Displays overlayed training/validation loss and accuracy curves for selected models
  * - Interactive legend to toggle models on/off
+ * - Accepts data via props from parent dashboard
  */
-export function TrainingCurvesOverlay({ modelIds }: TrainingCurvesOverlayProps) {
-  // Placeholder for fetched curve data
-  const [curveData, setCurveData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+export function TrainingCurvesOverlay({
+  modelIds,
+  data,
+  loading = false,
+  error,
+  onRetry,
+}: TrainingCurvesOverlayProps) {
+  // Show loading skeleton
+  if (loading) {
+    return <TrainingCurvesSkeleton />;
+  }
 
-  // Fetch training curves for selected models
-  useEffect(() => {
-    setLoading(true);
-    // TODO: Replace with real fetch from backend or Supabase
-    // Example placeholder data structure
-    const example = [
-      {
-        modelId: 'model1',
-        modelName: 'ResNet50 v1',
-        epochs: Array.from({ length: 10 }, (_, i) => i + 1),
-        trainLoss: [1.2, 1.0, 0.9, 0.8, 0.7, 0.65, 0.6, 0.58, 0.57, 0.56],
-        valLoss:   [1.3, 1.1, 1.0, 0.9, 0.8, 0.75, 0.7, 0.68, 0.67, 0.66],
-        trainAcc:  [0.5, 0.6, 0.65, 0.7, 0.75, 0.78, 0.8, 0.82, 0.83, 0.84],
-        valAcc:    [0.48, 0.58, 0.62, 0.68, 0.72, 0.76, 0.78, 0.8, 0.81, 0.82],
-      },
-      {
-        modelId: 'model2',
-        modelName: 'EfficientNet B0',
-        epochs: Array.from({ length: 10 }, (_, i) => i + 1),
-        trainLoss: [1.1, 0.95, 0.85, 0.8, 0.75, 0.7, 0.68, 0.67, 0.66, 0.65],
-        valLoss:   [1.2, 1.0, 0.92, 0.88, 0.83, 0.78, 0.75, 0.74, 0.73, 0.72],
-        trainAcc:  [0.52, 0.62, 0.68, 0.73, 0.77, 0.8, 0.82, 0.84, 0.85, 0.86],
-        valAcc:    [0.5, 0.6, 0.65, 0.7, 0.74, 0.78, 0.8, 0.82, 0.83, 0.84],
-      },
-    ];
-    // Filter example data by selected modelIds
-    setCurveData(example.filter(d => modelIds.includes(d.modelId)));
-    setLoading(false);
-  }, [modelIds]);
+  // Show error state
+  if (error) {
+    return <TrainingCurvesError message={error.message} onRetry={onRetry} />;
+  }
 
-  // Prepare chart data for loss and accuracy overlays
+  // Show empty state if no data
+  if (!data || data.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        No training curve data available for the selected models.
+      </div>
+    );
+  }
+
+  // Filter data to only include requested model IDs
+  const curveData = data.filter(d => modelIds.includes(d.modelId));
+
+  if (curveData.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        No training curve data available for the selected models.
+      </div>
+    );
+  }
+
+  // Find the maximum number of epochs across all models
+  const maxEpochs = Math.max(...curveData.map(d => d.epochs.length));
+  const epochLabels = Array.from({ length: maxEpochs }, (_, i) => i + 1);
+
+  // Prepare chart data for loss overlay
   const lossChartData = {
-    labels: curveData[0]?.epochs || [],
-    datasets: curveData.flatMap(model => [
-      {
-        label: `${model.modelName} - Train Loss`,
-        data: model.trainLoss,
-        borderColor: 'rgba(54, 162, 235, 1)',
-        backgroundColor: 'rgba(54, 162, 235, 0.1)',
-        borderDash: [],
-        fill: false,
-      },
-      {
-        label: `${model.modelName} - Val Loss`,
-        data: model.valLoss,
-        borderColor: 'rgba(255, 99, 132, 1)',
-        backgroundColor: 'rgba(255, 99, 132, 0.1)',
-        borderDash: [5, 5],
-        fill: false,
-      },
-    ]),
+    labels: epochLabels,
+    datasets: curveData.flatMap((model, index) => {
+      const colorIndex = index % MODEL_COLORS.length;
+      return [
+        {
+          label: `${model.modelName} - Train Loss`,
+          data: model.trainLoss,
+          borderColor: MODEL_COLORS[colorIndex].train,
+          backgroundColor: MODEL_COLORS[colorIndex].train.replace('1)', '0.1)'),
+          borderDash: [],
+          fill: false,
+          tension: 0.1,
+        },
+        {
+          label: `${model.modelName} - Val Loss`,
+          data: model.valLoss,
+          borderColor: MODEL_COLORS[colorIndex].val,
+          backgroundColor: MODEL_COLORS[colorIndex].val.replace('0.6)', '0.1)'),
+          borderDash: [5, 5],
+          fill: false,
+          tension: 0.1,
+        },
+      ];
+    }),
   };
 
+  // Prepare chart data for accuracy overlay
   const accChartData = {
-    labels: curveData[0]?.epochs || [],
-    datasets: curveData.flatMap(model => [
-      {
-        label: `${model.modelName} - Train Acc`,
-        data: model.trainAcc,
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.1)',
-        borderDash: [],
-        fill: false,
-      },
-      {
-        label: `${model.modelName} - Val Acc`,
-        data: model.valAcc,
-        borderColor: 'rgba(255, 206, 86, 1)',
-        backgroundColor: 'rgba(255, 206, 86, 0.1)',
-        borderDash: [5, 5],
-        fill: false,
-      },
-    ]),
+    labels: epochLabels,
+    datasets: curveData.flatMap((model, index) => {
+      const colorIndex = index % MODEL_COLORS.length;
+      return [
+        {
+          label: `${model.modelName} - Train Acc`,
+          data: model.trainAcc,
+          borderColor: MODEL_COLORS[colorIndex].train,
+          backgroundColor: MODEL_COLORS[colorIndex].train.replace('1)', '0.1)'),
+          borderDash: [],
+          fill: false,
+          tension: 0.1,
+        },
+        {
+          label: `${model.modelName} - Val Acc`,
+          data: model.valAcc,
+          borderColor: MODEL_COLORS[colorIndex].val,
+          backgroundColor: MODEL_COLORS[colorIndex].val.replace('0.6)', '0.1)'),
+          borderDash: [5, 5],
+          fill: false,
+          tension: 0.1,
+        },
+      ];
+    }),
   };
 
   const chartOptions = {
@@ -134,17 +192,11 @@ export function TrainingCurvesOverlay({ modelIds }: TrainingCurvesOverlayProps) 
   return (
     <div>
       <h3 className="text-lg font-semibold mb-2">Training & Validation Loss</h3>
-      {loading ? (
-        <div>Loading curves...</div>
-      ) : (
-        <Line data={lossChartData} options={chartOptions} />
-      )}
+      <Line data={lossChartData} options={chartOptions} />
+      
       <h3 className="text-lg font-semibold mt-8 mb-2">Training & Validation Accuracy</h3>
-      {loading ? (
-        <div>Loading curves...</div>
-      ) : (
-        <Line data={accChartData} options={chartOptions} />
-      )}
+      <Line data={accChartData} options={chartOptions} />
+      
       <div className="text-xs text-muted-foreground mt-2">
         Interactive legend: click to show/hide curves for each model.
       </div>
