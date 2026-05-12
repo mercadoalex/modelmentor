@@ -1,5 +1,6 @@
 import { Check, GraduationCap } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import type { LearningMomentType } from '@/utils/learningMomentContent';
 
 interface WorkflowStep {
   id: string;
@@ -7,18 +8,49 @@ interface WorkflowStep {
   description: string;
   icon: LucideIcon;
   isLearnStep?: boolean;
+  /** For learn steps: the moment type for tracking */
+  momentType?: LearningMomentType;
+}
+
+interface LearningMomentProgress {
+  data: boolean;
+  model: boolean;
+  next_steps: boolean;
 }
 
 interface MLWorkflowVisualizerProps {
   steps: WorkflowStep[];
   currentStep?: number;
   className?: string;
+  /** Completion status for learning moments */
+  learningMomentProgress?: LearningMomentProgress;
+  /** Callback when a learning moment is clicked */
+  onLearningMomentClick?: (momentType: LearningMomentType) => void;
 }
 
-export function MLWorkflowVisualizer({ steps, currentStep = 0, className = '' }: MLWorkflowVisualizerProps) {
+export function MLWorkflowVisualizer({ 
+  steps, 
+  currentStep = 0, 
+  className = '',
+  learningMomentProgress,
+  onLearningMomentClick
+}: MLWorkflowVisualizerProps) {
   // Separate main steps and learn steps for a cleaner two-row layout
   const mainSteps = steps.filter(s => !s.isLearnStep);
   const learnSteps = steps.filter(s => s.isLearnStep);
+
+  // Get completion status for a learn step
+  const isLearningMomentCompleted = (step: WorkflowStep): boolean => {
+    if (!learningMomentProgress || !step.momentType) return false;
+    return learningMomentProgress[step.momentType];
+  };
+
+  // Handle learn step click
+  const handleLearnStepClick = (step: WorkflowStep) => {
+    if (step.momentType && onLearningMomentClick) {
+      onLearningMomentClick(step.momentType);
+    }
+  };
   
   return (
     <div className={`w-full space-y-8 ${className}`}>
@@ -92,24 +124,71 @@ export function MLWorkflowVisualizer({ steps, currentStep = 0, className = '' }:
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            {learnSteps.map((step) => (
-              <div 
-                key={step.id} 
-                className="flex items-center gap-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800"
-              >
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
-                  <GraduationCap className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-amber-800 dark:text-amber-200 truncate">
-                    {step.title.replace('Learn: ', '')}
-                  </p>
-                  <p className="text-xs text-amber-600 dark:text-amber-400 truncate">
-                    {step.description}
-                  </p>
-                </div>
-              </div>
-            ))}
+            {learnSteps.map((step) => {
+              const isCompleted = isLearningMomentCompleted(step);
+              const isClickable = !!onLearningMomentClick && !!step.momentType;
+              
+              return (
+                <button
+                  key={step.id}
+                  onClick={() => handleLearnStepClick(step)}
+                  disabled={!isClickable}
+                  className={`
+                    flex items-center gap-3 p-3 rounded-lg border transition-all text-left
+                    ${isCompleted 
+                      ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800' 
+                      : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'
+                    }
+                    ${isClickable 
+                      ? 'cursor-pointer hover:scale-[1.02] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2' 
+                      : 'cursor-default'
+                    }
+                  `}
+                >
+                  <div className={`
+                    flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
+                    ${isCompleted 
+                      ? 'bg-green-100 dark:bg-green-900/50' 
+                      : 'bg-amber-100 dark:bg-amber-900/50'
+                    }
+                  `}>
+                    {isCompleted ? (
+                      <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    ) : (
+                      <GraduationCap className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className={`text-sm font-medium truncate ${
+                        isCompleted 
+                          ? 'text-green-800 dark:text-green-200' 
+                          : 'text-amber-800 dark:text-amber-200'
+                      }`}>
+                        {step.title.replace('Learn: ', '')}
+                      </p>
+                      {isCompleted && (
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300">
+                          Done
+                        </span>
+                      )}
+                      {!isCompleted && isClickable && (
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-amber-200 dark:bg-amber-800 text-amber-700 dark:text-amber-300 animate-pulse">
+                          New
+                        </span>
+                      )}
+                    </div>
+                    <p className={`text-xs truncate ${
+                      isCompleted 
+                        ? 'text-green-600 dark:text-green-400' 
+                        : 'text-amber-600 dark:text-amber-400'
+                    }`}>
+                      {step.description}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}

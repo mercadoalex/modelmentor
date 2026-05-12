@@ -21,7 +21,16 @@ import { toast } from 'sonner';
 import type { ModelType } from '@/types/types';
 import type { LucideIcon } from 'lucide-react';
 
-const workflowSteps = [
+import type { LearningMomentType } from '@/utils/learningMomentContent';
+
+const workflowSteps: Array<{
+  id: string;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  isLearnStep: boolean;
+  momentType?: LearningMomentType;
+}> = [
   {
     id: 'describe',
     title: 'Describe',
@@ -41,7 +50,8 @@ const workflowSteps = [
     title: 'Learn: Data',
     description: 'Understand data quality & features',
     icon: GraduationCap,
-    isLearnStep: true
+    isLearnStep: true,
+    momentType: 'data'
   },
   {
     id: 'train',
@@ -55,7 +65,8 @@ const workflowSteps = [
     title: 'Learn: Model',
     description: 'Understand how your model works',
     icon: GraduationCap,
-    isLearnStep: true
+    isLearnStep: true,
+    momentType: 'model'
   },
   {
     id: 'debug',
@@ -76,7 +87,8 @@ const workflowSteps = [
     title: 'Learn: Next Steps',
     description: 'Explore advanced ML concepts',
     icon: GraduationCap,
-    isLearnStep: true
+    isLearnStep: true,
+    momentType: 'next_steps'
   }
 ];
 
