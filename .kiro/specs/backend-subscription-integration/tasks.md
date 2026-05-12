@@ -159,8 +159,8 @@ This plan implements backend-powered ML training, persistent dataset storage, us
 - [x] 5. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 6. Supabase Edge Functions
-  - [ ] 6.1 Implement train-model edge function
+- [x] 6. Supabase Edge Functions
+  - [x] 6.1 Implement train-model edge function
     - Create `supabase/functions/train-model/index.ts`
     - Authenticate user from Authorization header
     - Validate request body (dataset_id, model_type, config)
@@ -177,7 +177,7 @@ This plan implements backend-powered ML training, persistent dataset storage, us
     - On timeout: terminate, return partial results, update session with 'timeout' status
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 5.10, 5.11, 5.12, 7.6_
 
-  - [ ] 6.2 Implement create-checkout edge function
+  - [x] 6.2 Implement create-checkout edge function
     - Create `supabase/functions/create-checkout/index.ts`
     - Authenticate user from Authorization header
     - Accept tier ('pro' | 'enterprise') and billing_period ('monthly' | 'yearly')
@@ -186,7 +186,7 @@ This plan implements backend-powered ML training, persistent dataset storage, us
     - Return checkout URL and session ID
     - _Requirements: 6.3_
 
-  - [ ] 6.3 Implement stripe-webhook edge function
+  - [x] 6.3 Implement stripe-webhook edge function
     - Create `supabase/functions/stripe-webhook/index.ts`
     - Verify Stripe webhook signature using endpoint secret
     - Handle events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`
@@ -200,7 +200,7 @@ This plan implements backend-powered ML training, persistent dataset storage, us
     - **Property 7: Subscription state transitions**
     - **Validates: Requirements 6.4, 6.5**
 
-  - [ ] 6.5 Implement check-usage edge function
+  - [x] 6.5 Implement check-usage edge function
     - Create `supabase/functions/check-usage/index.ts`
     - Authenticate user from Authorization header
     - Query user subscription (tier, status, trial info)
@@ -209,7 +209,7 @@ This plan implements backend-powered ML training, persistent dataset storage, us
     - Return `CheckUsageResponse` with tier, usage, limits, compute budget, trial days remaining
     - _Requirements: 7.1, 7.4, 7.6, 7.7_
 
-  - [ ] 6.6 Implement migrate-local-data edge function
+  - [x] 6.6 Implement migrate-local-data edge function
     - Create `supabase/functions/migrate-local-data/index.ts`
     - Authenticate user from Authorization header
     - Accept array of projects with optional dataset content (base64)
@@ -218,7 +218,7 @@ This plan implements backend-powered ML training, persistent dataset storage, us
     - Return `MigrateLocalDataResponse` with migrated count and failure details
     - _Requirements: 9.1, 9.2, 9.3_
 
-- [ ] 7. Checkpoint - Ensure all tests pass
+- [x] 7. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 8. Frontend contexts and integration
