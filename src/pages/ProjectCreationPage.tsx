@@ -26,37 +26,57 @@ const workflowSteps = [
     id: 'describe',
     title: 'Describe',
     description: 'Define your ML project goals',
-    icon: FileText
+    icon: FileText,
+    isLearnStep: false
   },
   {
     id: 'data',
     title: 'Input Data',
     description: 'Upload or select training data',
-    icon: Database
+    icon: Database,
+    isLearnStep: false
   },
   {
-    id: 'learn',
-    title: 'Learn',
-    description: 'Understand ML concepts',
-    icon: GraduationCap
+    id: 'learn-data',
+    title: 'Learn: Data',
+    description: 'Understand data quality & features',
+    icon: GraduationCap,
+    isLearnStep: true
   },
   {
     id: 'train',
     title: 'Train Model',
     description: 'Train your AI model',
-    icon: Zap
+    icon: Zap,
+    isLearnStep: false
+  },
+  {
+    id: 'learn-model',
+    title: 'Learn: Model',
+    description: 'Understand how your model works',
+    icon: GraduationCap,
+    isLearnStep: true
   },
   {
     id: 'debug',
     title: 'Test & Debug',
     description: 'Evaluate and refine',
-    icon: Bug
+    icon: Bug,
+    isLearnStep: false
   },
   {
     id: 'deploy',
     title: 'Deploy',
     description: 'Share your model',
-    icon: Share2
+    icon: Share2,
+    isLearnStep: false
+  },
+  {
+    id: 'learn-next',
+    title: 'Learn: Next Steps',
+    description: 'Explore advanced ML concepts',
+    icon: GraduationCap,
+    isLearnStep: true
   }
 ];
 
