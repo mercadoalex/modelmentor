@@ -337,6 +337,38 @@ const TEMPLATES: DatasetTemplate[] = [
       return dataset.images;
     },
   },
+
+  {
+    id: 'colors-classification',
+    name: 'Color Patterns 🎨',
+    description: 'Classify images by dominant color (red, green, blue). Great for understanding how models see color.',
+    modelType: 'image_classification',
+    tags: ['images', 'colors', 'beginner-friendly'],
+    difficulty: 'beginner',
+    rows: 0, // User needs to upload their own images
+    columns: ['image', 'label'],
+    realWorldUse: 'Color detection is used in quality control, fashion apps, and accessibility tools.',
+    icon: Image,
+    iconColor: 'text-rose-500',
+    bundledImages: false,
+    generateData: () => [],
+  },
+
+  {
+    id: 'objects-classification',
+    name: 'Everyday Objects 📦',
+    description: 'Classify common objects like cups, books, phones. Build your own object detector!',
+    modelType: 'image_classification',
+    tags: ['images', 'objects', 'practical'],
+    difficulty: 'intermediate',
+    rows: 0, // User needs to upload their own images
+    columns: ['image', 'label'],
+    realWorldUse: 'Object detection powers inventory systems, robotics, and smart home devices.',
+    icon: Image,
+    iconColor: 'text-amber-500',
+    bundledImages: false,
+    generateData: () => [],
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
