@@ -11,6 +11,7 @@
  */
 
 import type { ModelType } from '@/types/types';
+import type { MatchingContent, FillBlanksContent, FlashCardContent, SortingContent } from '@/components/learning/types';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Type Definitions
@@ -51,12 +52,21 @@ export interface LearningMomentQuiz {
   passingScore: number;
 }
 
+/** Aggregated interactive content for a learning moment */
+export interface InteractiveContent {
+  matching?: MatchingContent;
+  fillBlanks?: FillBlanksContent;
+  flashCards?: FlashCardContent;
+  sorting?: SortingContent;
+}
+
 export interface LearningMomentContent {
   title: string;
   description: string;
   icon: string;
   sections: ContentSection[];
   quiz: LearningMomentQuiz;
+  interactive?: InteractiveContent;
 }
 
 export type LearningMomentContentMap = {
@@ -272,6 +282,58 @@ The more diverse your training images, the better features your AI will learn!`,
         }
       ],
       passingScore: 1
+    },
+    interactive: {
+      matching: {
+        pairs: [
+          { id: 'img-data-m1', concept: 'Training Data', definition: 'Labeled examples the model learns from' },
+          { id: 'img-data-m2', concept: 'Features', definition: 'Patterns like edges, shapes, and textures detected in images' },
+          { id: 'img-data-m3', concept: 'Labels', definition: 'Category names assigned to each image' },
+          { id: 'img-data-m4', concept: 'Data Augmentation', definition: 'Creating new training examples by modifying existing images' }
+        ]
+      },
+      fillBlanks: {
+        sentences: [
+          {
+            id: 'img-data-fb1',
+            template: 'Good training images should have consistent {{b1}} and diverse {{b2}}.',
+            blanks: { b1: 'lighting', b2: 'angles' }
+          },
+          {
+            id: 'img-data-fb2',
+            template: 'The AI learns to detect {{b3}} such as edges, shapes, and textures from training images.',
+            blanks: { b3: 'features' }
+          },
+          {
+            id: 'img-data-fb3',
+            template: 'Each image must be placed in the correct {{b4}} to ensure the model learns accurately.',
+            blanks: { b4: 'category' }
+          }
+        ],
+        distractors: ['pixels', 'layers', 'neurons']
+      },
+      flashCards: {
+        statements: [
+          { id: 'img-data-fc1', statement: 'Blurry images are just as useful as clear images for training.', isTrue: false, explanation: 'Clear, high-resolution images help the model detect features more reliably than blurry ones.' },
+          { id: 'img-data-fc2', statement: 'Having images from different angles helps the model generalize better.', isTrue: true, explanation: 'Diverse angles prevent the model from only recognizing objects in one specific orientation.' },
+          { id: 'img-data-fc3', statement: 'You only need one example per category to train a good model.', isTrue: false, explanation: 'Models need many diverse examples per category to learn robust patterns and avoid overfitting.' },
+          { id: 'img-data-fc4', statement: 'Mislabeled images can confuse the model during training.', isTrue: true, explanation: 'Incorrect labels teach the model wrong associations, reducing accuracy on correctly labeled test data.' }
+        ]
+      },
+      sorting: {
+        categories: [
+          { id: 'good-data', label: 'Good Data Practices' },
+          { id: 'bad-data', label: 'Poor Data Practices' }
+        ],
+        items: [
+          { id: 'img-data-s1', concept: 'Diverse backgrounds in images', correctCategoryId: 'good-data' },
+          { id: 'img-data-s2', concept: 'All images taken from same angle', correctCategoryId: 'bad-data' },
+          { id: 'img-data-s3', concept: 'Balanced number of examples per class', correctCategoryId: 'good-data' },
+          { id: 'img-data-s4', concept: 'Using blurry or low-quality images', correctCategoryId: 'bad-data' },
+          { id: 'img-data-s5', concept: 'Verifying labels are correct', correctCategoryId: 'good-data' },
+          { id: 'img-data-s6', concept: 'Having 90% of data in one category', correctCategoryId: 'bad-data' }
+        ]
+      }
     }
   },
 
@@ -346,6 +408,58 @@ If you have 100 positive reviews but only 10 negative ones, the model might just
         }
       ],
       passingScore: 1
+    },
+    interactive: {
+      matching: {
+        pairs: [
+          { id: 'txt-data-m1', concept: 'Tokenization', definition: 'Breaking text into smaller pieces for processing' },
+          { id: 'txt-data-m2', concept: 'Class Balance', definition: 'Having similar numbers of examples per category' },
+          { id: 'txt-data-m3', concept: 'Text Embeddings', definition: 'Numerical representations that capture word meaning' },
+          { id: 'txt-data-m4', concept: 'Vocabulary', definition: 'The set of unique words in the dataset' }
+        ]
+      },
+      fillBlanks: {
+        sentences: [
+          {
+            id: 'txt-data-fb1',
+            template: 'A {{b1}} dataset has similar numbers of examples for each category.',
+            blanks: { b1: 'balanced' }
+          },
+          {
+            id: 'txt-data-fb2',
+            template: 'Text must be converted to {{b2}} before a model can process it.',
+            blanks: { b2: 'numbers' }
+          },
+          {
+            id: 'txt-data-fb3',
+            template: 'If 90% of reviews are positive, the model might always predict {{b3}}.',
+            blanks: { b3: 'positive' }
+          }
+        ],
+        distractors: ['negative', 'images', 'layers']
+      },
+      flashCards: {
+        statements: [
+          { id: 'txt-data-fc1', statement: 'Imbalanced text data can cause the model to ignore minority categories.', isTrue: true, explanation: 'The model sees majority examples more often and learns to favor them in predictions.' },
+          { id: 'txt-data-fc2', statement: 'Short texts with only one or two words are ideal for classification.', isTrue: false, explanation: 'Very short texts may not contain enough information for the model to identify meaningful patterns.' },
+          { id: 'txt-data-fc3', statement: 'Removing irrelevant formatting from text can improve model performance.', isTrue: true, explanation: 'Clean text helps the model focus on meaningful content rather than noise from formatting artifacts.' },
+          { id: 'txt-data-fc4', statement: 'The order of words in a sentence never matters for classification.', isTrue: false, explanation: 'Word order often carries meaning. "Dog bites man" and "Man bites dog" have very different meanings.' }
+        ]
+      },
+      sorting: {
+        categories: [
+          { id: 'helps-quality', label: 'Improves Data Quality' },
+          { id: 'hurts-quality', label: 'Reduces Data Quality' }
+        ],
+        items: [
+          { id: 'txt-data-s1', concept: 'Removing HTML tags and formatting', correctCategoryId: 'helps-quality' },
+          { id: 'txt-data-s2', concept: 'Mixing languages without labels', correctCategoryId: 'hurts-quality' },
+          { id: 'txt-data-s3', concept: 'Verifying category assignments', correctCategoryId: 'helps-quality' },
+          { id: 'txt-data-s4', concept: 'Having 95% of data in one class', correctCategoryId: 'hurts-quality' },
+          { id: 'txt-data-s5', concept: 'Including diverse writing styles', correctCategoryId: 'helps-quality' },
+          { id: 'txt-data-s6', concept: 'Duplicating the same text many times', correctCategoryId: 'hurts-quality' }
+        ]
+      }
     }
   },
 
@@ -426,6 +540,58 @@ Most ML frameworks handle this automatically, but it's good to understand why!`,
         }
       ],
       passingScore: 1
+    },
+    interactive: {
+      matching: {
+        pairs: [
+          { id: 'reg-data-m1', concept: 'Outliers', definition: 'Extreme values that do not fit the general pattern' },
+          { id: 'reg-data-m2', concept: 'Feature Scaling', definition: 'Adjusting features to similar ranges for fair comparison' },
+          { id: 'reg-data-m3', concept: 'Missing Values', definition: 'Gaps in the dataset that need handling before training' },
+          { id: 'reg-data-m4', concept: 'Correlation', definition: 'A measure of how two variables change together' }
+        ]
+      },
+      fillBlanks: {
+        sentences: [
+          {
+            id: 'reg-data-fb1',
+            template: '{{b1}} are extreme data points that can skew model predictions.',
+            blanks: { b1: 'Outliers' }
+          },
+          {
+            id: 'reg-data-fb2',
+            template: 'Feature {{b2}} converts all features to a similar range like 0 to 1.',
+            blanks: { b2: 'scaling' }
+          },
+          {
+            id: 'reg-data-fb3',
+            template: 'A strong {{b3}} between input and target means the feature is useful for prediction.',
+            blanks: { b3: 'correlation' }
+          }
+        ],
+        distractors: ['accuracy', 'classification', 'labels']
+      },
+      flashCards: {
+        statements: [
+          { id: 'reg-data-fc1', statement: 'Feature scaling is unnecessary when all features already have the same units.', isTrue: false, explanation: 'Even with the same units, features can have vastly different ranges (e.g., age 0-100 vs. income 0-1,000,000) which affects model training.' },
+          { id: 'reg-data-fc2', statement: 'A single outlier can significantly change the slope of a regression line.', isTrue: true, explanation: 'Regression minimizes squared errors, so extreme values have outsized influence on the fitted line.' },
+          { id: 'reg-data-fc3', statement: 'Missing values should always be deleted from the dataset.', isTrue: false, explanation: 'Deleting rows with missing values can lose important information. Imputation (filling in estimates) is often a better approach.' },
+          { id: 'reg-data-fc4', statement: 'Features with no correlation to the target add noise and can hurt predictions.', isTrue: true, explanation: 'Irrelevant features introduce noise that the model may incorrectly learn from, reducing prediction quality.' }
+        ]
+      },
+      sorting: {
+        categories: [
+          { id: 'preprocessing', label: 'Data Preprocessing Steps' },
+          { id: 'quality-issues', label: 'Data Quality Issues' }
+        ],
+        items: [
+          { id: 'reg-data-s1', concept: 'Normalizing feature ranges', correctCategoryId: 'preprocessing' },
+          { id: 'reg-data-s2', concept: 'Extreme values far from the mean', correctCategoryId: 'quality-issues' },
+          { id: 'reg-data-s3', concept: 'Filling in missing values', correctCategoryId: 'preprocessing' },
+          { id: 'reg-data-s4', concept: 'Features with different scales', correctCategoryId: 'quality-issues' },
+          { id: 'reg-data-s5', concept: 'Removing duplicate rows', correctCategoryId: 'preprocessing' },
+          { id: 'reg-data-s6', concept: 'Highly correlated input features', correctCategoryId: 'quality-issues' }
+        ]
+      }
     }
   },
 
@@ -502,6 +668,58 @@ Think of it like sorting mail - clear addresses make sorting easy, smudged ones 
         }
       ],
       passingScore: 1
+    },
+    interactive: {
+      matching: {
+        pairs: [
+          { id: 'cls-data-m1', concept: 'Decision Boundary', definition: 'A line or surface that separates different categories' },
+          { id: 'cls-data-m2', concept: 'Categorical Features', definition: 'Columns with distinct groups like colors or types' },
+          { id: 'cls-data-m3', concept: 'Class Balance', definition: 'Having similar numbers of examples per category' },
+          { id: 'cls-data-m4', concept: 'Feature Selection', definition: 'Choosing which input columns help predict the target' }
+        ]
+      },
+      fillBlanks: {
+        sentences: [
+          {
+            id: 'cls-data-fb1',
+            template: 'A {{b1}} boundary is the line that separates different categories in the data.',
+            blanks: { b1: 'decision' }
+          },
+          {
+            id: 'cls-data-fb2',
+            template: 'Features can be either {{b2}} (like color) or numerical (like age).',
+            blanks: { b2: 'categorical' }
+          },
+          {
+            id: 'cls-data-fb3',
+            template: 'Including irrelevant {{b3}} can confuse the model and reduce accuracy.',
+            blanks: { b3: 'features' }
+          }
+        ],
+        distractors: ['regression', 'neurons', 'pixels']
+      },
+      flashCards: {
+        statements: [
+          { id: 'cls-data-fc1', statement: 'All columns in a dataset are equally useful for classification.', isTrue: false, explanation: 'Some features are more informative than others. Irrelevant features add noise and can reduce model performance.' },
+          { id: 'cls-data-fc2', statement: 'Balanced classes help the model learn to predict all categories fairly.', isTrue: true, explanation: 'When classes are balanced, the model gets equal exposure to each category during training.' },
+          { id: 'cls-data-fc3', statement: 'Categorical features must be converted to numbers before training.', isTrue: true, explanation: 'Models work with numbers internally, so categories like "red/blue/green" must be encoded numerically.' },
+          { id: 'cls-data-fc4', statement: 'Missing values in the dataset have no effect on model training.', isTrue: false, explanation: 'Missing values can cause errors or bias in training. They need to be handled through imputation or removal.' }
+        ]
+      },
+      sorting: {
+        categories: [
+          { id: 'numerical-feat', label: 'Numerical Features' },
+          { id: 'categorical-feat', label: 'Categorical Features' }
+        ],
+        items: [
+          { id: 'cls-data-s1', concept: 'Age in years', correctCategoryId: 'numerical-feat' },
+          { id: 'cls-data-s2', concept: 'Product color', correctCategoryId: 'categorical-feat' },
+          { id: 'cls-data-s3', concept: 'Temperature in Celsius', correctCategoryId: 'numerical-feat' },
+          { id: 'cls-data-s4', concept: 'Country of origin', correctCategoryId: 'categorical-feat' },
+          { id: 'cls-data-s5', concept: 'Annual income', correctCategoryId: 'numerical-feat' },
+          { id: 'cls-data-s6', concept: 'Subscription tier (basic/premium)', correctCategoryId: 'categorical-feat' }
+        ]
+      }
     }
   }
 };
@@ -617,6 +835,58 @@ If validation is much lower than training, the model might be overfitting!`,
         }
       ],
       passingScore: 1
+    },
+    interactive: {
+      matching: {
+        pairs: [
+          { id: 'img-model-m1', concept: 'Convolution Layer', definition: 'Scans the image for patterns like edges and textures' },
+          { id: 'img-model-m2', concept: 'Pooling Layer', definition: 'Simplifies information while keeping important features' },
+          { id: 'img-model-m3', concept: 'Feature Maps', definition: 'Internal representations showing detected patterns at each layer' },
+          { id: 'img-model-m4', concept: 'Validation Accuracy', definition: 'Performance on data the model has not seen during training' }
+        ]
+      },
+      fillBlanks: {
+        sentences: [
+          {
+            id: 'img-model-fb1',
+            template: 'A CNN uses {{b1}} layers to detect patterns like edges and shapes in images.',
+            blanks: { b1: 'convolution' }
+          },
+          {
+            id: 'img-model-fb2',
+            template: 'If validation accuracy is much lower than training accuracy, the model may be {{b2}}.',
+            blanks: { b2: 'overfitting' }
+          },
+          {
+            id: 'img-model-fb3',
+            template: 'Early layers detect simple patterns while later layers recognize complex {{b3}}.',
+            blanks: { b3: 'objects' }
+          }
+        ],
+        distractors: ['underfitting', 'labels', 'datasets']
+      },
+      flashCards: {
+        statements: [
+          { id: 'img-model-fc1', statement: 'Later layers in a CNN detect more complex features than early layers.', isTrue: true, explanation: 'Early layers detect edges and lines; middle layers detect shapes; later layers detect whole objects or complex patterns.' },
+          { id: 'img-model-fc2', statement: 'A lower loss value means the model is making more errors.', isTrue: false, explanation: 'Loss measures prediction error — lower loss means fewer and smaller errors, which is better.' },
+          { id: 'img-model-fc3', statement: 'Training for more epochs always improves model performance.', isTrue: false, explanation: 'Too many epochs can cause overfitting, where the model memorizes training data instead of learning general patterns.' },
+          { id: 'img-model-fc4', statement: 'Pooling layers reduce the spatial size of feature maps.', isTrue: true, explanation: 'Pooling (like max pooling) reduces dimensions while retaining the most important information, making computation more efficient.' }
+        ]
+      },
+      sorting: {
+        categories: [
+          { id: 'signs-good', label: 'Signs of Good Training' },
+          { id: 'signs-bad', label: 'Signs of Problems' }
+        ],
+        items: [
+          { id: 'img-model-s1', concept: 'Loss decreasing over epochs', correctCategoryId: 'signs-good' },
+          { id: 'img-model-s2', concept: 'Training accuracy much higher than validation', correctCategoryId: 'signs-bad' },
+          { id: 'img-model-s3', concept: 'Validation accuracy improving steadily', correctCategoryId: 'signs-good' },
+          { id: 'img-model-s4', concept: 'Loss not decreasing after many epochs', correctCategoryId: 'signs-bad' },
+          { id: 'img-model-s5', concept: 'Similar training and validation accuracy', correctCategoryId: 'signs-good' },
+          { id: 'img-model-s6', concept: 'Model predicts same class for all inputs', correctCategoryId: 'signs-bad' }
+        ]
+      }
     }
   },
 
@@ -721,6 +991,58 @@ Both matter for a well-rounded model!`,
         }
       ],
       passingScore: 1
+    },
+    interactive: {
+      matching: {
+        pairs: [
+          { id: 'txt-model-m1', concept: 'Tokenization', definition: 'Splitting text into smaller pieces the model can process' },
+          { id: 'txt-model-m2', concept: 'Word Embeddings', definition: 'Numerical representations that capture word meaning' },
+          { id: 'txt-model-m3', concept: 'Precision', definition: 'Of predictions made, how many were correct' },
+          { id: 'txt-model-m4', concept: 'Recall', definition: 'Of all correct answers, how many were found' }
+        ]
+      },
+      fillBlanks: {
+        sentences: [
+          {
+            id: 'txt-model-fb1',
+            template: '{{b1}} converts words into numerical representations that capture meaning.',
+            blanks: { b1: 'Embedding' }
+          },
+          {
+            id: 'txt-model-fb2',
+            template: 'The first step in text processing is {{b2}}, which splits text into tokens.',
+            blanks: { b2: 'tokenization' }
+          },
+          {
+            id: 'txt-model-fb3',
+            template: '{{b3}} measures how many of the model\'s positive predictions were actually correct.',
+            blanks: { b3: 'Precision' }
+          }
+        ],
+        distractors: ['accuracy', 'convolution', 'pooling']
+      },
+      flashCards: {
+        statements: [
+          { id: 'txt-model-fc1', statement: 'Words with similar meanings have similar embeddings.', isTrue: true, explanation: 'Embedding algorithms place semantically similar words close together in vector space, capturing meaning relationships.' },
+          { id: 'txt-model-fc2', statement: 'Tokenization always splits text into individual characters.', isTrue: false, explanation: 'Tokenization can split by words, subwords, or characters depending on the method. Word-level and subword tokenization are most common.' },
+          { id: 'txt-model-fc3', statement: 'A model with high precision but low recall finds most positives but also makes many false alarms.', isTrue: false, explanation: 'High precision means few false alarms. Low recall means it misses many actual positives. You described the opposite.' },
+          { id: 'txt-model-fc4', statement: 'The loss function measures how far the model predictions are from the correct answers.', isTrue: true, explanation: 'Loss quantifies prediction error. During training, the model adjusts to minimize this value.' }
+        ]
+      },
+      sorting: {
+        categories: [
+          { id: 'text-preprocessing', label: 'Text Preprocessing' },
+          { id: 'model-evaluation', label: 'Model Evaluation' }
+        ],
+        items: [
+          { id: 'txt-model-s1', concept: 'Splitting text into tokens', correctCategoryId: 'text-preprocessing' },
+          { id: 'txt-model-s2', concept: 'Calculating precision and recall', correctCategoryId: 'model-evaluation' },
+          { id: 'txt-model-s3', concept: 'Removing stop words', correctCategoryId: 'text-preprocessing' },
+          { id: 'txt-model-s4', concept: 'Comparing predictions to true labels', correctCategoryId: 'model-evaluation' },
+          { id: 'txt-model-s5', concept: 'Converting words to lowercase', correctCategoryId: 'text-preprocessing' },
+          { id: 'txt-model-s6', concept: 'Computing the F1 score', correctCategoryId: 'model-evaluation' }
+        ]
+      }
     }
   },
 
@@ -825,6 +1147,58 @@ A good model has high R² and low MSE!`,
         }
       ],
       passingScore: 1
+    },
+    interactive: {
+      matching: {
+        pairs: [
+          { id: 'reg-model-m1', concept: 'R² Score', definition: 'Percentage of variation in the target explained by the model' },
+          { id: 'reg-model-m2', concept: 'Mean Squared Error', definition: 'Average of squared differences between predictions and actual values' },
+          { id: 'reg-model-m3', concept: 'Linear Regression', definition: 'Finding the best straight line through data points' },
+          { id: 'reg-model-m4', concept: 'Prediction Interval', definition: 'A range where the true value likely falls' }
+        ]
+      },
+      fillBlanks: {
+        sentences: [
+          {
+            id: 'reg-model-fb1',
+            template: 'An R² score of 100% means the model perfectly {{b1}} all variation in the data.',
+            blanks: { b1: 'explains' }
+          },
+          {
+            id: 'reg-model-fb2',
+            template: 'Mean Squared Error penalizes {{b2}} mistakes more than small ones.',
+            blanks: { b2: 'large' }
+          },
+          {
+            id: 'reg-model-fb3',
+            template: 'A regression model learns the {{b3}} between input features and the target value.',
+            blanks: { b3: 'relationship' }
+          }
+        ],
+        distractors: ['classification', 'categories', 'labels']
+      },
+      flashCards: {
+        statements: [
+          { id: 'reg-model-fc1', statement: 'An R² score of 0% means the model is no better than predicting the average.', isTrue: true, explanation: 'R² = 0 means the model explains none of the variance — it performs the same as simply guessing the mean value every time.' },
+          { id: 'reg-model-fc2', statement: 'Mean Squared Error can be negative.', isTrue: false, explanation: 'MSE is the average of squared values, and squares are always non-negative, so MSE is always ≥ 0.' },
+          { id: 'reg-model-fc3', statement: 'A regression model can only learn linear relationships.', isTrue: false, explanation: 'While linear regression fits straight lines, polynomial regression and neural networks can capture non-linear relationships.' },
+          { id: 'reg-model-fc4', statement: 'Predictions near the training data range are generally more reliable.', isTrue: true, explanation: 'Models are most confident within the range of data they trained on. Extrapolating far beyond that range is less reliable.' }
+        ]
+      },
+      sorting: {
+        categories: [
+          { id: 'regression-metrics', label: 'Regression Metrics' },
+          { id: 'regression-concepts', label: 'Model Concepts' }
+        ],
+        items: [
+          { id: 'reg-model-s1', concept: 'R² Score', correctCategoryId: 'regression-metrics' },
+          { id: 'reg-model-s2', concept: 'Learning Rate', correctCategoryId: 'regression-concepts' },
+          { id: 'reg-model-s3', concept: 'Mean Squared Error', correctCategoryId: 'regression-metrics' },
+          { id: 'reg-model-s4', concept: 'Epochs', correctCategoryId: 'regression-concepts' },
+          { id: 'reg-model-s5', concept: 'Mean Absolute Error', correctCategoryId: 'regression-metrics' },
+          { id: 'reg-model-s6', concept: 'Batch Size', correctCategoryId: 'regression-concepts' }
+        ]
+      }
     }
   },
 
@@ -932,6 +1306,58 @@ Balances precision and recall - useful for imbalanced data!`,
         }
       ],
       passingScore: 1
+    },
+    interactive: {
+      matching: {
+        pairs: [
+          { id: 'cls-model-m1', concept: 'Decision Boundary', definition: 'The surface that separates different predicted categories' },
+          { id: 'cls-model-m2', concept: 'Feature Importance', definition: 'A measure of how much each input contributes to predictions' },
+          { id: 'cls-model-m3', concept: 'F1 Score', definition: 'Harmonic mean of precision and recall' },
+          { id: 'cls-model-m4', concept: 'Overfitting', definition: 'Model memorizes training data instead of learning general patterns' }
+        ]
+      },
+      fillBlanks: {
+        sentences: [
+          {
+            id: 'cls-model-fb1',
+            template: 'The {{b1}} score balances precision and recall into a single metric.',
+            blanks: { b1: 'F1' }
+          },
+          {
+            id: 'cls-model-fb2',
+            template: 'Features with high {{b2}} contribute more to the model\'s predictions.',
+            blanks: { b2: 'importance' }
+          },
+          {
+            id: 'cls-model-fb3',
+            template: 'A model that memorizes training data instead of learning patterns is {{b3}}.',
+            blanks: { b3: 'overfitting' }
+          }
+        ],
+        distractors: ['underfitting', 'regression', 'embedding']
+      },
+      flashCards: {
+        statements: [
+          { id: 'cls-model-fc1', statement: 'Feature importance tells you which inputs the model relies on most.', isTrue: true, explanation: 'Feature importance ranks how much each input variable contributes to the model\'s decision-making process.' },
+          { id: 'cls-model-fc2', statement: 'A model with 99% accuracy is always a good model.', isTrue: false, explanation: 'With imbalanced data, a model could predict the majority class every time and still get 99% accuracy while being useless for the minority class.' },
+          { id: 'cls-model-fc3', statement: 'Decision boundaries become more complex with more features.', isTrue: true, explanation: 'In higher dimensions, decision boundaries become hyperplanes or complex surfaces rather than simple lines.' },
+          { id: 'cls-model-fc4', statement: 'Precision and recall always have the same value.', isTrue: false, explanation: 'Precision and recall measure different things and often trade off against each other. Improving one can decrease the other.' }
+        ]
+      },
+      sorting: {
+        categories: [
+          { id: 'overfitting-signs', label: 'Signs of Overfitting' },
+          { id: 'good-generalization', label: 'Signs of Good Generalization' }
+        ],
+        items: [
+          { id: 'cls-model-s1', concept: 'High training accuracy, low test accuracy', correctCategoryId: 'overfitting-signs' },
+          { id: 'cls-model-s2', concept: 'Similar performance on training and test data', correctCategoryId: 'good-generalization' },
+          { id: 'cls-model-s3', concept: 'Model fails on slightly different inputs', correctCategoryId: 'overfitting-signs' },
+          { id: 'cls-model-s4', concept: 'Consistent accuracy across cross-validation folds', correctCategoryId: 'good-generalization' },
+          { id: 'cls-model-s5', concept: 'Perfect score on training set only', correctCategoryId: 'overfitting-signs' },
+          { id: 'cls-model-s6', concept: 'Handles unseen examples well', correctCategoryId: 'good-generalization' }
+        ]
+      }
     }
   }
 };
@@ -1053,6 +1479,58 @@ Experiment with different model architectures and see results in real-time.
         }
       ],
       passingScore: 1
+    },
+    interactive: {
+      matching: {
+        pairs: [
+          { id: 'img-next-m1', concept: 'Transfer Learning', definition: 'Using a pre-trained model as a starting point for a new task' },
+          { id: 'img-next-m2', concept: 'Data Augmentation', definition: 'Creating new training examples by modifying existing images' },
+          { id: 'img-next-m3', concept: 'Cross-Validation', definition: 'Testing model performance on multiple data splits' },
+          { id: 'img-next-m4', concept: 'Hyperparameter Tuning', definition: 'Optimizing settings like learning rate and batch size' }
+        ]
+      },
+      fillBlanks: {
+        sentences: [
+          {
+            id: 'img-next-fb1',
+            template: '{{b1}} learning uses a model pre-trained on millions of images as a starting point.',
+            blanks: { b1: 'Transfer' }
+          },
+          {
+            id: 'img-next-fb2',
+            template: 'Data {{b2}} creates new training examples by rotating, flipping, or adjusting images.',
+            blanks: { b2: 'augmentation' }
+          },
+          {
+            id: 'img-next-fb3',
+            template: 'K-fold cross-{{b3}} tests the model on multiple different data splits for more reliable evaluation.',
+            blanks: { b3: 'validation' }
+          }
+        ],
+        distractors: ['classification', 'regression', 'pooling']
+      },
+      flashCards: {
+        statements: [
+          { id: 'img-next-fc1', statement: 'Transfer learning typically requires less training data than training from scratch.', isTrue: true, explanation: 'Pre-trained models already know general features, so they need fewer examples to learn your specific task.' },
+          { id: 'img-next-fc2', statement: 'Data augmentation changes the original images in your dataset.', isTrue: false, explanation: 'Augmentation creates new copies with modifications — the original images remain unchanged.' },
+          { id: 'img-next-fc3', statement: 'A deployed model never needs to be updated or retrained.', isTrue: false, explanation: 'Models can degrade over time as real-world data changes. Regular monitoring and retraining keeps them accurate.' },
+          { id: 'img-next-fc4', statement: 'Hyperparameter tuning can significantly improve model performance without changing the data.', isTrue: true, explanation: 'Settings like learning rate, batch size, and architecture choices can have a large impact on how well the model learns.' }
+        ]
+      },
+      sorting: {
+        categories: [
+          { id: 'improve-data', label: 'Improve with More/Better Data' },
+          { id: 'improve-model', label: 'Improve with Model Changes' }
+        ],
+        items: [
+          { id: 'img-next-s1', concept: 'Collect more diverse images', correctCategoryId: 'improve-data' },
+          { id: 'img-next-s2', concept: 'Use transfer learning from ResNet', correctCategoryId: 'improve-model' },
+          { id: 'img-next-s3', concept: 'Apply rotation and flip augmentation', correctCategoryId: 'improve-data' },
+          { id: 'img-next-s4', concept: 'Tune the learning rate', correctCategoryId: 'improve-model' },
+          { id: 'img-next-s5', concept: 'Fix mislabeled training images', correctCategoryId: 'improve-data' },
+          { id: 'img-next-s6', concept: 'Add dropout regularization', correctCategoryId: 'improve-model' }
+        ]
+      }
     }
   },
 
@@ -1161,6 +1639,58 @@ Experiment with different text models and preprocessing techniques.
         }
       ],
       passingScore: 1
+    },
+    interactive: {
+      matching: {
+        pairs: [
+          { id: 'txt-next-m1', concept: 'Transformer Models', definition: 'Architectures that understand context by attending to all words simultaneously' },
+          { id: 'txt-next-m2', concept: 'Sentiment Analysis', definition: 'Detecting emotions and opinions in text' },
+          { id: 'txt-next-m3', concept: 'Named Entity Recognition', definition: 'Identifying people, places, and organizations in text' },
+          { id: 'txt-next-m4', concept: 'Pre-trained Embeddings', definition: 'Word representations learned from billions of words of text' }
+        ]
+      },
+      fillBlanks: {
+        sentences: [
+          {
+            id: 'txt-next-fb1',
+            template: '{{b1}} models like BERT understand context by looking at all words simultaneously.',
+            blanks: { b1: 'Transformer' }
+          },
+          {
+            id: 'txt-next-fb2',
+            template: 'Sentiment {{b2}} goes beyond categories to understand emotions in text.',
+            blanks: { b2: 'analysis' }
+          },
+          {
+            id: 'txt-next-fb3',
+            template: 'Pre-trained {{b3}} like GloVe capture semantic relationships between words.',
+            blanks: { b3: 'embeddings' }
+          }
+        ],
+        distractors: ['convolution', 'pixels', 'regression']
+      },
+      flashCards: {
+        statements: [
+          { id: 'txt-next-fc1', statement: 'BERT can understand that "bank" means different things in different contexts.', isTrue: true, explanation: 'BERT uses attention to look at surrounding words, so it understands "river bank" vs "bank account" differently.' },
+          { id: 'txt-next-fc2', statement: 'Once deployed, a text model will always maintain its accuracy over time.', isTrue: false, explanation: 'Language evolves, new slang appears, and topics change. Models need periodic retraining to stay accurate.' },
+          { id: 'txt-next-fc3', statement: 'Fine-tuning a pre-trained model is usually faster than training from scratch.', isTrue: true, explanation: 'Pre-trained models already understand language structure, so fine-tuning only needs to adapt them to your specific task.' },
+          { id: 'txt-next-fc4', statement: 'Multi-label classification assigns exactly one label to each text.', isTrue: false, explanation: 'Multi-label classification can assign multiple labels to a single text (e.g., a movie review could be both "positive" and "comedy-related").' }
+        ]
+      },
+      sorting: {
+        categories: [
+          { id: 'nlp-tasks', label: 'NLP Tasks' },
+          { id: 'nlp-techniques', label: 'NLP Techniques' }
+        ],
+        items: [
+          { id: 'txt-next-s1', concept: 'Spam detection', correctCategoryId: 'nlp-tasks' },
+          { id: 'txt-next-s2', concept: 'Word embeddings', correctCategoryId: 'nlp-techniques' },
+          { id: 'txt-next-s3', concept: 'Sentiment analysis', correctCategoryId: 'nlp-tasks' },
+          { id: 'txt-next-s4', concept: 'Attention mechanisms', correctCategoryId: 'nlp-techniques' },
+          { id: 'txt-next-s5', concept: 'Machine translation', correctCategoryId: 'nlp-tasks' },
+          { id: 'txt-next-s6', concept: 'Tokenization strategies', correctCategoryId: 'nlp-techniques' }
+        ]
+      }
     }
   },
 
@@ -1275,6 +1805,58 @@ Compare different regression algorithms on your data.
         }
       ],
       passingScore: 1
+    },
+    interactive: {
+      matching: {
+        pairs: [
+          { id: 'reg-next-m1', concept: 'Ensemble Methods', definition: 'Combining predictions from multiple models for better results' },
+          { id: 'reg-next-m2', concept: 'Regularization', definition: 'Adding a penalty for complexity to prevent overfitting' },
+          { id: 'reg-next-m3', concept: 'Feature Engineering', definition: 'Creating new input features from existing data' },
+          { id: 'reg-next-m4', concept: 'Time Series Forecasting', definition: 'Predicting future values based on historical patterns' }
+        ]
+      },
+      fillBlanks: {
+        sentences: [
+          {
+            id: 'reg-next-fb1',
+            template: '{{b1}} methods combine multiple models to get better predictions than any single model.',
+            blanks: { b1: 'Ensemble' }
+          },
+          {
+            id: 'reg-next-fb2',
+            template: '{{b2}} adds a penalty for model complexity to prevent overfitting.',
+            blanks: { b2: 'Regularization' }
+          },
+          {
+            id: 'reg-next-fb3',
+            template: 'Feature {{b3}} creates new inputs by combining or transforming existing features.',
+            blanks: { b3: 'engineering' }
+          }
+        ],
+        distractors: ['classification', 'tokenization', 'pooling']
+      },
+      flashCards: {
+        statements: [
+          { id: 'reg-next-fc1', statement: 'Random Forest averages predictions from hundreds of decision trees.', isTrue: true, explanation: 'Random Forest is an ensemble method that builds many decision trees and averages their predictions for more robust results.' },
+          { id: 'reg-next-fc2', statement: 'Regularization makes the model more complex to improve accuracy.', isTrue: false, explanation: 'Regularization does the opposite — it penalizes complexity to prevent overfitting and improve generalization.' },
+          { id: 'reg-next-fc3', statement: 'A deployed model should be monitored for performance degradation over time.', isTrue: true, explanation: 'Real-world data can shift over time, causing model accuracy to degrade. Regular monitoring helps catch this early.' },
+          { id: 'reg-next-fc4', statement: 'Polynomial regression can only fit straight lines through data.', isTrue: false, explanation: 'Polynomial regression fits curves by using powers of features (x², x³, etc.), capturing non-linear relationships.' }
+        ]
+      },
+      sorting: {
+        categories: [
+          { id: 'supervised-methods', label: 'Supervised Learning Methods' },
+          { id: 'improvement-techniques', label: 'Model Improvement Techniques' }
+        ],
+        items: [
+          { id: 'reg-next-s1', concept: 'Linear Regression', correctCategoryId: 'supervised-methods' },
+          { id: 'reg-next-s2', concept: 'Cross-validation', correctCategoryId: 'improvement-techniques' },
+          { id: 'reg-next-s3', concept: 'Random Forest', correctCategoryId: 'supervised-methods' },
+          { id: 'reg-next-s4', concept: 'Hyperparameter tuning', correctCategoryId: 'improvement-techniques' },
+          { id: 'reg-next-s5', concept: 'Gradient Boosting', correctCategoryId: 'supervised-methods' },
+          { id: 'reg-next-s6', concept: 'Feature selection', correctCategoryId: 'improvement-techniques' }
+        ]
+      }
     }
   },
 
@@ -1389,6 +1971,58 @@ Compare algorithms: Decision Trees, SVM, Neural Networks, and more.
         }
       ],
       passingScore: 1
+    },
+    interactive: {
+      matching: {
+        pairs: [
+          { id: 'cls-next-m1', concept: 'SMOTE', definition: 'Creates synthetic examples to balance imbalanced datasets' },
+          { id: 'cls-next-m2', concept: 'XGBoost', definition: 'Ensemble method that builds trees correcting previous mistakes' },
+          { id: 'cls-next-m3', concept: 'Probability Calibration', definition: 'Making confidence scores reflect true likelihood' },
+          { id: 'cls-next-m4', concept: 'SHAP Values', definition: 'Explaining how much each feature contributes to a prediction' }
+        ]
+      },
+      fillBlanks: {
+        sentences: [
+          {
+            id: 'cls-next-fb1',
+            template: '{{b1}} creates synthetic minority examples to balance an imbalanced dataset.',
+            blanks: { b1: 'SMOTE' }
+          },
+          {
+            id: 'cls-next-fb2',
+            template: 'Model {{b2}} helps you understand why the model makes specific predictions.',
+            blanks: { b2: 'interpretability' }
+          },
+          {
+            id: 'cls-next-fb3',
+            template: 'An {{b3}} method combines multiple classifiers for better performance.',
+            blanks: { b3: 'ensemble' }
+          }
+        ],
+        distractors: ['regression', 'augmentation', 'tokenization']
+      },
+      flashCards: {
+        statements: [
+          { id: 'cls-next-fc1', statement: 'SMOTE works by interpolating between existing minority class examples.', isTrue: true, explanation: 'SMOTE creates synthetic examples by finding nearest neighbors in the minority class and generating points between them.' },
+          { id: 'cls-next-fc2', statement: 'A well-calibrated model saying 80% confidence is correct exactly 80% of the time.', isTrue: true, explanation: 'Calibration means the predicted probabilities match actual frequencies — 80% confidence should correspond to being right 80% of the time.' },
+          { id: 'cls-next-fc3', statement: 'ROC curves are only useful for binary classification problems.', isTrue: false, explanation: 'ROC curves can be extended to multi-class problems using one-vs-rest or one-vs-one approaches.' },
+          { id: 'cls-next-fc4', statement: 'Ensemble methods always outperform single models.', isTrue: false, explanation: 'While ensembles often improve performance, they add complexity and may not help if the base models are already very good or the data is too noisy.' }
+        ]
+      },
+      sorting: {
+        categories: [
+          { id: 'classification-algos', label: 'Classification Algorithms' },
+          { id: 'evaluation-tools', label: 'Evaluation & Interpretation Tools' }
+        ],
+        items: [
+          { id: 'cls-next-s1', concept: 'Decision Trees', correctCategoryId: 'classification-algos' },
+          { id: 'cls-next-s2', concept: 'Confusion Matrix', correctCategoryId: 'evaluation-tools' },
+          { id: 'cls-next-s3', concept: 'Support Vector Machines', correctCategoryId: 'classification-algos' },
+          { id: 'cls-next-s4', concept: 'ROC Curve', correctCategoryId: 'evaluation-tools' },
+          { id: 'cls-next-s5', concept: 'XGBoost', correctCategoryId: 'classification-algos' },
+          { id: 'cls-next-s6', concept: 'SHAP values', correctCategoryId: 'evaluation-tools' }
+        ]
+      }
     }
   }
 };

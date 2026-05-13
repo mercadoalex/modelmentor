@@ -2,10 +2,14 @@
  * Learning Moment Modal Component
  * 
  * Displays contextual educational content in a dialog overlay.
- * Supports three-step flow: Content → Quiz → Summary
+ * Supports three-step flow: Content → Activity → Summary
+ * 
+ * The Activity step dynamically selects from available interactive components
+ * (Quiz, Matching, Fill in the Blanks, Flash Cards, Sorting) using the
+ * ComponentSelector and ComponentRegistry.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -17,7 +21,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { SimplifiedExplanation } from '@/components/learning/SimplifiedExplanation';
 import { 
@@ -26,10 +29,7 @@ import {
   ChevronLeft,
   Trophy,
   Sparkles,
-  CheckCircle2,
-  XCircle,
-  Lightbulb,
-  X
+  CheckCircle2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { learningMomentService } from '@/services/learningMomentService';
@@ -38,11 +38,14 @@ import {
   type LearningMomentType,
   type LearningMomentContextData,
   type LearningMomentContent,
-  type ContentSection,
-  type LearningMomentQuizQuestion
+  type ContentSection
 } from '@/utils/learningMomentContent';
 import type { ModelType } from '@/types/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { selectComponent } from './componentSelector';
+import { getComponentForType } from './ComponentRegistry';
+import { LearningComponentErrorBoundary } from './LearningComponentErrorBoundary';
+import type { LearningComponentType, ComponentResult, QuizContent } from './types';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -74,12 +77,13 @@ export interface LearningMomentModalProps {
 export interface LearningMomentResult {
   momentType: LearningMomentType;
   completed: boolean;
-  quizScore?: number;
-  quizTotal?: number;
+  componentType: LearningComponentType;
+  score: number;
+  total: number;
   timeSpentSeconds: number;
 }
 
-type ModalStep = 'content' | 'quiz' | 'summary';
+type ModalStep = 'content' | 'activity' | 'summary';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Component
@@ -103,15 +107,12 @@ export function LearningMomentModal({
   const [dontShowAgain, setDontShowAgain] = useState(false);
   const [startTime] = useState(Date.now());
   
-  // Quiz state
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
-  const [showHint, setShowHint] = useState(false);
-  const [quizScore, setQuizScore] = useState(0);
+  // Activity state (dynamic component selection)
+  const [selectedComponentType, setSelectedComponentType] = useState<LearningComponentType | null>(null);
   
   // Summary state
+  const [activityScore, setActivityScore] = useState(0);
+  const [activityTotal, setActivityTotal] = useState(0);
   const [pointsAwarded, setPointsAwarded] = useState(0);
   const [bonusPoints, setBonusPoints] = useState(0);
   const [achievementsUnlocked, setAchievementsUnlocked] = useState<string[]>([]);
@@ -126,19 +127,28 @@ export function LearningMomentModal({
   const sections = content.sections;
   const quiz = content.quiz;
   const currentSection = sections[currentSectionIndex];
-  const currentQuestion = quiz.questions[currentQuestionIndex];
-  const totalQuestions = quiz.questions.length;
+
+  // Build quiz content for fallback and quiz component type
+  const quizContent: QuizContent = {
+    questions: quiz.questions.map(q => ({
+      id: q.id,
+      question: q.question,
+      options: q.options,
+      correctAnswer: q.correctAnswer,
+      explanation: q.explanation,
+      hint: q.hint,
+    })),
+    passingScore: quiz.passingScore,
+  };
 
   // Reset state when modal opens
   useEffect(() => {
     if (isOpen) {
       setCurrentStep('content');
       setCurrentSectionIndex(0);
-      setCurrentQuestionIndex(0);
-      setSelectedAnswer(null);
-      setShowFeedback(false);
-      setShowHint(false);
-      setQuizScore(0);
+      setSelectedComponentType(null);
+      setActivityScore(0);
+      setActivityTotal(0);
       setDontShowAgain(false);
     }
   }, [isOpen]);
@@ -169,10 +179,19 @@ export function LearningMomentModal({
     if (currentSectionIndex < sections.length - 1) {
       setCurrentSectionIndex(prev => prev + 1);
     } else {
-      // Move to quiz
-      setCurrentStep('quiz');
+      // Move to activity step - select a component
+      const interactive = content.interactive;
+      if (interactive) {
+        const hasQuiz = quiz.questions.length > 0;
+        const componentType = selectComponent(interactive, hasQuiz);
+        setSelectedComponentType(componentType);
+      } else {
+        // No interactive content, fall back to quiz
+        setSelectedComponentType('quiz');
+      }
+      setCurrentStep('activity');
     }
-  }, [currentSectionIndex, sections.length]);
+  }, [currentSectionIndex, sections.length, content.interactive]);
 
   const handlePrevSection = useCallback(() => {
     if (currentSectionIndex > 0) {
@@ -180,61 +199,31 @@ export function LearningMomentModal({
     }
   }, [currentSectionIndex]);
 
-  // Handle quiz answer selection
-  const handleAnswerSelect = useCallback((answerIndex: number) => {
-    if (!showFeedback) {
-      setSelectedAnswer(answerIndex);
-    }
-  }, [showFeedback]);
-
-  // Handle quiz submission
-  const handleSubmitAnswer = useCallback(() => {
-    if (selectedAnswer === null || !currentQuestion) return;
-
-    const correct = selectedAnswer === currentQuestion.correctAnswer;
-    setIsCorrect(correct);
-    setShowFeedback(true);
-
-    if (correct) {
-      setQuizScore(prev => prev + 1);
-    }
-  }, [selectedAnswer, currentQuestion]);
-
-  // Handle next question
-  const handleNextQuestion = useCallback(() => {
-    if (currentQuestionIndex < totalQuestions - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-      setSelectedAnswer(null);
-      setShowFeedback(false);
-      setShowHint(false);
-    } else {
-      // Quiz complete - move to summary
-      handleQuizComplete();
-    }
-  }, [currentQuestionIndex, totalQuestions]);
-
-  // Handle quiz completion
-  const handleQuizComplete = useCallback(async () => {
+  // Handle activity component completion
+  const handleActivityComplete = useCallback(async (result: ComponentResult) => {
+    setActivityScore(result.score);
+    setActivityTotal(result.total);
     setCurrentStep('summary');
 
     // Record completion
-    const result: LearningMomentResult = {
+    const completionResult: LearningMomentResult = {
       momentType,
       completed: true,
-      quizScore,
-      quizTotal: totalQuestions,
+      componentType: result.componentType,
+      score: result.score,
+      total: result.total,
       timeSpentSeconds: getTimeSpent()
     };
 
-    await learningMomentService.recordCompletion(project.id, result);
+    await learningMomentService.recordCompletion(project.id, completionResult);
 
     // Award points
     const gamificationResult = await learningMomentService.awardPoints(
       userId,
       project.id,
       momentType,
-      quizScore,
-      totalQuestions
+      result.score,
+      result.total
     );
 
     setPointsAwarded(gamificationResult.pointsAwarded);
@@ -257,8 +246,8 @@ export function LearningMomentModal({
     });
 
     // Notify parent
-    onComplete?.(result);
-  }, [momentType, quizScore, totalQuestions, getTimeSpent, project.id, userId, onComplete]);
+    onComplete?.(completionResult);
+  }, [momentType, getTimeSpent, project.id, userId, onComplete]);
 
   // Handle completion (close from summary)
   const handleComplete = useCallback(() => {
@@ -273,8 +262,8 @@ export function LearningMomentModal({
     switch (currentStep) {
       case 'content':
         return ((currentSectionIndex + 1) / sections.length) * 33;
-      case 'quiz':
-        return 33 + ((currentQuestionIndex + 1) / totalQuestions) * 33;
+      case 'activity':
+        return 50;
       case 'summary':
         return 100;
       default:
@@ -313,7 +302,7 @@ export function LearningMomentModal({
             </div>
             <Badge variant="outline" className="text-xs">
               {currentStep === 'content' && `${currentSectionIndex + 1}/${sections.length}`}
-              {currentStep === 'quiz' && `Quiz ${currentQuestionIndex + 1}/${totalQuestions}`}
+              {currentStep === 'activity' && 'Activity'}
               {currentStep === 'summary' && 'Complete!'}
             </Badge>
           </div>
@@ -326,8 +315,8 @@ export function LearningMomentModal({
             <span className={currentStep === 'content' ? 'text-primary font-medium' : ''}>
               📖 Learn
             </span>
-            <span className={currentStep === 'quiz' ? 'text-primary font-medium' : ''}>
-              ❓ Quiz
+            <span className={currentStep === 'activity' ? 'text-primary font-medium' : ''}>
+              🎯 Activity
             </span>
             <span className={currentStep === 'summary' ? 'text-primary font-medium' : ''}>
               🎉 Summary
@@ -344,24 +333,48 @@ export function LearningMomentModal({
             />
           )}
 
-          {/* Quiz Step */}
-          {currentStep === 'quiz' && currentQuestion && (
-            <QuizStepView
-              question={currentQuestion}
-              selectedAnswer={selectedAnswer}
-              showFeedback={showFeedback}
-              isCorrect={isCorrect}
-              showHint={showHint}
-              onAnswerSelect={handleAnswerSelect}
-              onShowHint={() => setShowHint(true)}
-            />
-          )}
+          {/* Activity Step (Dynamic Component) */}
+          {currentStep === 'activity' && selectedComponentType && (() => {
+            const SelectedComponent = getComponentForType(selectedComponentType);
+            const componentContent = selectedComponentType === 'quiz'
+              ? quizContent
+              : content.interactive?.[
+                  selectedComponentType === 'fill_blanks' ? 'fillBlanks' :
+                  selectedComponentType === 'flash_cards' ? 'flashCards' :
+                  selectedComponentType
+                ];
+
+            if (!componentContent) {
+              // Fallback to quiz if content is missing
+              return (
+                <LearningComponentErrorBoundary
+                  fallbackContent={quizContent}
+                  onComplete={handleActivityComplete}
+                >
+                  <Suspense fallback={<div className="flex items-center justify-center p-8"><span className="text-sm text-muted-foreground">Loading activity...</span></div>}>
+                    <SelectedComponent content={quizContent} onComplete={handleActivityComplete} />
+                  </Suspense>
+                </LearningComponentErrorBoundary>
+              );
+            }
+
+            return (
+              <LearningComponentErrorBoundary
+                fallbackContent={quizContent}
+                onComplete={handleActivityComplete}
+              >
+                <Suspense fallback={<div className="flex items-center justify-center p-8"><span className="text-sm text-muted-foreground">Loading activity...</span></div>}>
+                  <SelectedComponent content={componentContent} onComplete={handleActivityComplete} />
+                </Suspense>
+              </LearningComponentErrorBoundary>
+            );
+          })()}
 
           {/* Summary Step */}
           {currentStep === 'summary' && (
             <SummaryStepView
-              quizScore={quizScore}
-              totalQuestions={totalQuestions}
+              quizScore={activityScore}
+              totalQuestions={activityTotal}
               pointsAwarded={pointsAwarded}
               bonusPoints={bonusPoints}
               achievementsUnlocked={achievementsUnlocked}
@@ -412,39 +425,11 @@ export function LearningMomentModal({
                       </>
                     ) : (
                       <>
-                        Start Quiz
+                        Start Activity
                         <ChevronRight className="h-4 w-4 ml-1" />
                       </>
                     )}
                   </Button>
-                </>
-              )}
-
-              {currentStep === 'quiz' && (
-                <>
-                  {!showFeedback ? (
-                    <Button 
-                      size="sm" 
-                      onClick={handleSubmitAnswer}
-                      disabled={selectedAnswer === null}
-                    >
-                      Submit Answer
-                    </Button>
-                  ) : (
-                    <Button size="sm" onClick={handleNextQuestion}>
-                      {currentQuestionIndex < totalQuestions - 1 ? (
-                        <>
-                          Next Question
-                          <ChevronRight className="h-4 w-4 ml-1" />
-                        </>
-                      ) : (
-                        <>
-                          See Results
-                          <Sparkles className="h-4 w-4 ml-1" />
-                        </>
-                      )}
-                    </Button>
-                  )}
                 </>
               )}
 
@@ -504,107 +489,6 @@ function ContentStepView({ section }: ContentStepViewProps) {
             />
           ))}
         </div>
-      )}
-    </div>
-  );
-}
-
-interface QuizStepViewProps {
-  question: LearningMomentQuizQuestion;
-  selectedAnswer: number | null;
-  showFeedback: boolean;
-  isCorrect: boolean;
-  showHint: boolean;
-  onAnswerSelect: (index: number) => void;
-  onShowHint: () => void;
-}
-
-function QuizStepView({
-  question,
-  selectedAnswer,
-  showFeedback,
-  isCorrect,
-  showHint,
-  onAnswerSelect,
-  onShowHint
-}: QuizStepViewProps) {
-  return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">{question.question}</h3>
-
-      {/* Answer options */}
-      <div className="space-y-2">
-        {question.options.map((option, index) => (
-          <button
-            key={index}
-            onClick={() => onAnswerSelect(index)}
-            disabled={showFeedback}
-            className={`w-full p-3 rounded-lg border-2 text-left transition-all text-sm ${
-              selectedAnswer === index
-                ? showFeedback
-                  ? isCorrect
-                    ? 'border-green-500 bg-green-50 dark:bg-green-950/30'
-                    : 'border-red-500 bg-red-50 dark:bg-red-950/30'
-                  : 'border-primary bg-primary/5'
-                : showFeedback && index === question.correctAnswer
-                  ? 'border-green-500 bg-green-50 dark:bg-green-950/30'
-                  : 'border-border hover:border-primary/50'
-            } ${showFeedback ? 'cursor-default' : 'cursor-pointer'}`}
-          >
-            <div className="flex items-center gap-2">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full border flex items-center justify-center text-xs font-medium">
-                {String.fromCharCode(65 + index)}
-              </span>
-              <span>{option}</span>
-              {showFeedback && index === question.correctAnswer && (
-                <CheckCircle2 className="h-4 w-4 text-green-600 ml-auto" />
-              )}
-              {showFeedback && selectedAnswer === index && !isCorrect && (
-                <XCircle className="h-4 w-4 text-red-600 ml-auto" />
-              )}
-            </div>
-          </button>
-        ))}
-      </div>
-
-      {/* Hint */}
-      {!showFeedback && question.hint && (
-        <div>
-          {!showHint ? (
-            <Button variant="outline" size="sm" onClick={onShowHint}>
-              <Lightbulb className="h-4 w-4 mr-2" />
-              Show Hint
-            </Button>
-          ) : (
-            <Alert className="border-yellow-200 dark:border-yellow-900 bg-yellow-50 dark:bg-yellow-950/30">
-              <Lightbulb className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-              <AlertDescription>
-                <p className="text-sm">{question.hint}</p>
-              </AlertDescription>
-            </Alert>
-          )}
-        </div>
-      )}
-
-      {/* Feedback */}
-      {showFeedback && (
-        <Alert className={
-          isCorrect
-            ? 'border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/30'
-            : 'border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30'
-        }>
-          {isCorrect ? (
-            <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-          ) : (
-            <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
-          )}
-          <AlertDescription>
-            <p className="font-semibold mb-1">
-              {isCorrect ? 'Correct! 🎉' : 'Not quite right'}
-            </p>
-            <p className="text-sm">{question.explanation}</p>
-          </AlertDescription>
-        </Alert>
       )}
     </div>
   );
