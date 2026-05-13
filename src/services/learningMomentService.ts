@@ -41,6 +41,9 @@ export interface LearningMomentProgress {
 export interface LearningMomentResult {
   momentType: LearningMomentType;
   completed: boolean;
+  componentType?: string;
+  score?: number;
+  total?: number;
   quizScore?: number;
   quizTotal?: number;
   timeSpentSeconds: number;
@@ -271,8 +274,8 @@ class LearningMomentService {
     storage.projects[projectId][result.momentType] = {
       completed: result.completed,
       completedAt: new Date().toISOString(),
-      quizScore: result.quizScore,
-      quizTotal: result.quizTotal,
+      quizScore: result.score ?? result.quizScore,
+      quizTotal: result.total ?? result.quizTotal,
       timeSpentSeconds: result.timeSpentSeconds
     };
 
