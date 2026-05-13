@@ -332,20 +332,8 @@ export default function DataCollectionPage() {
     }
   }, [project, projectId, selectedSample, uploadedFiles, sampleDatasets, user, navigate, usingSyntheticFallback]);
 
-  // Auto-advance guided tour 2 seconds after sample is auto-selected or synthetic data is loaded
-  useEffect(() => {
-    if (!project?.is_guided_tour || loading || autoAdvanceFailed) return;
-    
-    // Auto-advance if we have a selected sample OR synthetic fallback data
-    const hasData = selectedSample || (usingSyntheticFallback && uploadedFiles.length > 0);
-    if (!hasData) return;
-
-    const timer = setTimeout(() => {
-      handleContinue();
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, [project?.is_guided_tour, selectedSample, usingSyntheticFallback, uploadedFiles.length, loading, handleContinue, autoAdvanceFailed]);
+  // In guided tour mode, do NOT auto-advance — let the user click "Continue" when ready.
+  // This gives students time to explore and understand the loaded dataset.
 
   // ── File drop handler ──────────────────────────────────────────────────────
   const onDrop = async (acceptedFiles: File[]) => {
@@ -604,7 +592,7 @@ export default function DataCollectionPage() {
                       ? ` Loaded ${uploadedFiles.length} shape images.`
                       : ` Loaded ${csvData ? csvData.length - 1 : 0} sample rows.`
                     }
-                    {' '}Advancing to the next step automatically in a moment…
+                    {' '}Explore the data below, then click <strong>"Continue to Learning"</strong> when you're ready.
                   </AlertDescription>
                 </Alert>
               )}
@@ -626,7 +614,7 @@ export default function DataCollectionPage() {
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
                     🎓 <strong>Guided Tour Mode:</strong> A sample dataset has been pre-selected for you.
-                    Advancing to the next step automatically in a moment…
+                    Explore the data below, then click <strong>"Continue to Learning"</strong> when you're ready.
                   </AlertDescription>
                 </Alert>
               )}
