@@ -585,9 +585,18 @@ export default function ProjectCreationPage() {
         lowerDesc.includes('photo') || 
         lowerDesc.includes('picture') ||
         lowerDesc.includes('face') ||
+        lowerDesc.includes('facial') ||
+        lowerDesc.includes('emotion') ||
+        lowerDesc.includes('expression') ||
         lowerDesc.includes('object') ||
         lowerDesc.includes('animal') ||
         lowerDesc.includes('flower') ||
+        lowerDesc.includes('plant') ||
+        lowerDesc.includes('leaf') ||
+        lowerDesc.includes('dog') ||
+        lowerDesc.includes('breed') ||
+        lowerDesc.includes('vehicle') ||
+        lowerDesc.includes('fashion') ||
         lowerDesc.includes('digit') ||
         lowerDesc.includes('shape')) {
       return {
