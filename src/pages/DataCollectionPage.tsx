@@ -32,7 +32,15 @@ import { contentModeration, imageCompression } from '@/utils/moderation';
 import { toast } from 'sonner';
 import type { Project, SampleDataset } from '@/types/types';
 import { 
-  generateForModelType, 
+  generateForModelType,
+  generateFlowers,
+  generatePlantDiseases,
+  generateDogBreeds,
+  generateFacialExpressions,
+  generateAnimalSilhouettes,
+  generateFashionItems,
+  generateVehicles,
+  generateDigits,
   type ImageDatasetRow, 
   type GeneratedDataset,
   type ImageGeneratedDataset 
@@ -142,38 +150,69 @@ export default function DataCollectionPage() {
   }, [isAuthenticated, user, limits.max_storage_mb]);
 
   /**
-   * Auto-select a synthetic template based on the project's model type.
+   * Auto-select a synthetic template based on the project's model type and description.
    * This is called when Supabase sample datasets are unavailable in guided tour mode.
+   * For image classification, picks the most relevant generator based on project description.
    */
   const autoSelectSyntheticTemplate = useCallback((modelType: Project['model_type']) => {
     try {
       setUsingSyntheticFallback(true);
       
-      const dataset = generateForModelType(modelType);
-      
       if (modelType === 'image_classification') {
-        // Handle image classification dataset
-        const imageDataset = dataset as ImageGeneratedDataset;
+        // Pick the best image generator based on project description
+        const description = project?.description?.toLowerCase() || '';
+        let imageDataset: ImageGeneratedDataset;
+        let datasetName: string;
+
+        if (description.includes('flower') || description.includes('floral') || description.includes('botanical')) {
+          imageDataset = generateFlowers();
+          datasetName = 'Flower Types';
+        } else if (description.includes('plant') || description.includes('disease') || description.includes('leaf') || description.includes('crop')) {
+          imageDataset = generatePlantDiseases();
+          datasetName = 'Plant Diseases';
+        } else if (description.includes('dog') || description.includes('breed') || description.includes('puppy')) {
+          imageDataset = generateDogBreeds();
+          datasetName = 'Dog Breeds';
+        } else if (description.includes('face') || description.includes('facial') || description.includes('emotion') || description.includes('expression')) {
+          imageDataset = generateFacialExpressions();
+          datasetName = 'Facial Expressions';
+        } else if (description.includes('animal') || description.includes('cat') || description.includes('bird')) {
+          imageDataset = generateAnimalSilhouettes();
+          datasetName = 'Animal Silhouettes';
+        } else if (description.includes('fashion') || description.includes('clothing') || description.includes('shirt')) {
+          imageDataset = generateFashionItems();
+          datasetName = 'Fashion Items';
+        } else if (description.includes('vehicle') || description.includes('car') || description.includes('truck') || description.includes('traffic')) {
+          imageDataset = generateVehicles();
+          datasetName = 'Vehicle Types';
+        } else if (description.includes('digit') || description.includes('number') || description.includes('handwritten')) {
+          imageDataset = generateDigits();
+          datasetName = 'Handwritten Digits';
+        } else {
+          imageDataset = generateFlowers();
+          datasetName = 'Flower Types';
+        }
+
         setImageDataset(imageDataset.images);
         
-        // Create placeholder files for the image dataset
-        const placeholderFiles = imageDataset.images.map((img, idx) => {
-          // Convert data URI to blob
-          const byteString = atob(img.imageDataUri.split(',')[1]);
-          const mimeString = img.imageDataUri.split(',')[0].split(':')[1].split(';')[0];
-          const ab = new ArrayBuffer(byteString.length);
-          const ia = new Uint8Array(ab);
-          for (let i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
-          }
-          const blob = new Blob([ab], { type: mimeString });
-          return new File([blob], img.filename, { type: mimeString });
-        });
+        // Don't put synthetic files in uploadedFiles — they clutter the upload area.
+        // Instead, create a single summary CSV file that represents the dataset metadata.
+        const csvContent = ['filename,label', ...imageDataset.images.map(img => `${img.filename},${img.label}`)].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const file = new File([blob], `${datasetName.toLowerCase().replace(/\s+/g, '-')}-dataset.csv`, { type: 'text/csv' });
+        setUploadedFiles([file]);
+
+        // Parse and show preview
+        const parsedData = dataValidationService.parseCSV(csvContent);
+        const validationResult = dataValidationService.validateData(parsedData);
+        setCsvData(parsedData);
+        setValidation(validationResult);
+        setShowPreview(true);
         
-        setUploadedFiles(placeholderFiles);
-        toast.success(`✅ Loaded synthetic shapes dataset — ${imageDataset.images.length} images ready!`);
+        toast.success(`✅ Loaded "${datasetName}" dataset — ${imageDataset.images.length} images ready!`);
       } else {
         // Handle tabular datasets (text_classification, classification, regression)
+        const dataset = generateForModelType(modelType);
         const tabularDataset = dataset as GeneratedDataset;
         
         // Convert to CSV format
@@ -188,7 +227,7 @@ export default function DataCollectionPage() {
         setValidation(validationResult);
         setShowPreview(true);
         
-        // Create a File object for the upload flow
+        // Create a single File object (not shown as "uploaded files" clutter)
         const blob = new Blob([csvText], { type: 'text/csv' });
         const file = new File([blob], `synthetic-${modelType}-sample.csv`, { type: 'text/csv' });
         setUploadedFiles([file]);
@@ -199,7 +238,7 @@ export default function DataCollectionPage() {
       console.error('Failed to auto-select synthetic template:', error);
       toast.error('Failed to load synthetic dataset. Please select a template manually.');
     }
-  }, []);
+  }, [project?.description]);
 
   const loadProject = async () => {
     if (!projectId) return;
