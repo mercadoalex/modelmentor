@@ -154,13 +154,13 @@ export default function DataCollectionPage() {
    * This is called when Supabase sample datasets are unavailable in guided tour mode.
    * For image classification, picks the most relevant generator based on project description.
    */
-  const autoSelectSyntheticTemplate = useCallback((modelType: Project['model_type']) => {
+  const autoSelectSyntheticTemplate = useCallback((modelType: Project['model_type'], projectDescription?: string) => {
     try {
       setUsingSyntheticFallback(true);
       
       if (modelType === 'image_classification') {
         // Pick the best image generator based on project description
-        const description = project?.description?.toLowerCase() || '';
+        const description = (projectDescription || project?.description || '').toLowerCase();
         let imageDataset: ImageGeneratedDataset;
         let datasetName: string;
 
@@ -173,7 +173,7 @@ export default function DataCollectionPage() {
         } else if (description.includes('dog') || description.includes('breed') || description.includes('puppy')) {
           imageDataset = generateDogBreeds();
           datasetName = 'Dog Breeds';
-        } else if (description.includes('face') || description.includes('facial') || description.includes('emotion') || description.includes('expression')) {
+        } else if (description.includes('facial') || description.includes('face') || description.includes('emotion') || description.includes('expression')) {
           imageDataset = generateFacialExpressions();
           datasetName = 'Facial Expressions';
         } else if (description.includes('animal') || description.includes('cat') || description.includes('bird')) {
@@ -270,7 +270,7 @@ export default function DataCollectionPage() {
           if (samples.length === 0 || projectData.model_type === 'image_classification') {
             setSampleLoadEmpty(true);
             // Auto-select synthetic template for guided tour fallback
-            autoSelectSyntheticTemplate(projectData.model_type);
+            autoSelectSyntheticTemplate(projectData.model_type, projectData.description);
           } else {
             setSampleLoadEmpty(false);
             setUsingSyntheticFallback(false);
@@ -288,7 +288,7 @@ export default function DataCollectionPage() {
           setSampleLoadError('Failed to load sample datasets. Using built-in synthetic data instead.');
           setSampleLoadEmpty(true);
           // Auto-select synthetic template as fallback
-          autoSelectSyntheticTemplate(projectData.model_type);
+          autoSelectSyntheticTemplate(projectData.model_type, projectData.description);
         }
       }
     }
