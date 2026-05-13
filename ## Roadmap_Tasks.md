@@ -68,27 +68,28 @@
 - [x] **Phase 3:** Frontend Contexts (AuthContext extended, SubscriptionContext, TrainingContext, MigrationPrompt, FeatureGate, UpgradePrompt)
 - [x] **Phase 4:** Page Wiring (TrainingPage, DataCollectionPage, PricingPage, SettingsPage usage dashboard)
 
+### 9. Guided Tour UX Fixes ✅
+
+- [x] Fixed repeated "Failed to save dataset" toast (infinite loop bug)
+- [x] Removed auto-advance — student clicks "Continue" when ready
+- [x] Matched guided tour dataset to project description (flowers→Flower Types, plants→Plant Diseases, etc.)
+- [x] Cleaned upload area (single CSV summary instead of 36 SVG files)
+- [x] Fixed "Continue to Learning" button disabled for synthetic datasets
+- [x] Auto-scroll to data preview after dataset loads
+
 ---
 
-## 🔄 IN PROGRESS
+## ✅ DEPLOYMENT
 
-### 9. Domain & Deployment ⏳
+### 10. Domain & Deployment ✅
 
 - [x] Domain registered on AWS Route 53 (`modelmentor.link`)
 - [x] Cloudflare Pages project created
-- [x] Registrar nameservers updated to Cloudflare (`meadow.ns.cloudflare.com`, `tanner.ns.cloudflare.com`)
+- [x] Registrar nameservers updated to Cloudflare
 - [x] Deleted orphaned Route 53 hosted zone
-- [ ] **Waiting:** `.link` TLD registry propagation (AWS → Cloudflare NS update, typically 30-120 min)
-- [ ] Cloudflare zone activation (auto-verifies once registry propagates)
-- [ ] Add custom domain `modelmentor.link` in Cloudflare Pages
-- [ ] Add custom domain `www.modelmentor.link` in Cloudflare Pages
-- [ ] Verify site is live at `https://modelmentor.link`
-
-**Verification command:**
-```bash
-dig modelmentor.link NS @ns10.trs-dns.info +short
-# Should return: meadow.ns.cloudflare.com / tanner.ns.cloudflare.com
-```
+- [x] Cloudflare zone activated
+- [x] Custom domain `modelmentor.link` connected to Cloudflare Pages
+- [x] All code merged to master and deployed
 
 ---
 
@@ -98,9 +99,12 @@ dig modelmentor.link NS @ns10.trs-dns.info +short
 - [ ] **Increase Test Coverage** - Add more unit tests for components
 - [ ] **E2E Testing** - Add Playwright/Cypress tests for critical user flows
 - [ ] **Accessibility Audit** - Run axe-core and fix a11y issues
+- [ ] **Property-Based Tests** - Add fast-check tests for subscription utilities
 
 ### Feature Enhancements
 - [ ] **Assignment Submission** - Enable file uploads and grading
+- [ ] **Stripe Price IDs** - Configure real Stripe price IDs for Pro/Enterprise plans
+- [ ] **Supabase Edge Function Deployment** - Deploy edge functions to production
 
 ### Performance & UX
 - [ ] **Code Splitting** - Lazy load heavy components (D3 visualizations)
@@ -122,10 +126,9 @@ dig modelmentor.link NS @ns10.trs-dns.info +short
 | TypeScript Errors | 0 ✅ |
 | Lint Errors | 0 ✅ |
 | Tests Passing | 11/11 ✅ |
-| Tests Skipped | 3 (intentional) |
-| Tests Todo | 3 |
-| Specs Completed | 8 ✅ |
-| Domain | ⏳ Pending DNS propagation |
+| Specs Completed | 9 ✅ |
+| Domain | modelmentor.link ✅ |
+| Deployment | Cloudflare Pages ✅ |
 
 ---
 
@@ -138,4 +141,4 @@ All specs are documented in `.kiro/specs/`:
 - `typescript-errors-fix/` - Bugfix spec ✅
 - `learning-moments/` - Feature spec ✅
 - `model-comparison-enhancement/` - Feature spec ✅
-- `backend-subscription-integration/` - Feature spec ✅
+- `backend-subscription-integration/` - Feature spec (4 phases) ✅
