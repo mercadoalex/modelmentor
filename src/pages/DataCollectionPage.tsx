@@ -210,6 +210,11 @@ export default function DataCollectionPage() {
         setShowPreview(true);
         
         toast.success(`✅ Loaded "${datasetName}" dataset — ${imageDataset.images.length} images ready!`);
+
+        // Scroll to preview section after a brief delay
+        setTimeout(() => {
+          document.querySelector('[data-tour="data-preview"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
       } else {
         // Handle tabular datasets (text_classification, classification, regression)
         const dataset = generateForModelType(modelType);
@@ -233,6 +238,11 @@ export default function DataCollectionPage() {
         setUploadedFiles([file]);
         
         toast.success(`✅ Loaded synthetic dataset — ${tabularDataset.rows.length} rows ready!`);
+
+        // Scroll to preview section after a brief delay
+        setTimeout(() => {
+          document.querySelector('[data-tour="data-preview"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
       }
     } catch (error) {
       console.error('Failed to auto-select synthetic template:', error);
@@ -575,7 +585,7 @@ export default function DataCollectionPage() {
     : project.model_type === 'text_classification' ? 20
     : 50;
 
-  const hasEnoughData = selectedSample || uploadedFiles.length >= minSamples;
+  const hasEnoughData = selectedSample || uploadedFiles.length >= minSamples || usingSyntheticFallback;
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
