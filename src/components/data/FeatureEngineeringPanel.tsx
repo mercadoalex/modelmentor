@@ -160,9 +160,17 @@ export function FeatureEngineeringPanel({ data, columnInfo, targetColumn, onFeat
         <CardContent>
           <Alert>
             <Info className="h-4 w-4" />
-            <AlertDescription>
-              Feature engineering creates new features from existing ones to help your model learn better patterns.
-              Select the transformations you want to apply and click Apply to create new features.
+            <AlertDescription className="space-y-2">
+              <p className="font-medium">What is Feature Engineering?</p>
+              <p>
+                Feature engineering creates new features from existing ones to help your model learn better patterns.
+                Think of it like giving your model a magnifying glass — transformations reveal hidden patterns in your data
+                that the raw numbers alone might not show.
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                💡 <strong>Tip:</strong> Start with "Recommended" transformations — they're chosen based on your data's characteristics.
+                Each transformation is explained below so you can learn what it does and why it helps.
+              </p>
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -174,7 +182,8 @@ export function FeatureEngineeringPanel({ data, columnInfo, targetColumn, onFeat
           <CardHeader>
             <CardTitle className="text-balance">Suggested Transformations</CardTitle>
             <CardDescription className="text-pretty">
-              {suggestions.length} transformation{suggestions.length !== 1 ? 's' : ''} available based on your data
+              {suggestions.length} transformation{suggestions.length !== 1 ? 's' : ''} available based on your data.
+              Each one is explained below — hover or read to learn what it does.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -212,6 +221,25 @@ export function FeatureEngineeringPanel({ data, columnInfo, targetColumn, onFeat
                       </div>
                       <p className="text-sm text-muted-foreground mb-2">
                         {suggestion.description}
+                      </p>
+                      {/* Educational explanation of why this transformation helps */}
+                      <p className="text-xs text-blue-600 dark:text-blue-400 mb-2">
+                        💡 <strong>Why this helps:</strong>{' '}
+                        {suggestion.type === 'normalize' && 'Puts all features on the same scale (0-1) so the model treats them equally. Without this, features with bigger numbers dominate.'}
+                        {suggestion.type === 'standardize' && 'Centers data around zero with equal spread. Helps models that assume data is normally distributed (like neural networks).'}
+                        {suggestion.type === 'log' && 'Compresses large values and spreads small ones. Great for skewed data like prices or populations where outliers are common.'}
+                        {suggestion.type === 'sqrt' && 'Similar to log but gentler. Reduces the impact of large values while keeping the data positive.'}
+                        {suggestion.type === 'square' && 'Amplifies differences between values. Useful when larger values should have proportionally more influence.'}
+                        {suggestion.type === 'one_hot' && 'Converts categories (like "red", "blue") into separate yes/no columns. Models need numbers, not text!'}
+                        {suggestion.type === 'label_encode' && 'Converts categories to numbers (0, 1, 2...). Simpler than one-hot but implies an order between categories.'}
+                        {suggestion.type === 'frequency_encode' && 'Replaces categories with how often they appear. Rare categories get small numbers, common ones get large numbers.'}
+                        {suggestion.type === 'target_encode' && 'Replaces categories with the average target value for that category. Directly captures the relationship to what you\'re predicting.'}
+                        {suggestion.type === 'polynomial_2' && 'Creates squared versions of features to capture curved relationships that a straight line would miss.'}
+                        {suggestion.type === 'polynomial_3' && 'Creates cubed versions for even more complex curves. Use sparingly — can cause overfitting with small datasets.'}
+                        {suggestion.type === 'interaction' && 'Multiplies features together to capture combined effects. Example: "size × location" might predict price better than either alone.'}
+                        {suggestion.type === 'tfidf' && 'Measures how important a word is in a document relative to all documents. Common words get low scores, distinctive words get high scores.'}
+                        {suggestion.type === 'word_count' && 'Counts the number of words in text. Simple but effective — longer reviews might indicate stronger opinions.'}
+                        {suggestion.type === 'char_count' && 'Counts characters in text. Can reveal patterns like spam messages being shorter or longer than normal ones.'}
                       </p>
                       {suggestion.example && (
                         <div className="bg-muted p-2 rounded text-xs font-mono">
