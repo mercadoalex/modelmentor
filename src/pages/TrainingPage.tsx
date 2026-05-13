@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTraining } from '@/contexts/TrainingContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { AppLayout } from '@/components/layouts/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -87,8 +89,12 @@ const pipelineStages = [
 
 export default function TrainingPage() {
   const { projectId } = useParams<{ projectId: string }>();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Backend integration contexts
+  const training = useTraining();
+  const subscription = useSubscription();
 
   // ── Core state ─────────────────────────────────────────────────────────────
   const [project,           setProject]           = useState<Project | null>(null);
@@ -132,6 +138,108 @@ export default function TrainingPage() {
   const pipelineRef          = useRef<EnhancedTrainingPipeline | null>(null);
 
   // ── Effects ────────────────────────────────────────────────────────────────
+  // Sync real-time progress from TrainingContext when authenticated
+  useEffect(() => {
+    if (!isAuthenticated || !isTraining) return;
+
+    // Find the active job's progress from TrainingContext
+    const activeJob = training.activeJobs.find(j => j.status === 'running');
+    if (!activeJob) return;
+
+    const progress = training.currentProgress.get(activeJob.sessionId);
+    if (!progress) return;
+
+    setCurrentEpoch(progress.epoch);
+    setCurrentMetrics(prev => ({
+      currentLoss: progress.loss,
+      currentAccuracy: progress.accuracy,
+      bestLoss: prev.bestLoss === undefined || progress.loss < prev.bestLoss ? progress.loss : prev.bestLoss,
+      bestAccuracy: prev.bestAccuracy === undefined || progress.accuracy > prev.bestAccuracy! ? progress.accuracy : prev.bestAccuracy,
+    }));
+
+    // Add to metrics array for chart
+    setMetrics(prev => {
+      const existing = prev.find(m => m.epoch === progress.epoch);
+      if (existing) return prev;
+      return [...prev, {
+        epoch: progress.epoch,
+        loss: progress.loss,
+        accuracy: progress.accuracy,
+        val_loss: progress.loss,
+        val_accuracy: progress.accuracy,
+      }];
+    });
+
+    // Update elapsed time from progress
+    if (progress.elapsedSeconds > 0) {
+      setElapsedTime(progress.elapsedSeconds);
+    }
+
+    // Estimate remaining time
+    if (progress.epoch > 0) {
+      const avgTimePerEpoch = progress.elapsedSeconds / progress.epoch;
+      setEstimatedTimeRemaining(Math.max(0, avgTimePerEpoch * (progress.totalEpochs - progress.epoch)));
+    }
+  }, [isAuthenticated, isTraining, training.currentProgress, training.activeJobs]);
+
+  // Detect when backend training job completes
+  useEffect(() => {
+    if (!isAuthenticated || !isTraining) return;
+
+    // Check if the job moved to history (completed/failed)
+    const recentJob = training.jobHistory[0];
+    if (!recentJob) return;
+
+    // Only react to jobs that started during this training session
+    if (!trainingStartTime) return;
+    const jobStarted = new Date(recentJob.startedAt).getTime();
+    if (jobStarted < trainingStartTime - 5000) return; // Allow 5s tolerance
+
+    if (recentJob.status === 'completed') {
+      setIsTraining(false);
+      setIsCompleted(true);
+      setCurrentStage('completed');
+
+      if (recentJob.metrics) {
+        setCurrentMetrics({
+          currentLoss: recentJob.metrics.loss,
+          currentAccuracy: recentJob.metrics.accuracy,
+          bestLoss: recentJob.metrics.loss,
+          bestAccuracy: recentJob.metrics.accuracy,
+        });
+        // Ensure final metrics are in the array
+        setMetrics(prev => {
+          const lastEpoch = prev.length > 0 ? prev[prev.length - 1].epoch : 0;
+          if (lastEpoch < trainingConfig.epochs) {
+            return [...prev, {
+              epoch: trainingConfig.epochs,
+              loss: recentJob.metrics!.loss,
+              accuracy: recentJob.metrics!.accuracy,
+              val_loss: recentJob.metrics!.loss,
+              val_accuracy: recentJob.metrics!.accuracy,
+            }];
+          }
+          return prev;
+        });
+      }
+
+      setLogs(prev => [...prev, { timestamp: new Date(), level: 'success', message: 'Training completed!' }]);
+      toast.success('Training completed!');
+
+      // Refresh usage after training completes
+      subscription.refreshUsage();
+    } else if (recentJob.status === 'failed' || recentJob.status === 'timeout') {
+      setIsTraining(false);
+      setCurrentStage('idle');
+      setLogs(prev => [...prev, {
+        timestamp: new Date(),
+        level: 'error',
+        message: recentJob.error || `Training ${recentJob.status}`,
+      }]);
+      toast.error(recentJob.error || `Training ${recentJob.status}`);
+    }
+  }, [isAuthenticated, isTraining, training.jobHistory, trainingStartTime, trainingConfig.epochs, subscription]);
+
   useEffect(() => {
     loadProject();
 
@@ -172,6 +280,102 @@ export default function TrainingPage() {
   // ── Training logic ─────────────────────────────────────────────────────────
   const startTraining = async () => {
     if (!project || !dataset || !projectId) return;
+
+    // ── Authenticated mode: use real backend via TrainingContext ──────────────
+    if (isAuthenticated) {
+      // Check quota/limits before starting
+      const canTrain = subscription.checkCanPerform('training');
+      if (!canTrain.allowed) {
+        toast.error(canTrain.reason || 'Training limit reached', {
+          action: {
+            label: 'Upgrade',
+            onClick: () => navigate('/pricing'),
+          },
+        });
+        return;
+      }
+
+      setIsTraining(true);
+      setIsPaused(false);
+      setIsCompleted(false);
+      setTrainingStartTime(Date.now());
+      setElapsedTime(0);
+      setCurrentEpoch(0);
+      setMetrics([]);
+      setLogs([]);
+      setCurrentMetrics({});
+      setCurrentStage('training');
+      trainingCancelledRef.current = false;
+
+      setLogs([{ timestamp: new Date(), level: 'info', message: 'Submitting training job to backend...' }]);
+
+      try {
+        const response = await training.startTraining({
+          dataset_id: dataset.id,
+          model_type: project.model_type as 'classification' | 'regression' | 'image_classification' | 'text_classification',
+          config: {
+            epochs: trainingConfig.epochs,
+            batch_size: trainingConfig.batchSize,
+            learning_rate: trainingConfig.learningRate,
+            architecture: 'shallow_nn',
+          },
+        });
+
+        // If the job completed immediately (unlikely but possible)
+        if (response.status === 'completed') {
+          setIsCompleted(true);
+          setIsTraining(false);
+          setCurrentStage('completed');
+          if (response.metrics) {
+            const finalMetric = {
+              epoch: trainingConfig.epochs,
+              loss: response.metrics.loss,
+              accuracy: response.metrics.accuracy,
+              val_loss: response.metrics.loss,
+              val_accuracy: response.metrics.accuracy,
+            };
+            setMetrics([finalMetric]);
+            setCurrentMetrics({
+              currentLoss: response.metrics.loss,
+              currentAccuracy: response.metrics.accuracy,
+              bestLoss: response.metrics.loss,
+              bestAccuracy: response.metrics.accuracy,
+            });
+          }
+          setLogs(prev => [...prev, { timestamp: new Date(), level: 'success', message: 'Training completed!' }]);
+          toast.success('Training completed!');
+        } else if (response.status === 'failed') {
+          setIsTraining(false);
+          setCurrentStage('idle');
+          setLogs(prev => [...prev, { timestamp: new Date(), level: 'error', message: response.error || 'Training failed' }]);
+          toast.error(response.error || 'Training failed');
+        } else {
+          // Job is running/queued — progress will come via Realtime subscription in TrainingContext
+          setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: `Training job started (${response.session_id})` }]);
+        }
+      } catch (error) {
+        console.error('Backend training error:', error);
+        setIsTraining(false);
+        setCurrentStage('idle');
+        const errorMessage = error instanceof Error ? error.message : 'Failed to start training';
+        setLogs(prev => [...prev, { timestamp: new Date(), level: 'error', message: errorMessage }]);
+
+        // Check if it's a quota/limit error and show upgrade prompt
+        if (errorMessage.includes('limit') || errorMessage.includes('quota') || errorMessage.includes('exceeded')) {
+          toast.error(errorMessage, {
+            action: {
+              label: 'Upgrade',
+              onClick: () => navigate('/pricing'),
+            },
+          });
+        } else {
+          toast.error(errorMessage);
+        }
+      }
+      return;
+    }
+
+    // ── Offline mode: use existing simulated training ────────────────────────
 
     setIsTraining(true);
     setIsPaused(false);

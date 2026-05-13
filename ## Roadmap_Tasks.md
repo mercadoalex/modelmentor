@@ -43,6 +43,53 @@
 - [x] Added `isComparing` state for explicit comparison trigger
 - [x] All lint checks passing
 
+### 6. Learning Moments ✅
+**Spec:** `.kiro/specs/learning-moments/`
+
+- [x] Contextual educational content at 3 workflow points (Learn: Data, Learn: Model, Learn: Next Steps)
+- [x] Three-step modal (Content → Quiz → Summary) with progress indicator
+- [x] Gamification integration (50/75/100 points per moment)
+- [x] Auto-open for guided tour, notification prompt for non-guided
+
+### 7. Smart Dataset Matching ✅
+
+- [x] Added Plant Diseases dataset for agricultural AI learning
+- [x] Added Dog Breeds dataset for pet recognition projects
+- [x] Added Facial Expressions dataset for emotion AI projects
+- [x] Implemented smart template matching based on project description
+- [x] "Best Match" badge for most relevant dataset per project
+- [x] Templates sorted by relevance score, then difficulty
+
+### 8. Backend Subscription Integration ✅
+**Spec:** `.kiro/specs/backend-subscription-integration/`
+
+- [x] **Phase 1:** Database & Services (migrations, types, utilities, 6 services)
+- [x] **Phase 2:** Edge Functions (train-model, create-checkout, stripe-webhook, check-usage, migrate-local-data)
+- [x] **Phase 3:** Frontend Contexts (AuthContext extended, SubscriptionContext, TrainingContext, MigrationPrompt, FeatureGate, UpgradePrompt)
+- [x] **Phase 4:** Page Wiring (TrainingPage, DataCollectionPage, PricingPage, SettingsPage usage dashboard)
+
+---
+
+## 🔄 IN PROGRESS
+
+### 9. Domain & Deployment ⏳
+
+- [x] Domain registered on AWS Route 53 (`modelmentor.link`)
+- [x] Cloudflare Pages project created
+- [x] Registrar nameservers updated to Cloudflare (`meadow.ns.cloudflare.com`, `tanner.ns.cloudflare.com`)
+- [x] Deleted orphaned Route 53 hosted zone
+- [ ] **Waiting:** `.link` TLD registry propagation (AWS → Cloudflare NS update, typically 30-120 min)
+- [ ] Cloudflare zone activation (auto-verifies once registry propagates)
+- [ ] Add custom domain `modelmentor.link` in Cloudflare Pages
+- [ ] Add custom domain `www.modelmentor.link` in Cloudflare Pages
+- [ ] Verify site is live at `https://modelmentor.link`
+
+**Verification command:**
+```bash
+dig modelmentor.link NS @ns10.trs-dns.info +short
+# Should return: meadow.ns.cloudflare.com / tanner.ns.cloudflare.com
+```
+
 ---
 
 ## 🔄 SUGGESTED IMPROVEMENTS
@@ -53,9 +100,6 @@
 - [ ] **Accessibility Audit** - Run axe-core and fix a11y issues
 
 ### Feature Enhancements
-- [ ] **Real Backend Integration** - Replace mock data with Supabase queries
-- [ ] **Model Training Pipeline** - Implement actual ML model training
-- [ ] **User Authentication** - Complete auth flow with Supabase Auth
 - [ ] **Assignment Submission** - Enable file uploads and grading
 
 ### Performance & UX
@@ -80,13 +124,18 @@
 | Tests Passing | 11/11 ✅ |
 | Tests Skipped | 3 (intentional) |
 | Tests Todo | 3 |
+| Specs Completed | 8 ✅ |
+| Domain | ⏳ Pending DNS propagation |
 
 ---
 
 ## 📁 SPEC DOCUMENTATION
 
-All completed specs are documented in `.kiro/specs/`:
-- `guided-tour-dataset-fix/` - Bugfix spec
-- `sample-dataset-generators/` - Feature spec
-- `feature-engineering-workshop/` - Feature spec (5 phases)
-- `typescript-errors-fix/` - Bugfix spec
+All specs are documented in `.kiro/specs/`:
+- `guided-tour-dataset-fix/` - Bugfix spec ✅
+- `sample-dataset-generators/` - Feature spec ✅
+- `feature-engineering-workshop/` - Feature spec (5 phases) ✅
+- `typescript-errors-fix/` - Bugfix spec ✅
+- `learning-moments/` - Feature spec ✅
+- `model-comparison-enhancement/` - Feature spec ✅
+- `backend-subscription-integration/` - Feature spec ✅

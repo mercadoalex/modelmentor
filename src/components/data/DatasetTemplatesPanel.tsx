@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Download, Search, Sparkles, FileText, Image, TrendingUp, Users, Heart, Home, Star, Eye, Package } from 'lucide-react';
 import type { ModelType } from '@/types/types';
 import { toast } from 'sonner';
-import { generateImageClassification, generateColorPatterns, generateDigits, generateAnimalSilhouettes, generateFashionItems, generateVehicles, generateFlowers, type ImageDatasetRow } from '@/services/syntheticDatasetGeneratorService';
+import { generateImageClassification, generateColorPatterns, generateDigits, generateAnimalSilhouettes, generateFashionItems, generateVehicles, generateFlowers, generatePlantDiseases, generateDogBreeds, generateFacialExpressions, type ImageDatasetRow } from '@/services/syntheticDatasetGeneratorService';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -1130,6 +1130,66 @@ const TEMPLATES: DatasetTemplate[] = [
       return dataset.images;
     },
   },
+
+  {
+    id: 'plant-diseases',
+    name: 'Plant Diseases 🍃',
+    description: 'Classify plant leaf conditions (healthy, bacterial_spot, early_blight, late_blight). Learn agricultural AI.',
+    modelType: 'image_classification',
+    tags: ['images', 'plants', 'agriculture', 'disease', 'leaf'],
+    difficulty: 'intermediate',
+    rows: 40, // 10 per condition
+    columns: ['image', 'label'],
+    realWorldUse: 'Agricultural apps help farmers detect crop diseases early, saving billions in crop losses worldwide.',
+    icon: Image,
+    iconColor: 'text-green-600',
+    bundledImages: true,
+    generateData: () => [],
+    generateImageData: () => {
+      const dataset = generatePlantDiseases();
+      return dataset.images;
+    },
+  },
+
+  {
+    id: 'dog-breeds',
+    name: 'Dog Breeds 🐕',
+    description: 'Classify dog breeds (labrador, german_shepherd, bulldog, poodle). Popular pet recognition task.',
+    modelType: 'image_classification',
+    tags: ['images', 'dogs', 'pets', 'animals', 'breeds'],
+    difficulty: 'intermediate',
+    rows: 40, // 10 per breed
+    columns: ['image', 'label'],
+    realWorldUse: 'Pet apps and shelters use breed recognition to help match dogs with potential adopters.',
+    icon: Image,
+    iconColor: 'text-amber-600',
+    bundledImages: true,
+    generateData: () => [],
+    generateImageData: () => {
+      const dataset = generateDogBreeds();
+      return dataset.images;
+    },
+  },
+
+  {
+    id: 'facial-expressions',
+    name: 'Facial Expressions 😊',
+    description: 'Classify emotions (happy, sad, angry, surprised). Learn emotion recognition AI.',
+    modelType: 'image_classification',
+    tags: ['images', 'faces', 'emotions', 'expressions'],
+    difficulty: 'advanced',
+    rows: 40, // 10 per expression
+    columns: ['image', 'label'],
+    realWorldUse: 'Emotion AI is used in customer service, mental health apps, and accessibility tools.',
+    icon: Image,
+    iconColor: 'text-purple-500',
+    bundledImages: true,
+    generateData: () => [],
+    generateImageData: () => {
+      const dataset = generateFacialExpressions();
+      return dataset.images;
+    },
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1151,25 +1211,113 @@ function toCSV(headers: string[], rows: string[][]): string {
 interface DatasetTemplatesPanelProps {
   /** Only templates matching this model type are shown */
   modelType: ModelType;
+  /** Optional project description for smart template matching */
+  projectDescription?: string;
   /** Called with the generated CSV text, filename, and template metadata */
   onLoadDataset: (csvText: string, filename: string, template: DatasetTemplate) => void;
   /** Called with image dataset for image classification templates */
   onLoadImageDataset?: (images: ImageDatasetRow[], template: DatasetTemplate) => void;
 }
 
-export function DatasetTemplatesPanel({ modelType, onLoadDataset, onLoadImageDataset }: DatasetTemplatesPanelProps) {
+/**
+ * Calculate relevance score between a template and project description
+ * Higher score = more relevant
+ */
+function calculateRelevanceScore(template: DatasetTemplate, projectDescription: string): number {
+  if (!projectDescription) return 0;
+  
+  const desc = projectDescription.toLowerCase();
+  let score = 0;
+  
+  // Keywords that indicate specific template matches
+  const keywordMatches: Record<string, string[]> = {
+    'plant-diseases': ['plant', 'disease', 'leaf', 'crop', 'agriculture', 'farming', 'blight', 'bacterial', 'tomato', 'potato'],
+    'dog-breeds': ['dog', 'breed', 'puppy', 'canine', 'pet', 'labrador', 'shepherd', 'bulldog', 'poodle'],
+    'flowers-classification': ['flower', 'floral', 'botanical', 'rose', 'tulip', 'sunflower', 'daisy', 'petal', 'bloom'],
+    'digits-classification': ['digit', 'number', 'handwritten', 'mnist', 'numeral', 'handwriting'],
+    'shapes-classification': ['shape', 'geometric', 'circle', 'square', 'triangle'],
+    'colors-classification': ['color', 'colour', 'rgb', 'hue', 'pattern'],
+    'animals-classification': ['animal', 'cat', 'bird', 'wildlife', 'silhouette'],
+    'fashion-items': ['fashion', 'clothing', 'shirt', 'pants', 'shoe', 'bag', 'apparel', 'garment'],
+    'vehicles-classification': ['vehicle', 'car', 'truck', 'motorcycle', 'bicycle', 'traffic', 'transport'],
+    'facial-expressions': ['face', 'facial', 'emotion', 'expression', 'happy', 'sad', 'angry', 'feeling'],
+    // Text classification
+    'sentiment': ['review', 'sentiment', 'opinion', 'positive', 'negative', 'feedback'],
+    'spam': ['spam', 'email', 'message', 'filter', 'inbox'],
+    'news-topics': ['news', 'article', 'headline', 'topic', 'category'],
+    'toxic-comments': ['toxic', 'comment', 'moderation', 'harmful', 'offensive'],
+    'language-detection': ['language', 'detect', 'multilingual', 'translation'],
+    'fake-news': ['fake', 'misinformation', 'fact', 'check', 'real'],
+    // Classification
+    'iris': ['iris', 'flower', 'petal', 'sepal', 'species'],
+    'titanic': ['titanic', 'survival', 'passenger', 'ship'],
+    'heart-disease': ['heart', 'disease', 'health', 'medical', 'cardiac', 'patient'],
+    'customer-churn': ['churn', 'customer', 'subscription', 'retention', 'cancel'],
+    'diabetes': ['diabetes', 'glucose', 'blood', 'sugar', 'medical'],
+    // Regression
+    'house-prices': ['house', 'price', 'real estate', 'property', 'home', 'housing'],
+    'salary': ['salary', 'wage', 'pay', 'income', 'compensation', 'hr'],
+    'weather-temperature': ['weather', 'temperature', 'forecast', 'climate'],
+    'song-popularity': ['song', 'music', 'spotify', 'popularity', 'audio'],
+    'car-prices': ['car', 'vehicle', 'price', 'used', 'automotive'],
+    'sales-forecasting': ['sales', 'forecast', 'retail', 'inventory', 'demand'],
+    'stock-indicators': ['stock', 'market', 'trading', 'finance', 'investment'],
+  };
+  
+  const templateKeywords = keywordMatches[template.id] || [];
+  
+  // Check for keyword matches
+  for (const keyword of templateKeywords) {
+    if (desc.includes(keyword)) {
+      score += 10; // Strong match for each keyword
+    }
+  }
+  
+  // Also check template name and tags
+  if (desc.includes(template.name.toLowerCase().replace(/[^\w\s]/g, ''))) {
+    score += 15;
+  }
+  
+  for (const tag of template.tags) {
+    if (desc.includes(tag.toLowerCase())) {
+      score += 5;
+    }
+  }
+  
+  // Check description overlap
+  const templateDescWords = template.description.toLowerCase().split(/\s+/);
+  for (const word of templateDescWords) {
+    if (word.length > 4 && desc.includes(word)) {
+      score += 2;
+    }
+  }
+  
+  return score;
+}
+
+export function DatasetTemplatesPanel({ modelType, projectDescription, onLoadDataset, onLoadImageDataset }: DatasetTemplatesPanelProps) {
   const [search, setSearch] = useState('');
   const [loadingId, setLoadingId] = useState<string | null>(null);
   // Controls which template's info panel is expanded
   const [previewId, setPreviewId] = useState<string | null>(null);
 
-  // Filter by model type first, then by search query
+  // Filter by model type first, then by search query, then sort by relevance
   const filtered = TEMPLATES.filter(t =>
     t.modelType === modelType &&
     (search === '' ||
       t.name.toLowerCase().includes(search.toLowerCase()) ||
       t.tags.some(tag => tag.includes(search.toLowerCase()))),
-  );
+  ).map(t => ({
+    ...t,
+    relevanceScore: calculateRelevanceScore(t, projectDescription || ''),
+  })).sort((a, b) => {
+    // Sort by relevance score (descending), then by difficulty (beginner first)
+    if (b.relevanceScore !== a.relevanceScore) {
+      return b.relevanceScore - a.relevanceScore;
+    }
+    const difficultyOrder = { beginner: 0, intermediate: 1, advanced: 2 };
+    return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+  });
 
   const difficultyColor: Record<DatasetTemplate['difficulty'], string> = {
     beginner:     'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
@@ -1256,16 +1404,18 @@ export function DatasetTemplatesPanel({ modelType, onLoadDataset, onLoadImageDat
           </p>
         )}
 
-        {filtered.map(template => {
+        {filtered.map((template, index) => {
           const Icon = template.icon;
           const isLoading = loadingId === template.id;
           const isPreview = previewId === template.id;
           const canLoad = canLoadTemplate(template);
+          // Show "Best Match" badge for first template if it has high relevance
+          const isBestMatch = index === 0 && template.relevanceScore >= 10 && projectDescription;
 
           return (
             <div
               key={template.id}
-              className="rounded-lg border p-4 space-y-3 hover:border-primary transition-colors"
+              className={`rounded-lg border p-4 space-y-3 hover:border-primary transition-colors ${isBestMatch ? 'border-primary bg-primary/5 ring-2 ring-primary/20' : ''}`}
             >
               {/* ── Header: icon + name + difficulty badge + description ── */}
               <div className="flex items-start gap-3">
@@ -1275,6 +1425,11 @@ export function DatasetTemplatesPanel({ modelType, onLoadDataset, onLoadImageDat
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-medium text-sm">{template.name}</p>
+                    {isBestMatch && (
+                      <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-primary text-primary-foreground">
+                        ✨ Best Match
+                      </span>
+                    )}
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${difficultyColor[template.difficulty]}`}>
                       {template.difficulty}
                     </span>

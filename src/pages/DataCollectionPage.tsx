@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+import { datasetStorageService } from '@/services/datasetStorageService';
 import { AppLayout } from '@/components/layouts/AppLayout';
 import { CollaborationPanel } from '@/components/collaboration/CollaborationPanel';
 import { Button } from '@/components/ui/button';
@@ -8,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Database, ArrowRight, X, AlertCircle, FileText, GraduationCap, Zap, Bug, Share2, Eye, RefreshCw, Info } from 'lucide-react';
+import { Upload, Database, ArrowRight, X, AlertCircle, FileText, GraduationCap, Zap, Bug, Share2, Eye, RefreshCw, Info, HardDrive } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { MLWorkflowVisualizer } from '@/components/MLWorkflowVisualizer';
 import { DataPreviewTable } from '@/components/data/DataPreviewTable';
@@ -53,8 +55,14 @@ const workflowSteps = [
 // ─────────────────────────────────────────────────────────────────────────────
 export default function DataCollectionPage() {
   const { projectId } = useParams<{ projectId: string }>();
-  const { user }      = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const { tier, limits } = useSubscription();
   const navigate      = useNavigate();
+
+  // ── Storage quota state ────────────────────────────────────────────────────
+  const [storageUsedMb, setStorageUsedMb] = useState<number>(0);
+  const [storageRemainingMb, setStorageRemainingMb] = useState<number | null>(null);
+  const [storageError, setStorageError] = useState<string | null>(null);
 
   // ── Core state ─────────────────────────────────────────────────────────────
   const [project,          setProject]          = useState<Project | null>(null);
@@ -69,6 +77,7 @@ export default function DataCollectionPage() {
   const [sampleLoadEmpty,  setSampleLoadEmpty]  = useState(false);
   const [retryCount,       setRetryCount]       = useState(0);
   const [usingSyntheticFallback, setUsingSyntheticFallback] = useState(false);
+  const [autoAdvanceFailed, setAutoAdvanceFailed] = useState(false);
 
   // ── Image dataset state (for image classification) ─────────────────────────
   const [imageDataset, setImageDataset] = useState<ImageDatasetRow[] | null>(null);
@@ -108,6 +117,29 @@ export default function DataCollectionPage() {
     setRetryCount(prev => prev + 1);
     loadProject();
   };
+
+  // ── Fetch storage quota when authenticated ─────────────────────────────────
+  useEffect(() => {
+    if (!isAuthenticated || !user) return;
+
+    const fetchStorageQuota = async () => {
+      try {
+        const usedMb = await datasetStorageService.getStorageUsed(user.id);
+        setStorageUsedMb(usedMb);
+
+        const maxStorageMb = limits.max_storage_mb;
+        if (maxStorageMb !== null) {
+          setStorageRemainingMb(Math.max(0, maxStorageMb - usedMb));
+        } else {
+          setStorageRemainingMb(null); // unlimited
+        }
+      } catch (error) {
+        console.error('Failed to fetch storage quota:', error);
+      }
+    };
+
+    fetchStorageQuota();
+  }, [isAuthenticated, user, limits.max_storage_mb]);
 
   /**
    * Auto-select a synthetic template based on the project's model type.
@@ -232,14 +264,33 @@ export default function DataCollectionPage() {
       // The synthetic data is just for learning purposes and doesn't need to be stored
       if (usingSyntheticFallback && project.is_guided_tour) {
         // Use placeholder URLs for synthetic data
-        fileUrls = uploadedFiles.map((file, idx) => `synthetic://${project.model_type}/${file.name}`);
-      } else if (uploadedFiles.length > 0) {
+        fileUrls = uploadedFiles.map((file) => `synthetic://${project.model_type}/${file.name}`);
+
+        // Skip Supabase dataset creation for synthetic data — just advance the project
+        try {
+          await projectService.update(projectId, { status: 'learning' });
+        } catch {
+          // If project update fails (e.g., Supabase unreachable), still navigate
+          // The learning page will work with local data
+        }
+        navigate(`/project/${projectId}/learning`);
+        return;
+      }
+
+      if (uploadedFiles.length > 0) {
         // Upload any manually-dropped files to Supabase storage
         const userId = user?.id || 'anonymous';
 
         for (let i = 0; i < uploadedFiles.length; i++) {
-          const url = await storageService.uploadImage(uploadedFiles[i], userId);
-          fileUrls.push(url);
+          if (isAuthenticated && user) {
+            // Authenticated: use datasetStorageService for persistent cloud storage
+            const { url } = await datasetStorageService.uploadDataset(uploadedFiles[i], user.id, projectId);
+            fileUrls.push(url);
+          } else {
+            // Offline mode: use existing local storage service
+            const url = await storageService.uploadImage(uploadedFiles[i], userId);
+            fileUrls.push(url);
+          }
           setUploadProgress(((i + 1) / uploadedFiles.length) * 100);
         }
       }
@@ -261,10 +312,14 @@ export default function DataCollectionPage() {
     } catch (error) {
       // In guided tour mode, show more specific error with guidance
       if (project.is_guided_tour) {
+        setAutoAdvanceFailed(true); // Prevent auto-advance from re-triggering
         toast.error('Failed to save dataset. Please try again or select a different template.', {
           action: {
             label: 'Retry',
-            onClick: () => handleContinue(),
+            onClick: () => {
+              setAutoAdvanceFailed(false);
+              handleContinue();
+            },
           },
         });
       } else {
@@ -279,7 +334,7 @@ export default function DataCollectionPage() {
 
   // Auto-advance guided tour 2 seconds after sample is auto-selected or synthetic data is loaded
   useEffect(() => {
-    if (!project?.is_guided_tour || loading) return;
+    if (!project?.is_guided_tour || loading || autoAdvanceFailed) return;
     
     // Auto-advance if we have a selected sample OR synthetic fallback data
     const hasData = selectedSample || (usingSyntheticFallback && uploadedFiles.length > 0);
@@ -290,15 +345,37 @@ export default function DataCollectionPage() {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [project?.is_guided_tour, selectedSample, usingSyntheticFallback, uploadedFiles.length, loading, handleContinue]);
+  }, [project?.is_guided_tour, selectedSample, usingSyntheticFallback, uploadedFiles.length, loading, handleContinue, autoAdvanceFailed]);
 
   // ── File drop handler ──────────────────────────────────────────────────────
   const onDrop = async (acceptedFiles: File[]) => {
     if (!project) return;
 
+    // Clear any previous storage error
+    setStorageError(null);
+
     const validFiles: File[] = [];
 
     for (const file of acceptedFiles) {
+      // ── Authenticated mode: validate via datasetStorageService ──────────────
+      if (isAuthenticated && user) {
+        // Validate file format and size against tier limits
+        const uploadValidation = datasetStorageService.validateUpload(file, tier);
+        if (!uploadValidation.valid) {
+          toast.error(`${file.name}: ${uploadValidation.error}`);
+          continue;
+        }
+
+        // Check storage quota
+        const quotaCheck = await datasetStorageService.checkStorageQuota(user.id, tier, file.size);
+        if (!quotaCheck.allowed) {
+          const errorMsg = `Upload would exceed your storage quota. Remaining space: ${quotaCheck.remaining.toFixed(1)} MB.`;
+          setStorageError(errorMsg);
+          toast.error(`${file.name}: ${errorMsg}`);
+          continue;
+        }
+      }
+
       if (project.model_type === 'image_classification') {
         // Moderate image content before accepting
         const check = await contentModeration.checkImage(file);
@@ -575,6 +652,35 @@ export default function DataCollectionPage() {
               </CardHeader>
               <CardContent className="space-y-4">
 
+                {/* Storage quota info (authenticated users only) */}
+                {isAuthenticated && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-md p-3">
+                    <HardDrive className="h-4 w-4 flex-shrink-0" />
+                    <div className="flex-1">
+                      <span>
+                        Storage: {storageUsedMb.toFixed(1)} MB used
+                        {limits.max_storage_mb !== null
+                          ? ` / ${limits.max_storage_mb} MB (${storageRemainingMb !== null ? storageRemainingMb.toFixed(1) : '—'} MB remaining)`
+                          : ' (unlimited)'}
+                      </span>
+                      {limits.max_storage_mb !== null && (
+                        <Progress
+                          value={Math.min(100, (storageUsedMb / limits.max_storage_mb) * 100)}
+                          className="mt-1 h-1.5"
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Storage quota error */}
+                {storageError && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{storageError}</AlertDescription>
+                  </Alert>
+                )}
+
                 {/* Drop zone */}
                 <div
                   {...getRootProps()}
@@ -621,6 +727,7 @@ export default function DataCollectionPage() {
             {showTemplatesPanel ? (
               <DatasetTemplatesPanel
                 modelType={project.model_type}
+                projectDescription={project.description}
                 onLoadDataset={handleLoadTemplate}
                 onLoadImageDataset={handleLoadImageDataset}
               />

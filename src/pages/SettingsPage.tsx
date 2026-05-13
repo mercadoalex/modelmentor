@@ -1,8 +1,10 @@
 import { AppLayout } from '@/components/layouts/AppLayout';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useContextualHelp } from '@/contexts/ContextualHelpContext';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,15 +13,159 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { AvatarUpload } from '@/components/AvatarUpload';
 import { RoleRequestCard } from '@/components/RoleRequestCard';
 import { supabase } from '@/db/supabase';
-import { User, Lock, Bell, Trash2, AlertTriangle, Loader2, CheckCircle2, ArrowLeft, Mail, HelpCircle, RotateCcw } from 'lucide-react';
+import { User, Lock, Bell, Trash2, AlertTriangle, Loader2, CheckCircle2, ArrowLeft, Mail, HelpCircle, RotateCcw, BarChart3, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import type { EmailPreferences } from '@/types/types';
 
+function UsageDashboard() {
+  const { isAuthenticated } = useAuth();
+  const { tier, usage, limits, warnings, isOnTrial, trialDaysRemaining, loading } = useSubscription();
+  const navigate = useNavigate();
+
+  if (!isAuthenticated) {
+    return (
+      <Card>
+        <CardContent className="py-8">
+          <div className="text-center space-y-3">
+            <BarChart3 className="h-10 w-10 mx-auto text-muted-foreground" />
+            <p className="text-muted-foreground">Sign in to view your usage and plan details.</p>
+            <Button onClick={() => navigate('/login')}>Sign In</Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="py-8">
+          <div className="flex items-center justify-center">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const resources: Array<{
+    label: string;
+    used: number;
+    limit: number | null;
+    unit?: string;
+  }> = [
+    { label: 'Projects', used: usage.projects, limit: limits.max_projects },
+    { label: 'Training Sessions', used: usage.training_sessions, limit: limits.max_training_sessions_per_month, unit: '/month' },
+    { label: 'Storage', used: usage.storage_mb, limit: limits.max_storage_mb, unit: ' MB' },
+  ];
+
+  const getPercentUsed = (used: number, limit: number | null): number => {
+    if (limit === null || limit === 0) return 0;
+    return Math.min(Math.round((used / limit) * 100), 100);
+  };
+
+  const isAtWarning = (used: number, limit: number | null): boolean => {
+    if (limit === null) return false;
+    return used >= limit * 0.8;
+  };
+
+  const tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1);
+  const hasWarnings = warnings.length > 0;
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5" />
+            Usage & Limits
+          </CardTitle>
+          <CardDescription className="flex items-center gap-2">
+            <span>Current plan:</span>
+            <Badge variant={tier === 'enterprise' ? 'default' : tier === 'pro' ? 'default' : 'secondary'}>
+              {tierLabel}
+            </Badge>
+            {isOnTrial && (
+              <Badge variant="outline" className="text-amber-600 border-amber-300">
+                Trial — {trialDaysRemaining} day{trialDaysRemaining !== 1 ? 's' : ''} remaining
+              </Badge>
+            )}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {resources.map(({ label, used, limit, unit }) => {
+            const percent = getPercentUsed(used, limit);
+            const atWarning = isAtWarning(used, limit);
+            const isUnlimited = limit === null;
+
+            return (
+              <div key={label} className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className={cn('font-medium', atWarning && 'text-amber-600')}>
+                    {label}
+                  </span>
+                  <span className={cn('text-muted-foreground', atWarning && 'text-amber-600 font-medium')}>
+                    {isUnlimited
+                      ? `${used}${unit || ''} — Unlimited`
+                      : `${used} / ${limit}${unit || ''}`}
+                  </span>
+                </div>
+                {isUnlimited ? (
+                  <Progress value={0} className="h-2" />
+                ) : (
+                  <Progress
+                    value={percent}
+                    className={cn(
+                      'h-2',
+                      atWarning && '[&>*]:bg-amber-500',
+                      percent >= 100 && '[&>*]:bg-red-500'
+                    )}
+                  />
+                )}
+                {atWarning && !isUnlimited && (
+                  <p className="text-xs text-amber-600 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    {percent >= 100 ? 'Limit reached' : `${percent}% used — approaching limit`}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+
+          {hasWarnings && tier !== 'enterprise' && (
+            <>
+              <Separator />
+              <Alert className="border-amber-300 bg-amber-50">
+                <Zap className="h-4 w-4 text-amber-600" />
+                <AlertDescription className="text-amber-800">
+                  You're approaching your plan limits. Upgrade to get more resources and unlock additional features.
+                </AlertDescription>
+              </Alert>
+            </>
+          )}
+
+          {tier !== 'enterprise' && (
+            <>
+              <Separator />
+              <Button onClick={() => navigate('/pricing')} className="gap-2">
+                <Zap className="h-4 w-4" />
+                Upgrade Plan
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export default function SettingsPage() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, isAuthenticated } = useAuth();
   const { resetDismissed, dismissedTips } = useContextualHelp();
   const navigate = useNavigate();
   
@@ -340,8 +486,9 @@ export default function SettingsPage() {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="usage">Usage</TabsTrigger>
             <TabsTrigger value="password">Password</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="account">Account</TabsTrigger>
@@ -454,6 +601,10 @@ export default function SettingsPage() {
                 </form>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="usage">
+            <UsageDashboard />
           </TabsContent>
 
           <TabsContent value="password">

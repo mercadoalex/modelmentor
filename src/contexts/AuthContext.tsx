@@ -1,18 +1,6 @@
-const signIn = async (username: string, password: string) => {
-    try {
-      // If input looks like an email, use it directly, otherwise convert
-      const email = username.includes('@') ? username : `${username}@modelmentor.app`;
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      return { error };
-    } catch (error) {
-      return { error: error as Error };
-    }
-  };
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
+import { validateUsername } from '@/utils/subscriptionUtils';
 import type { User, Session } from '@supabase/supabase-js';
 import type { Profile as ProfileType } from '@/types/types';
 
@@ -21,12 +9,15 @@ interface AuthContextType {
   profile: ProfileType | null;
   session: Session | null;
   loading: boolean;
+  isAuthenticated: boolean;
+  isOfflineMode: boolean;
   signIn: (username: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (username: string, password: string) => Promise<{ error: Error | null }>;
   signInWithEmail: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUpWithEmail: (email: string, password: string, username?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
+  updateProfile: (updates: Partial<ProfileType>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,6 +27,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const isAuthenticated = session !== null;
+  const isOfflineMode = session === null && !loading;
 
   useEffect(() => {
     // Get initial session
@@ -86,10 +80,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateProfile = async (updates: Partial<ProfileType>) => {
+    if (!user) {
+      throw new Error('Must be authenticated to update profile');
+    }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', user.id);
+
+    if (error) {
+      throw error;
+    }
+
+    // Refresh local profile state
+    await loadProfile(user.id);
+  };
+
   const signIn = async (username: string, password: string) => {
     try {
-      // Convert username to email format
-      const email = `${username}@modelmentor.app`;
+      // If input looks like an email, use it directly, otherwise convert
+      const email = username.includes('@') ? username : `${username}@modelmentor.app`;
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -102,18 +114,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (username: string, password: string) => {
     try {
-      // Validate username (only letters, digits, and underscore)
-      if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      // Validate username using shared utility
+      if (!validateUsername(username)) {
         return { error: new Error('Username can only contain letters, digits, and underscore') };
       }
 
       // Convert username to email format
       const email = `${username}@modelmentor.app`;
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
-      return { error };
+
+      if (error) {
+        return { error };
+      }
+
+      // Create default subscription record (free tier) for the new user
+      if (data.user) {
+        const { error: subError } = await supabase
+          .from('user_subscriptions')
+          .insert({
+            user_id: data.user.id,
+            tier: 'free',
+            status: 'active',
+          });
+
+        if (subError) {
+          console.error('Error creating default subscription:', subError);
+        }
+      }
+
+      return { error: null };
     } catch (error) {
       return { error: error as Error };
     }
@@ -133,7 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUpWithEmail = async (email: string, password: string, username?: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -142,7 +174,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           },
         },
       });
-      return { error };
+
+      if (error) {
+        return { error };
+      }
+
+      // Create default subscription record (free tier) for the new user
+      if (data.user) {
+        const { error: subError } = await supabase
+          .from('user_subscriptions')
+          .insert({
+            user_id: data.user.id,
+            tier: 'free',
+            status: 'active',
+          });
+
+        if (subError) {
+          console.error('Error creating default subscription:', subError);
+        }
+      }
+
+      return { error: null };
     } catch (error) {
       return { error: error as Error };
     }
@@ -168,12 +220,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     profile,
     session,
     loading,
+    isAuthenticated,
+    isOfflineMode,
     signIn,
     signUp,
     signInWithEmail,
     signUpWithEmail,
     signOut,
     resetPassword,
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
