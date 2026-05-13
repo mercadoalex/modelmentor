@@ -51,8 +51,44 @@ export function DataValidationDisplay({ validation }: DataValidationDisplayProps
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           <Progress value={qualityScore} className="h-2" />
+          
+          {/* Educational explanation of the score */}
+          <div className="rounded-lg bg-muted/50 p-3 text-sm space-y-2">
+            <p className="font-medium flex items-center gap-1.5">
+              <Info className="h-4 w-4 text-primary" />
+              What does this score mean?
+            </p>
+            {qualityScore >= 80 && (
+              <p className="text-muted-foreground">
+                🎉 <strong>Excellent!</strong> Your dataset has no missing values, no duplicates, and well-balanced categories. 
+                This means your model will have clean, reliable data to learn from — leading to better predictions. 
+                High-quality data is the #1 factor in building accurate ML models.
+              </p>
+            )}
+            {qualityScore >= 60 && qualityScore < 80 && (
+              <p className="text-muted-foreground">
+                👍 <strong>Good, but could be better.</strong> Your dataset has some minor issues like a few missing values or slight class imbalance. 
+                The model can still learn from this data, but fixing these issues (see suggestions below) could improve accuracy by 5-15%. 
+                Think of it like studying from a textbook with a few pages missing — you'll learn, but not perfectly.
+              </p>
+            )}
+            {qualityScore >= 40 && qualityScore < 60 && (
+              <p className="text-muted-foreground">
+                ⚠️ <strong>Fair — needs attention.</strong> Your dataset has significant issues that will affect model performance. 
+                Common problems at this level: too many missing values, heavy class imbalance, or too few samples. 
+                It's like trying to learn a language from a dictionary with half the words missing — possible, but frustrating.
+              </p>
+            )}
+            {qualityScore < 40 && (
+              <p className="text-muted-foreground">
+                🚨 <strong>Poor — fix before training.</strong> Your dataset has critical issues that will prevent the model from learning effectively. 
+                Training on this data would likely produce unreliable predictions. 
+                Focus on the critical issues listed below before proceeding.
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
 
