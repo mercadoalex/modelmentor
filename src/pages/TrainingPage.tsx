@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Play, Pause, Square, ArrowRight, FileText, Database, GraduationCap, Zap, Bug, Share2, Download, FileDown } from 'lucide-react';
+import { Play, Pause, Square, ArrowRight, FileText, Database, GraduationCap, Zap, Bug, Share2, Download, FileDown, Loader2 } from 'lucide-react';
 import { LineChart } from '@/components/charts/ChartComponents';
 import { MLWorkflowVisualizer } from '@/components/MLWorkflowVisualizer';
 import { TrainingStageIndicator, type TrainingStage } from '@/components/TrainingStageIndicator';
@@ -384,13 +384,15 @@ export default function TrainingPage() {
     setElapsedTime(0);
     setCurrentEpoch(0);
     setMetrics([]);
-    setLogs([]);
+    setLogs([{ timestamp: new Date(), level: 'info', message: '🔧 Preparing training environment...' }]);
     setCurrentMetrics({});
+    setCurrentStage('training');
     trainingCancelledRef.current = false;
 
     let session = trainingSession;
 
     if (!session) {
+      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '📦 Creating training session...' }]);
       session = await trainingService.create({
         project_id:    projectId,
         dataset_id:    dataset.id,
@@ -400,9 +402,11 @@ export default function TrainingPage() {
         started_at:    new Date().toISOString(),
       });
       setTrainingSession(session);
+      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '✅ Session created. Loading data...' }]);
     }
 
     try {
+      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '🧠 Initializing model architecture...' }]);
       const pipeline = new EnhancedTrainingPipeline({
         onStageChange: (stage) => setCurrentStage(stage),
         onLog:         (log)   => setLogs(prev => [...prev, log]),
@@ -1004,6 +1008,13 @@ export default function TrainingPage() {
                       <Play className="h-5 w-5 mr-2" />
                       Start Training
                     </Button>
+                  )}
+
+                  {isTraining && currentEpoch === 0 && !isPaused && (
+                    <div className="flex-1 min-w-[200px] flex items-center justify-center gap-3 p-3 rounded-lg bg-primary/10 border border-primary/20">
+                      <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                      <span className="text-sm font-medium text-primary">Preparing training environment…</span>
+                    </div>
                   )}
 
                   {isTraining && !isPaused && (
