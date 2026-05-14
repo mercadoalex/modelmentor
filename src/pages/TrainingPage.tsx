@@ -373,28 +373,18 @@ export default function TrainingPage() {
           setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: `Training job started (${response.session_id})` }]);
         }
       } catch (error) {
-        console.error('Backend training error:', error);
+        console.error('Backend training error, falling back to simulated training:', error);
         setIsTraining(false);
         setCurrentStage('idle');
-        const errorMessage = error instanceof Error ? error.message : 'Failed to start training';
-        setLogs(prev => [...prev, { timestamp: new Date(), level: 'error', message: errorMessage }]);
-
-        // Check if it's a quota/limit error and show upgrade prompt
-        if (errorMessage.includes('limit') || errorMessage.includes('quota') || errorMessage.includes('exceeded')) {
-          toast.error(errorMessage, {
-            action: {
-              label: 'Upgrade',
-              onClick: () => navigate('/pricing'),
-            },
-          });
-        } else {
-          toast.error(errorMessage);
-        }
+        setLogs([]);
+        
+        // Fall back to simulated training instead of blocking the user
+        toast.info('Using local training mode (sign in for cloud training)');
+        // Don't return — let it fall through to the offline training below
       }
-      return;
     }
 
-    // ── Offline mode: use existing simulated training ────────────────────────
+    // ── Offline/fallback mode: use existing simulated training ────────────────
 
     setIsTraining(true);
     setIsPaused(false);
