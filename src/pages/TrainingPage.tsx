@@ -1025,7 +1025,7 @@ export default function TrainingPage() {
                   {!isTraining && !isCompleted && (
                     <Button onClick={startTraining} size="lg" className="flex-1 min-w-[200px]" data-tour="start-training">
                       <Play className="h-5 w-5 mr-2" />
-                      Start Training
+                      Start Training the Model
                     </Button>
                   )}
 
