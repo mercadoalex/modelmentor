@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -31,6 +32,8 @@ export function GroupMemberManager({ group, organizationId, currentUserId, onMem
   const [memberCount, setMemberCount] = useState(0);
   const [isAddStudentsOpen, setIsAddStudentsOpen] = useState(false);
   const [isAddTeachersOpen, setIsAddTeachersOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{ userId: string; userName: string } | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -129,12 +132,14 @@ export function GroupMemberManager({ group, organizationId, currentUserId, onMem
     }
   };
 
-  const handleRemoveMember = async (userId: string, userName: string) => {
-    if (!confirm(`Remove ${userName} from this group?`)) {
-      return;
-    }
+  const handleRemoveMember = (userId: string, userName: string) => {
+    setItemToDelete({ userId, userName });
+    setDeleteDialogOpen(true);
+  };
 
-    const success = await groupMemberService.removeMember(group.id, userId);
+  const confirmRemoveMember = async () => {
+    if (!itemToDelete) return;
+    const success = await groupMemberService.removeMember(group.id, itemToDelete.userId);
     if (success) {
       toast.success('Member removed from group');
       await loadMembers();
@@ -144,6 +149,8 @@ export function GroupMemberManager({ group, organizationId, currentUserId, onMem
     } else {
       toast.error('Failed to remove member');
     }
+    setDeleteDialogOpen(false);
+    setItemToDelete(null);
   };
 
   const handleToggleInstructor = async (userId: string, currentStatus: boolean) => {
@@ -414,6 +421,28 @@ export function GroupMemberManager({ group, organizationId, currentUserId, onMem
           </Tabs>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Member</AlertDialogTitle>
+            <AlertDialogDescription>
+              {itemToDelete
+                ? `Are you sure you want to remove ${itemToDelete.userName} from this group?`
+                : 'Are you sure you want to remove this member from the group?'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setItemToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmRemoveMember}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { FileDown, Calendar, Mail, Trash2, Plus, FileText, BarChart3, AlertTriangle, Users, Download, Send, Loader2 } from 'lucide-react';
 import { reportService } from '@/services/reportService';
 import { toast } from 'sonner';
@@ -26,6 +27,10 @@ export default function ReportsPage() {
   const [loading,          setLoading]          = useState(false);
   const [scheduledReports, setScheduledReports] = useState<ScheduledReport[]>([]);
   const [sendingReportId,  setSendingReportId]  = useState<string | null>(null); // tracks which report is being sent
+
+  // ── Delete confirmation dialog state ────────────────────────────────────────
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   // ── Report generation form ────────────────────────────────────────────────
   const [reportType,    setReportType]    = useState<ReportType>('class_summary');
@@ -182,15 +187,23 @@ export default function ReportsPage() {
   };
 
   // ── Delete a scheduled report ─────────────────────────────────────────────
-  const handleDeleteSchedule = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this scheduled report?')) return;
+  const handleDeleteSchedule = (id: string) => {
+    setItemToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteSchedule = async () => {
+    if (!itemToDelete) return;
     try {
-      await reportService.deleteScheduledReport(id);
+      await reportService.deleteScheduledReport(itemToDelete);
       toast.success('Scheduled report deleted');
       loadScheduledReports();
     } catch (error) {
       toast.error('Failed to delete scheduled report');
       console.error(error);
+    } finally {
+      setDeleteDialogOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -516,6 +529,26 @@ export default function ReportsPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Scheduled Report</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this scheduled report? This will stop all future deliveries and cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setItemToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteSchedule}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }
