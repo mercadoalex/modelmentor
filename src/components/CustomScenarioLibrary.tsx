@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,6 +28,8 @@ export function CustomScenarioLibrary({
   const [scenarios, setScenarios] = useState<CustomFailureScenario[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -62,16 +65,18 @@ export function CustomScenarioLibrary({
     }
   };
 
-  const handleDelete = async (scenarioId: string) => {
-    if (!confirm('Are you sure you want to delete this custom scenario?')) {
-      return;
-    }
+  const handleDelete = (scenarioId: string) => {
+    setItemToDelete(scenarioId);
+    setDeleteDialogOpen(true);
+  };
 
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
       const { error } = await supabase
         .from('custom_failure_scenarios')
         .delete()
-        .eq('id', scenarioId);
+        .eq('id', itemToDelete);
 
       if (error) throw error;
 
@@ -80,6 +85,9 @@ export function CustomScenarioLibrary({
     } catch (error) {
       console.error('Error deleting custom scenario:', error);
       toast.error('Failed to delete custom scenario');
+    } finally {
+      setDeleteDialogOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -90,6 +98,7 @@ export function CustomScenarioLibrary({
   );
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
@@ -213,5 +222,26 @@ export function CustomScenarioLibrary({
         </div>
       </DialogContent>
     </Dialog>
+
+    <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Custom Scenario</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this custom scenario? This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => setItemToDelete(null)}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={confirmDelete}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }

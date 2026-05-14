@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, GraduationCap, UserCheck, FolderKanban, Plus, Trash2, Edit } from 'lucide-react';
@@ -32,6 +33,8 @@ export default function SchoolAdminPage() {
   const [newGroupDescription, setNewGroupDescription] = useState('');
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -111,18 +114,22 @@ export default function SchoolAdminPage() {
     }
   };
 
-  const handleDeleteGroup = async (groupId: string) => {
-    if (!confirm('Are you sure you want to delete this group? This action cannot be undone.')) {
-      return;
-    }
+  const handleDeleteGroup = (groupId: string) => {
+    setItemToDelete(groupId);
+    setDeleteDialogOpen(true);
+  };
 
-    const success = await groupService.delete(groupId);
+  const confirmDeleteGroup = async () => {
+    if (!itemToDelete) return;
+    const success = await groupService.delete(itemToDelete);
     if (success) {
       toast.success('Group deleted successfully');
       loadData();
     } else {
       toast.error('Failed to delete group');
     }
+    setDeleteDialogOpen(false);
+    setItemToDelete(null);
   };
 
   const openEditDialog = (group: Group) => {
@@ -455,6 +462,26 @@ export default function SchoolAdminPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Group</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this group? This action cannot be undone and will remove all member associations.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setItemToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteGroup}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }
