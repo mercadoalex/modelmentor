@@ -401,17 +401,25 @@ export default function TrainingPage() {
     let session = trainingSession;
 
     if (!session) {
-      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '📦 Creating training session...' }]);
-      session = await trainingService.create({
-        project_id:    projectId,
-        dataset_id:    dataset.id,
-        epochs:        trainingConfig.epochs,
-        current_epoch: 0,
-        status:        'training',
-        started_at:    new Date().toISOString(),
-      });
-      setTrainingSession(session);
-      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '✅ Session created. Loading data...' }]);
+      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '📦 Setting up training session...' }]);
+      try {
+        // Try to create a session in Supabase (with 3s timeout)
+        const sessionPromise = trainingService.create({
+          project_id:    projectId,
+          dataset_id:    dataset.id,
+          epochs:        trainingConfig.epochs,
+          current_epoch: 0,
+          status:        'training',
+          started_at:    new Date().toISOString(),
+        });
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000));
+        session = await Promise.race([sessionPromise, timeoutPromise]) as typeof session;
+        setTrainingSession(session);
+      } catch {
+        // If Supabase is unavailable, proceed without persisting the session
+        session = { id: `local-${Date.now()}` } as unknown as typeof session;
+      }
+      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '✅ Ready. Loading data...' }]);
     }
 
     try {
