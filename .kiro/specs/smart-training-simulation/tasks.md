@@ -6,14 +6,14 @@ Implement a deterministic, physics-informed training simulation engine as a set 
 
 ## Tasks
 
-- [ ] 1. Set up simulation module structure and core types
-  - [ ] 1.1 Create `src/utils/simulation/types.ts` with all type definitions
+- [-] 1. Set up simulation module structure and core types
+  - [x] 1.1 Create `src/utils/simulation/types.ts` with all type definitions
     - Define `OptimizerType`, `ModelComplexity` type aliases
     - Define `SimulationConfig`, `EpochMetrics`, `FinalMetrics`, `PerClassMetrics`, `Diagnostics`, `SimulationResult` interfaces
     - Define `BaseParameters` interface (optimalLR, divergenceThreshold, oscillationRange, convergenceEpoch, overfittingOnset, maxAccuracy, noiseFloor, noiseAmplitude, convergenceRate)
     - _Requirements: 8.1, 8.2, 8.3_
 
-  - [ ] 1.2 Create `src/utils/simulation/rng.ts` with seeded PRNG
+  - [x] 1.2 Create `src/utils/simulation/rng.ts` with seeded PRNG
     - Implement `mulberry32` (Mulberry32 algorithm) returning a `() => number` closure
     - Implement `createRng(seed: number)` that guards against seed=0 (use seed=1 instead)
     - Implement `generateSeed()` that produces a random integer seed

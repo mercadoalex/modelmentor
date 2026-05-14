@@ -54,6 +54,8 @@ import { confusionMatrixService } from '@/services/confusionMatrixService';
 import { errorAnalysisService } from '@/services/errorAnalysisService';
 import { modelVersionService } from '@/services/modelVersionService';
 import { EnhancedTrainingPipeline } from '@/utils/enhancedTrainingPipeline';
+import { createSimulationRunner } from '@/utils/simulation';
+import type { SimulationConfig, OptimizerType as SimOptimizerType, ModelComplexity } from '@/utils/simulation';
 import { projectService, datasetService, trainingService } from '@/services/supabase';
 import { activityTrackingService } from '@/services/activityTrackingService';
 import { supabase } from '@/db/supabase';
@@ -384,7 +386,7 @@ export default function TrainingPage() {
       }
     }
 
-    // ── Offline/fallback mode: use existing simulated training ────────────────
+    // ── Offline/fallback mode: use smart training simulation ─────────────────
 
     setIsTraining(true);
     setIsPaused(false);
@@ -403,7 +405,6 @@ export default function TrainingPage() {
     if (!session) {
       setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '📦 Setting up training session...' }]);
       try {
-        // Try to create a session in Supabase (with 3s timeout)
         const sessionPromise = trainingService.create({
           project_id:    projectId,
           dataset_id:    dataset.id,
@@ -416,258 +417,104 @@ export default function TrainingPage() {
         session = await Promise.race([sessionPromise, timeoutPromise]) as typeof session;
         setTrainingSession(session);
       } catch {
-        // If Supabase is unavailable, proceed without persisting the session
         session = { id: `local-${Date.now()}` } as unknown as typeof session;
       }
       setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '✅ Ready. Loading data...' }]);
     }
 
     try {
-      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '🧠 Initializing model architecture...' }]);
-      const pipeline = new EnhancedTrainingPipeline({
-        onStageChange: (stage) => setCurrentStage(stage),
-        onLog:         (log)   => setLogs(prev => [...prev, log]),
-        onProgress:    ()      => {},
-        onEpochEnd: async (epoch, epochLogs) => {
-          if (trainingCancelledRef.current) return;
+      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '🧠 Initializing simulation engine...' }]);
 
-          setCurrentEpoch(epoch);
+      // Map TrainingConfig to SimulationConfig
+      const simConfig: SimulationConfig = {
+        learningRate: trainingConfig.learningRate,
+        batchSize: trainingConfig.batchSize,
+        epochs: trainingConfig.epochs,
+        optimizer: trainingConfig.optimizer as SimOptimizerType,
+        architecture: 'medium' as ModelComplexity,
+        datasetSize: dataset.sample_count || 100,
+        classImbalanceRatio: 1.0,
+        dataQualityScore: 0.85,
+      };
 
-          const elapsed         = (Date.now() - (trainingStartTime || Date.now())) / 1000;
-          const avgTimePerEpoch = elapsed / epoch;
-          setEstimatedTimeRemaining(Math.max(0, avgTimePerEpoch * (trainingConfig.epochs - epoch)));
+      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '🚀 Starting smart training simulation...' }]);
 
-          const newMetric = {
-            epoch,
-            loss:         epochLogs.loss    as number,
-            accuracy:     epochLogs.acc     as number,
-            val_loss:     epochLogs.val_loss as number,
-            val_accuracy: epochLogs.val_acc  as number,
-          };
-
-          const newMetrics = [...metrics, newMetric];
-          setMetrics(newMetrics);
-
-          if (session) {
-            await trainingService.update(session.id, {
-              current_epoch: epoch,
-              accuracy:      epochLogs.acc  as number,
-              loss:          epochLogs.loss as number,
-              metrics:       newMetrics as unknown as Record<string, unknown>,
-            });
-          }
-        },
-        onMetricsUpdate: (metricsUpdate) => {
-          setCurrentMetrics(prev => ({
-            currentLoss:     metricsUpdate.loss,
-            currentAccuracy: metricsUpdate.accuracy,
-            bestLoss:
-              prev.bestLoss === undefined || metricsUpdate.loss < prev.bestLoss
-                ? metricsUpdate.loss
-                : prev.bestLoss,
-            bestAccuracy:
-              prev.bestAccuracy === undefined ||
-              (metricsUpdate.accuracy && metricsUpdate.accuracy > prev.bestAccuracy!)
-                ? metricsUpdate.accuracy
-                : prev.bestAccuracy,
-          }));
-        },
-      });
-
-      pipelineRef.current = pipeline;
-
-      // ── Build training data ───────────────────────────────────────────────
-      let trainingData: DataPoint[] = [];
-
-      if (project.model_type === 'text_classification') {
-        trainingData = [
-          { input: 'This is great',      output: 'positive' },
-          { input: 'I love this',        output: 'positive' },
-          { input: 'Amazing product',    output: 'positive' },
-          { input: 'Excellent service',  output: 'positive' },
-          { input: 'Very good quality',  output: 'positive' },
-          { input: 'This is terrible',   output: 'negative' },
-          { input: 'I hate this',        output: 'negative' },
-          { input: 'Awful experience',   output: 'negative' },
-          { input: 'Poor quality',       output: 'negative' },
-          { input: 'Very disappointing', output: 'negative' },
-          { input: 'It is okay',         output: 'neutral'  },
-          { input: 'Not bad',            output: 'neutral'  },
-          { input: 'Average product',    output: 'neutral'  },
-          { input: 'Could be better',    output: 'neutral'  },
-          { input: 'Acceptable',         output: 'neutral'  },
-        ];
-      } else if (project.model_type === 'regression') {
-        trainingData = Array.from({ length: 50 }, (_, i) => ({
-          input:  [i / 10],
-          output: (i / 10) * 2 + Math.random() * 0.5,
-        }));
-      } else {
-        trainingData = Array.from({ length: 50 }, (_, i) => ({
-          input:  [i / 10, Math.random()],
-          output: i < 25 ? 'class_a' : 'class_b',
-        }));
-      }
-
-      if (trainingData.length === 0) {
-        toast.error('No training data available');
-        setIsTraining(false);
-        setCurrentStage('idle');
-        return;
-      }
-
-      // ── Numeric / regression pipeline ─────────────────────────────────────
-      if (
-        project.model_type === 'regression' ||
-        (Array.isArray(trainingData[0].input) && typeof trainingData[0].output === 'number')
-      ) {
-        const inputFeatures = Array.isArray(trainingData[0].input)
-          ? trainingData[0].input.map((_, i) => `feature_${i}`)
-          : ['feature_0'];
-
-        const dataForPipeline = trainingData.map((d, i) => {
-          const row: Record<string, number> = { id: i };
-          if (Array.isArray(d.input)) {
-            d.input.forEach((val, idx) => { row[`feature_${idx}`] = val as number; });
-          } else {
-            row['feature_0'] = typeof d.input === 'number' ? d.input : 0;
-          }
-          row['label'] = d.output as number;
-          return row;
-        });
-
-        const { xs, ys, inputShape } = await pipeline.preprocessData(
-          dataForPipeline, inputFeatures, 'label'
-        );
-
-        const model = await pipeline.buildModel(inputShape, 1, {
-          hiddenLayers: [64, 32],
-          activation:   'relu',
-          optimizer:    trainingConfig.optimizer,
-          learningRate: trainingConfig.learningRate,
-        });
-
-        await pipeline.trainModel(model, xs, ys, {
-          epochs:                trainingConfig.epochs,
-          batchSize:             trainingConfig.batchSize,
-          validationSplit:       trainingConfig.validationSplit,
-          earlyStopping:         trainingConfig.earlyStopping,
-          earlyStoppingPatience: trainingConfig.earlyStoppingPatience,
-          shuffle:               trainingConfig.shuffle,
-        });
-
-        await pipeline.evaluateModel(model, xs, ys);
-        pipeline.complete();
-
-        xs.dispose();
-        ys.dispose();
-
-        if (!trainingCancelledRef.current) {
-          setTrainedModel(model);
-          stopTraining(true);
-        }
-
-      // ── Text / classification pipeline ────────────────────────────────────
-      } else {
-        const config = {
-          epochs:          trainingConfig.epochs,
-          batchSize:       Math.min(trainingConfig.batchSize, Math.floor(trainingData.length / 4)),
-          validationSplit: trainingConfig.validationSplit,
-          learningRate:    trainingConfig.learningRate,
-        };
-
-        const callbacks = {
-          onEpochEnd: async (
-            epoch: number,
-            epochLogs: { loss: number; accuracy: number; val_loss?: number; val_accuracy?: number }
-          ) => {
+      const runner = createSimulationRunner(
+        simConfig,
+        {
+          onEpochEnd: (epoch, epochLogs) => {
             if (trainingCancelledRef.current) return;
 
-            setCurrentEpoch(epoch + 1);
+            setCurrentEpoch(epoch);
 
-            const elapsed         = (Date.now() - (trainingStartTime || Date.now())) / 1000;
-            const avgTimePerEpoch = elapsed / (epoch + 1);
-            setEstimatedTimeRemaining(
-              Math.max(0, avgTimePerEpoch * (trainingConfig.epochs - epoch - 1))
-            );
+            const elapsed = (Date.now() - (trainingStartTime || Date.now())) / 1000;
+            const avgTimePerEpoch = elapsed / epoch;
+            setEstimatedTimeRemaining(Math.max(0, avgTimePerEpoch * (trainingConfig.epochs - epoch)));
 
             const newMetric = {
-              epoch:        epoch + 1,
+              epoch,
               loss:         epochLogs.loss,
-              accuracy:     epochLogs.accuracy,
+              accuracy:     epochLogs.acc,
               val_loss:     epochLogs.val_loss,
-              val_accuracy: epochLogs.val_accuracy,
+              val_accuracy: epochLogs.val_acc,
             };
 
-            const newMetrics = [...metrics, newMetric];
-            setMetrics(newMetrics);
+            setMetrics(prev => [...prev, newMetric]);
 
             setCurrentMetrics(prev => ({
               currentLoss:     epochLogs.loss,
-              currentAccuracy: epochLogs.accuracy,
+              currentAccuracy: epochLogs.acc,
               bestLoss:
                 prev.bestLoss === undefined || epochLogs.loss < prev.bestLoss
                   ? epochLogs.loss
                   : prev.bestLoss,
               bestAccuracy:
-                prev.bestAccuracy === undefined || epochLogs.accuracy > prev.bestAccuracy!
-                  ? epochLogs.accuracy
+                prev.bestAccuracy === undefined || epochLogs.acc > prev.bestAccuracy!
+                  ? epochLogs.acc
                   : prev.bestAccuracy,
             }));
 
             setLogs(prev => [...prev, {
               timestamp: new Date(),
-              level:     'success',
-              message:   `Epoch ${epoch + 1}/${trainingConfig.epochs} completed`,
-              details:   `Loss: ${epochLogs.loss.toFixed(4)}, Accuracy: ${(epochLogs.accuracy * 100).toFixed(2)}%`,
+              level:     'success' as const,
+              message:   `Epoch ${epoch}/${trainingConfig.epochs} completed`,
+              details:   `Loss: ${epochLogs.loss.toFixed(4)}, Accuracy: ${(epochLogs.acc * 100).toFixed(2)}%`,
             }]);
 
             if (session) {
-              await trainingService.update(session.id, {
-                current_epoch: epoch + 1,
-                accuracy:      epochLogs.accuracy,
+              trainingService.update(session.id, {
+                current_epoch: epoch,
+                accuracy:      epochLogs.acc,
                 loss:          epochLogs.loss,
-                metrics:       newMetrics as unknown as Record<string, unknown>,
+                metrics:       [] as unknown as Record<string, unknown>,
               });
             }
           },
-          onTrainingEnd: () => {
-            if (!trainingCancelledRef.current) stopTraining(true);
+          onComplete: (result) => {
+            if (trainingCancelledRef.current) return;
+            setIsCompleted(true);
+            setCurrentStage('completed');
+            setIsTraining(false);
+            setLogs(prev => [...prev, {
+              timestamp: new Date(),
+              level:     'success' as const,
+              message:   'Training completed successfully!',
+              details:   `Final accuracy: ${(result.finalMetrics.accuracy * 100).toFixed(2)}%`,
+            }]);
+            toast.success('Training completed!');
+            stopTraining(true);
           },
-        };
+        },
+        { replayDelayMs: 100 }
+      );
 
-        setCurrentStage('training');
-        setLogs([{ timestamp: new Date(), level: 'info', message: 'Starting training...' }]);
+      // Store cancel function for stop button
+      pipelineRef.current = { cancel: () => runner.cancel() } as unknown as EnhancedTrainingPipeline;
 
-        let model: tf.LayersModel | null = null;
-
-        const isTextData      = typeof trainingData[0].input  === 'string';
-        const isNumericOutput = typeof trainingData[0].output === 'number';
-
-        if (project.model_type === 'text_classification' || (isTextData && !isNumericOutput)) {
-          const result = await trainTextClassificationModel(trainingData, config, callbacks);
-          model = result.model;
-        } else if (isNumericOutput && Array.isArray(trainingData[0].input)) {
-          const result = await trainRegressionModel(trainingData, config, callbacks);
-          model = result.model;
-        } else {
-          const result = await trainNumericClassificationModel(trainingData, config, callbacks);
-          model = result.model;
-        }
-
-        if (model && !trainingCancelledRef.current) {
-          setTrainedModel(model);
-          setCurrentStage('completed');
-          setLogs(prev => [...prev, {
-            timestamp: new Date(),
-            level:     'success',
-            message:   'Training completed successfully!',
-          }]);
-        }
-      }
+      await runner.start();
     } catch (error) {
       console.error('Training error:', error);
-      setCurrentStage('error');
+      setCurrentStage('idle');
       setLogs(prev => [...prev, {
         timestamp: new Date(),
         level:     'error',
