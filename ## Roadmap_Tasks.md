@@ -136,6 +136,11 @@ The following migrations exist locally but haven't been fully applied to product
 
 ## 🔄 SUGGESTED IMPROVEMENTS
 
+### Training Simulation Roadmap 🧠
+- [ ] **Level 1: Smarter Simulation** (IN PROGRESS) — Make metrics respond to dataset quality, hyperparameters, and model type. $0 cost.
+- [ ] **Level 2: Browser-Based Real Training** — Use TensorFlow.js in the browser to train tiny models on synthetic data. $0 cost.
+- [ ] **Level 3: Server-Side Real Training** — Use Edge Functions with TensorFlow.js or external ML API. $5-50/month. Pro/Enterprise only.
+
 ### Code Quality & Testing
 - [ ] **Property-Based Tests** - Add fast-check tests for subscription utilities and learning evaluators
 - [ ] **Increase Test Coverage** - Add more unit tests for components
@@ -170,7 +175,9 @@ The following migrations exist locally but haven't been fully applied to product
 | Specs Completed | 12 ✅ |
 | Domain | modelmentor.link ✅ |
 | Deployment | Cloudflare Pages ✅ |
-| Production DB | Partially migrated ⚠️ |
+| Production DB | Fully migrated ✅ |
+| Edge Functions | Deployed ✅ |
+| Cron Jobs | Weekly reports ✅ |
 
 ---
 
