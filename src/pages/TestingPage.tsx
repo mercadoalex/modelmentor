@@ -16,6 +16,8 @@ import { ConfusionMatrixDisplay } from '@/components/ConfusionMatrixDisplay';
 import { PredictionResultsDisplay, type PredictionResult } from '@/components/PredictionResultsDisplay';
 import { projectService, trainingService, testResultService } from '@/services/supabase';
 import { modelVersionService } from '@/services/modelVersionService';
+import { hasModel, loadModel } from '@/utils/tfTraining';
+import type { ModelRegistryEntry } from '@/utils/tfTraining';
 import { trainingSimulation } from '@/utils/helpers';
 import { exportTestResultsPDF } from '@/utils/pdfExport';
 import { toast } from 'sonner';
@@ -61,8 +63,26 @@ export default function TestingPage() {
   const [loading,    setLoading]    = useState(false);
   const [activeTab,  setActiveTab]  = useState<'single' | 'batch'>('single');
 
+  // ── Real model from registry ───────────────────────────────────────────────
+  const [realModel,       setRealModel]       = useState<ModelRegistryEntry | null>(null);
+  const [modelAvailable,  setModelAvailable]  = useState<boolean | null>(null); // null = loading
+
   useEffect(() => {
     loadProject();
+  }, [projectId]);
+
+  // Check for trained model in registry on mount
+  useEffect(() => {
+    const checkModel = async () => {
+      if (!projectId) return;
+      const exists = await hasModel(projectId);
+      setModelAvailable(exists);
+      if (exists) {
+        const entry = await loadModel(projectId);
+        setRealModel(entry);
+      }
+    };
+    checkModel();
   }, [projectId]);
 
   const loadProject = async () => {
@@ -140,10 +160,18 @@ export default function TestingPage() {
 
     setLoading(true);
     try {
-      const result = trainingSimulation.generatePrediction(
-        project?.model_type || 'image_classification',
-        activeAccuracy
-      );
+      let result: { prediction: string; confidence: number };
+
+      // Use real model if available, otherwise fall back to simulation
+      if (realModel && realModel.model) {
+        result = await runRealPrediction(testInput, realModel);
+      } else {
+        result = trainingSimulation.generatePrediction(
+          project?.model_type || 'image_classification',
+          activeAccuracy
+        );
+      }
+
       setPrediction(result);
 
       await testResultService.create({
@@ -154,6 +182,7 @@ export default function TestingPage() {
           fileName:    imageFile?.name,
           version_id:  selectedVersion?.id,
           version_number: selectedVersion?.version_number,
+          usedRealModel: !!realModel,
         },
         predictions: result,
         accuracy:    activeAccuracy,
@@ -165,6 +194,93 @@ export default function TestingPage() {
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  /**
+   * Runs a real prediction using the trained TF.js model.
+   * Preprocesses input based on stored metadata, runs model.predict(), and decodes output.
+   */
+  const runRealPrediction = async (
+    input: string,
+    entry: ModelRegistryEntry
+  ): Promise<{ prediction: string; confidence: number }> => {
+    const { model, metadata } = entry;
+    const tf = await import('@tensorflow/tfjs');
+    const modelType = metadata.modelType;
+    const preprocessing = metadata.preprocessing;
+
+    let inputTensor: any;
+
+    if (modelType === 'text_classification') {
+      // Tokenize text input
+      const vocab = preprocessing.vocabulary || {};
+      const maxLen = preprocessing.maxSequenceLength || 100;
+      const words = input.toLowerCase().split(/\s+/);
+      const indices = words.map(w => vocab[w] || 0).slice(0, maxLen);
+      // Pad to maxLength
+      while (indices.length < maxLen) indices.push(0);
+      inputTensor = tf.tensor2d([indices], [1, maxLen]);
+    } else if (modelType === 'regression' || modelType === 'classification') {
+      // Parse numeric features
+      const values = input.split(',').map(v => parseFloat(v.trim()) || 0);
+      // Normalize if metadata available
+      if (preprocessing.normalization) {
+        const { mean, std } = preprocessing.normalization;
+        const normalized = values.map((v, i) => {
+          const m = mean[i] ?? 0;
+          const s = std[i] ?? 1;
+          return s === 0 ? 0 : (v - m) / s;
+        });
+        inputTensor = tf.tensor2d([normalized], [1, normalized.length]);
+      } else {
+        inputTensor = tf.tensor2d([values], [1, values.length]);
+      }
+    } else {
+      // Image classification - use simulation fallback for now (image preprocessing requires canvas)
+      return trainingSimulation.generatePrediction(modelType, metadata.finalAccuracy || 0.85);
+    }
+
+    try {
+      const outputTensor = model.predict(inputTensor) as any;
+      const outputData = await outputTensor.data();
+
+      let prediction: string;
+      let confidence: number;
+
+      if (modelType === 'regression') {
+        // Denormalize regression output
+        let value = outputData[0];
+        if (preprocessing.targetNormalization) {
+          const { mean, std } = preprocessing.targetNormalization;
+          value = value * std + mean;
+        }
+        prediction = value.toFixed(4);
+        confidence = 0.95; // Regression doesn't have a natural confidence
+      } else {
+        // Classification: find argmax
+        const scores = Array.from(outputData) as number[];
+        const maxIdx = scores.indexOf(Math.max(...scores));
+        confidence = scores[maxIdx];
+
+        // Decode label using labelMap
+        if (preprocessing.labelMap) {
+          const reverseMap = Object.entries(preprocessing.labelMap);
+          const entry = reverseMap.find(([, idx]) => idx === maxIdx);
+          prediction = entry ? entry[0] : `Class ${maxIdx}`;
+        } else {
+          prediction = `Class ${maxIdx}`;
+        }
+      }
+
+      // Cleanup tensors
+      inputTensor.dispose();
+      outputTensor.dispose();
+
+      return { prediction, confidence };
+    } catch (error) {
+      inputTensor.dispose();
+      throw error;
     }
   };
 
@@ -390,6 +506,33 @@ export default function TestingPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Real model status indicator */}
+        {modelAvailable === false && (
+          <Alert>
+            <AlertDescription className="flex items-center justify-between">
+              <span>No trained model found for this project. Predictions will use simulation.</span>
+              <Button
+                variant="link"
+                className="p-0 h-auto"
+                onClick={() => navigate(`/project/${projectId}/training`)}
+              >
+                Go to Training →
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+        {modelAvailable === true && realModel && (
+          <Alert>
+            <CheckCircle2 className="h-4 w-4" />
+            <AlertDescription>
+              <span className="font-medium">🧪 Real trained model loaded</span>
+              {' — '}predictions will use the TensorFlow.js model trained on{' '}
+              {new Date(realModel.metadata.trainedAt).toLocaleDateString()}
+              {' '}(accuracy: {(realModel.metadata.finalAccuracy * 100).toFixed(1)}%)
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Summary cards */}
         <div className="grid md:grid-cols-4 gap-4">

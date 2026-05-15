@@ -8,8 +8,8 @@ All code is TypeScript. The project uses vitest for testing and will add `fast-c
 
 ## Tasks
 
-- [ ] 1. Types and infrastructure setup
-  - [ ] 1.1 Create shared type definitions (`src/utils/tfTraining/types.ts`)
+- [-] 1. Types and infrastructure setup
+  - [-] 1.1 Create shared type definitions (`src/utils/tfTraining/types.ts`)
     - Define `TrainingRequest`, `TrainingResult`, `TrainingConfig`, `TrainingCallbacks`, `TrainingStatus`, `TrainingRunner` interfaces
     - Define `EpochLogs`, `DeviceCapabilities`, `StoredModelMetadata`, `PreprocessingMetadata` interfaces
     - Define `ModelBuilderOptions`, `TFModule`, `LoaderStatus` types
@@ -201,7 +201,7 @@ All code is TypeScript. The project uses vitest for testing and will add `fast-c
 - [ ] 8. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 9. TrainingPage integration
+- [-] 9. TrainingPage integration
   - [ ] 9.1 Update TrainingPage to use the training orchestrator
     - Replace direct `createSimulationRunner` usage with `createTrainingRunner` from the orchestrator
     - Pass `isAuthenticated` from `useAuth()` context to the orchestrator
