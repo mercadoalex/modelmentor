@@ -730,27 +730,30 @@ export default function ProjectCreationPage() {
           </div>
 
           {/* Value Props */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <div className="flex flex-col items-center space-y-2 p-4">
-              <span className="text-3xl">🎯</span>
-              <h3 className="font-semibold text-lg">Hands-On Learning</h3>
-              <p className="text-sm text-muted-foreground text-center">
-                Pick a project, load data, train a model, and see results — all guided, all interactive
-              </p>
-            </div>
-            <div className="flex flex-col items-center space-y-2 p-4">
-              <span className="text-3xl">💡</span>
-              <h3 className="font-semibold text-lg">Understand the Concepts</h3>
-              <p className="text-sm text-muted-foreground text-center">
-                Learn what overfitting means by seeing it happen. Quizzes, matching games, and real feedback
-              </p>
-            </div>
-            <div className="flex flex-col items-center space-y-2 p-4">
-              <span className="text-3xl">🚀</span>
-              <h3 className="font-semibold text-lg">No Code Required</h3>
-              <p className="text-sm text-muted-foreground text-center">
-                Designed for students and beginners. Just describe what you want to build and follow the steps
-              </p>
+          <div className="relative py-8 -mx-4 px-4 overflow-hidden">
+            <DotGridBackground />
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              <div className="flex flex-col items-center space-y-2 p-4">
+                <span className="text-3xl">🎯</span>
+                <h3 className="font-semibold text-lg">Hands-On Learning</h3>
+                <p className="text-sm text-muted-foreground text-center">
+                  Pick a project, load data, train a model, and see results — all guided, all interactive
+                </p>
+              </div>
+              <div className="flex flex-col items-center space-y-2 p-4">
+                <span className="text-3xl">💡</span>
+                <h3 className="font-semibold text-lg">Understand the Concepts</h3>
+                <p className="text-sm text-muted-foreground text-center">
+                  Learn what overfitting means by seeing it happen. Quizzes, matching games, and real feedback
+                </p>
+              </div>
+              <div className="flex flex-col items-center space-y-2 p-4">
+                <span className="text-3xl">🚀</span>
+                <h3 className="font-semibold text-lg">No Code Required</h3>
+                <p className="text-sm text-muted-foreground text-center">
+                  Designed for students and beginners. Just describe what you want to build and follow the steps
+                </p>
+              </div>
             </div>
           </div>
 
