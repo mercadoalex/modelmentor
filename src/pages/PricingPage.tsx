@@ -106,8 +106,8 @@ const faqs = [
     a: 'Yes! Pro comes with a 14-day free trial. No credit card required.',
   },
   {
-    q: 'Do you offer discounts for non-profits or universities?',
-    a: 'Yes, contact us at pricing@modelmentor.ai for educational discounts.',
+    q: 'Do you offer discounts for non-profit organizations or schools?',
+    a: 'Yes, contact us at non-profit@modelmentor.ai for educational discounts.',
   },
 ];
 
