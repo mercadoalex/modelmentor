@@ -130,8 +130,8 @@ export function DotGridBackground({ className = '' }: DotGridBackgroundProps) {
 
       // Parse HSL color for dots
       const dotColor = mutedFg
-        ? `hsl(${mutedFg} / 0.3)`
-        : 'rgba(128, 128, 128, 0.3)';
+        ? `hsl(${mutedFg} / 0.15)`
+        : 'rgba(128, 128, 128, 0.15)';
 
       const dots = dotsRef.current;
       const mouse = mouseRef.current;
@@ -180,7 +180,7 @@ export function DotGridBackground({ className = '' }: DotGridBackgroundProps) {
 
         // Draw dot
         ctx.beginPath();
-        ctx.arc(dot.x, dot.y, 3, 0, Math.PI * 2);
+        ctx.arc(dot.x, dot.y, 2, 0, Math.PI * 2);
         ctx.fillStyle = dotColor;
         ctx.fill();
       }
