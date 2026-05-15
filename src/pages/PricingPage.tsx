@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { CheckCircle2, X, Zap, GraduationCap, Building2, Clock, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -66,10 +67,12 @@ const plans = [
     id:           'enterprise',
     name:         'School',
     icon:         Building2,
-    description:  'Server-side GPU training, class management, and full admin control',
-    monthlyPrice: null,
-    yearlyPrice:  399,
+    description:  'Per-student pricing for classrooms. Minimum 6 students.',
+    monthlyPrice: 5,   // $5/student/month
+    yearlyPrice:  48,   // $4/student/month billed yearly ($48/student/year)
     badge:        'Best Value',
+    perStudent:   true,
+    minStudents:  6,
     features: [
       { label: 'Server-side GPU training (coming soon)', included: true },
       { label: 'Unlimited projects & sessions', included: true },
@@ -84,7 +87,7 @@ const plans = [
       { label: 'Dedicated support',             included: true },
       { label: 'Custom integrations',           included: true },
     ],
-    cta:      'Contact Sales',
+    cta:      'Start School Plan',
     ctaStyle: 'outline' as const,
   },
 ];
@@ -113,6 +116,7 @@ export default function PricingPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [yearly, setYearly] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [studentCount, setStudentCount] = useState(6);
 
   const { isAuthenticated } = useAuth();
   const subscription = useSubscription();
@@ -258,7 +262,34 @@ export default function PricingPage() {
                   <CardDescription>{plan.description}</CardDescription>
 
                   <div className="pt-2">
-                    {price === null ? (
+                    {plan.id === 'enterprise' ? (
+                      <div className="space-y-2">
+                        <div className="flex items-end gap-1">
+                          <span className="text-3xl font-bold">
+                            ${yearly ? (plan.yearlyPrice ?? 0) * studentCount : (plan.monthlyPrice ?? 0) * studentCount}
+                          </span>
+                          <span className="text-muted-foreground text-sm mb-1">
+                            /{yearly ? 'year' : 'month'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          ${yearly ? plan.yearlyPrice ?? 0 : plan.monthlyPrice ?? 0}/student/{yearly ? 'year' : 'month'} × {studentCount} students
+                        </p>
+                        <div className="flex items-center gap-2 pt-1">
+                          <Label htmlFor="student-count" className="text-xs whitespace-nowrap">Students:</Label>
+                          <Input
+                            id="student-count"
+                            type="number"
+                            min={6}
+                            max={500}
+                            value={studentCount}
+                            onChange={(e) => setStudentCount(Math.max(6, parseInt(e.target.value) || 6))}
+                            className="h-8 w-20 text-sm"
+                          />
+                          <span className="text-xs text-muted-foreground">(min 6)</span>
+                        </div>
+                      </div>
+                    ) : price === null ? (
                       <div className="text-3xl font-bold">Custom</div>
                     ) : price === 0 ? (
                       <div className="text-3xl font-bold">Free</div>
