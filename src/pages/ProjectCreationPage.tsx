@@ -718,34 +718,34 @@ export default function ProjectCreationPage() {
 
           <div className="space-y-4 max-w-3xl mx-auto">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-              Train Real ML Models in Your Browser
+              Learn Machine Learning by Actually Doing It
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              The only platform where you actually build, train, and test machine learning models — no code, no servers, no cost to start.
+              Not videos. Not slides. You build, train, and test real ML models — step by step, with guidance at every turn. Understand the why, not just the how.
             </p>
           </div>
 
           {/* Value Props */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="flex flex-col items-center space-y-2 p-4">
-              <span className="text-3xl">🧠</span>
-              <h3 className="font-semibold text-lg">Real Training</h3>
+              <span className="text-3xl">🎯</span>
+              <h3 className="font-semibold text-lg">Hands-On Learning</h3>
               <p className="text-sm text-muted-foreground text-center">
-                Not just videos. Actually train neural networks with TensorFlow.js
+                Pick a project, load data, train a model, and see results — all guided, all interactive
               </p>
             </div>
             <div className="flex flex-col items-center space-y-2 p-4">
-              <span className="text-3xl">⚡</span>
-              <h3 className="font-semibold text-lg">Instant Results</h3>
+              <span className="text-3xl">💡</span>
+              <h3 className="font-semibold text-lg">Understand the Concepts</h3>
               <p className="text-sm text-muted-foreground text-center">
-                See your model learn in real-time. Test predictions on new data.
+                Learn what overfitting means by seeing it happen. Quizzes, matching games, and real feedback
               </p>
             </div>
             <div className="flex flex-col items-center space-y-2 p-4">
-              <span className="text-3xl">🎓</span>
-              <h3 className="font-semibold text-lg">Learn by Doing</h3>
+              <span className="text-3xl">🚀</span>
+              <h3 className="font-semibold text-lg">No Code Required</h3>
               <p className="text-sm text-muted-foreground text-center">
-                Interactive activities, guided tours, and smart feedback at every step
+                Designed for students and beginners. Just describe what you want to build and follow the steps
               </p>
             </div>
           </div>
