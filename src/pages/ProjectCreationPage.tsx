@@ -717,7 +717,7 @@ export default function ProjectCreationPage() {
             />
           </div>
 
-          <div className="relative">
+          <div className="relative py-12 -mx-4 px-4 overflow-hidden">
             <DotGridBackground />
             <div className="relative z-10 space-y-4 max-w-3xl mx-auto">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
