@@ -69,7 +69,7 @@ const plans = [
     icon:         Building2,
     description:  'Per-student pricing for classrooms. Minimum 6 students.',
     monthlyPrice: 6,   // $6/student/month
-    yearlyPrice:  48,   // $4/student/month billed yearly ($48/student/year)
+    yearlyPrice:  50,   // $50/student/year (30% off monthly: $6×12=$72, 30% off = $50.40 ≈ $50)
     badge:        'Best Value',
     perStudent:   true,
     minStudents:  6,
