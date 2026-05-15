@@ -146,8 +146,12 @@ The following migrations exist locally but haven't been fully applied to product
 | Pro ($12/mo) | Level 3: Server-Side Training (GPU/Edge Functions) | Subscription | $5-50/mo |
 
 - [x] **Level 1: Smart Simulation** ✅ — Physics-informed math, responds to hyperparameters, $0 cost
-- [ ] **Level 2: Browser Real Training (TensorFlow.js)** — IN PROGRESS. Real gradients, real predictions, gated behind free signup
+- [x] **Level 2: Browser Real Training (TensorFlow.js)** ✅ — Real gradients, real predictions, gated behind free signup
 - [ ] **Level 3: Server-Side Training** — Future. Larger datasets, GPU compute, model deployment. Pro/Enterprise only.
+
+### Internationalization (i18n)
+- [ ] **Spanish Localization (Phase 1)** — IN PROGRESS (spec: requirements done, design + tasks next)
+- [ ] **Spanish Localization (Phase 2)** — Future. Educational content (learning moments, quizzes, activities)
 
 ### Code Quality & Testing
 - [ ] **Property-Based Tests** - Add fast-check tests for subscription utilities and learning evaluators
