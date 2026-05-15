@@ -178,11 +178,16 @@ export function DotGridBackground({ className = '' }: DotGridBackgroundProps) {
           dot.y += dot.vy;
         }
 
-        // Draw dot
+        // Draw plus sign
+        const size = 4;
         ctx.beginPath();
-        ctx.arc(dot.x, dot.y, 2, 0, Math.PI * 2);
-        ctx.fillStyle = dotColor;
-        ctx.fill();
+        ctx.moveTo(dot.x - size, dot.y);
+        ctx.lineTo(dot.x + size, dot.y);
+        ctx.moveTo(dot.x, dot.y - size);
+        ctx.lineTo(dot.x, dot.y + size);
+        ctx.strokeStyle = dotColor;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
       }
 
       animationRef.current = requestAnimationFrame(animate);
