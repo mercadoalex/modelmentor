@@ -137,9 +137,17 @@ The following migrations exist locally but haven't been fully applied to product
 ## 🔄 SUGGESTED IMPROVEMENTS
 
 ### Training Simulation Roadmap 🧠
-- [ ] **Level 1: Smarter Simulation** (IN PROGRESS) — Make metrics respond to dataset quality, hyperparameters, and model type. $0 cost.
-- [ ] **Level 2: Browser-Based Real Training** — Use TensorFlow.js in the browser to train tiny models on synthetic data. $0 cost.
-- [ ] **Level 3: Server-Side Real Training** — Use Edge Functions with TensorFlow.js or external ML API. $5-50/month. Pro/Enterprise only.
+
+**Tiered Strategy:**
+| Tier | Training Mode | Requirement | Cost |
+|------|--------------|-------------|------|
+| No account | Level 1: Smart Simulation (math) | None | $0 |
+| Free account | Level 2: Real Training (TensorFlow.js in browser) | Sign up | $0 |
+| Pro ($12/mo) | Level 3: Server-Side Training (GPU/Edge Functions) | Subscription | $5-50/mo |
+
+- [x] **Level 1: Smart Simulation** ✅ — Physics-informed math, responds to hyperparameters, $0 cost
+- [ ] **Level 2: Browser Real Training (TensorFlow.js)** — IN PROGRESS. Real gradients, real predictions, gated behind free signup
+- [ ] **Level 3: Server-Side Training** — Future. Larger datasets, GPU compute, model deployment. Pro/Enterprise only.
 
 ### Code Quality & Testing
 - [ ] **Property-Based Tests** - Add fast-check tests for subscription utilities and learning evaluators
