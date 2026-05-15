@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEntranceAnimation } from '@/hooks/useEntranceAnimation';
 import { useOnboarding } from '@/hooks/useOnboarding';
@@ -700,7 +700,7 @@ export default function ProjectCreationPage() {
     <AppLayout>
       <div className="max-w-6xl mx-auto space-y-12">
         {/* Hero Section */}
-        <div className="text-center space-y-6 pt-8">
+        <div className="text-center space-y-8 pt-8">
           <div 
             ref={heroRef}
             className={`flex justify-center ${shouldAnimate ? 'animate-hero-entrance' : ''}`}
@@ -715,8 +715,54 @@ export default function ProjectCreationPage() {
               className="h-16 w-auto max-w-full md:h-20 lg:h-24"
             />
           </div>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">{"Follow a simple, guided journey to understand and build your first machine learning model -- no code required. \"Learn the Why, Not Just the How - ModelMentor Makes ML Click!\""}</p>
-          
+
+          <div className="space-y-4 max-w-3xl mx-auto">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+              Train Real ML Models in Your Browser
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+              The only platform where you actually build, train, and test machine learning models — no code, no servers, no cost to start.
+            </p>
+          </div>
+
+          {/* Value Props */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <div className="flex flex-col items-center space-y-2 p-4">
+              <span className="text-3xl">🧠</span>
+              <h3 className="font-semibold text-lg">Real Training</h3>
+              <p className="text-sm text-muted-foreground text-center">
+                Not just videos. Actually train neural networks with TensorFlow.js
+              </p>
+            </div>
+            <div className="flex flex-col items-center space-y-2 p-4">
+              <span className="text-3xl">⚡</span>
+              <h3 className="font-semibold text-lg">Instant Results</h3>
+              <p className="text-sm text-muted-foreground text-center">
+                See your model learn in real-time. Test predictions on new data.
+              </p>
+            </div>
+            <div className="flex flex-col items-center space-y-2 p-4">
+              <span className="text-3xl">🎓</span>
+              <h3 className="font-semibold text-lg">Learn by Doing</h3>
+              <p className="text-sm text-muted-foreground text-center">
+                Interactive activities, guided tours, and smart feedback at every step
+              </p>
+            </div>
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button
+              size="lg"
+              onClick={() => formCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+            >
+              Start Free — No Signup
+            </Button>
+            <Button variant="outline" size="lg" asChild>
+              <Link to="/pricing">See Pricing</Link>
+            </Button>
+          </div>
+
           {!user && triesRemaining !== null && (
             <Alert className="max-w-2xl mx-auto">
               <AlertCircle className="h-4 w-4" />
