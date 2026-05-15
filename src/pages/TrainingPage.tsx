@@ -54,8 +54,8 @@ import { confusionMatrixService } from '@/services/confusionMatrixService';
 import { errorAnalysisService } from '@/services/errorAnalysisService';
 import { modelVersionService } from '@/services/modelVersionService';
 import { EnhancedTrainingPipeline } from '@/utils/enhancedTrainingPipeline';
-import { createSimulationRunner } from '@/utils/simulation';
-import type { SimulationConfig, OptimizerType as SimOptimizerType, ModelComplexity } from '@/utils/simulation';
+import { createTrainingRunner } from '@/utils/tfTraining';
+import type { TrainingStatus } from '@/utils/tfTraining';
 import { projectService, datasetService, trainingService } from '@/services/supabase';
 import { activityTrackingService } from '@/services/activityTrackingService';
 import { supabase } from '@/db/supabase';
@@ -109,6 +109,9 @@ export default function TrainingPage() {
   const [currentEpoch,      setCurrentEpoch]      = useState(0);
   const [trainedModel,      setTrainedModel]      = useState<tf.LayersModel | null>(null);
   const [isCompleted,       setIsCompleted]       = useState(false);
+
+  // ── Training status (real vs simulation) ───────────────────────────────────
+  const [trainingStatus, setTrainingStatus] = useState<TrainingStatus | null>(null);
 
   // ── Pipeline state ─────────────────────────────────────────────────────────
   const [currentStage,   setCurrentStage]   = useState<TrainingStage>('idle');
@@ -258,6 +261,23 @@ export default function TrainingPage() {
     };
   }, [projectId, isTraining, trainingStartTime]);
 
+  // ── Beforeunload: cancel training and dispose tensors on page leave ────────
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isTraining) {
+        trainingCancelledRef.current = true;
+        const ref = pipelineRef.current as unknown as { cancel?: () => void };
+        if (ref?.cancel) {
+          ref.cancel();
+        }
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isTraining]);
+
   // ── Data loading ───────────────────────────────────────────────────────────
   const loadProject = async () => {
     if (!projectId) return;
@@ -386,7 +406,7 @@ export default function TrainingPage() {
       }
     }
 
-    // ── Offline/fallback mode: use smart training simulation ─────────────────
+    // ── Offline/fallback mode: use training orchestrator ─────────────────────
 
     setIsTraining(true);
     setIsPaused(false);
@@ -423,24 +443,21 @@ export default function TrainingPage() {
     }
 
     try {
-      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '🧠 Initializing simulation engine...' }]);
+      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '🧠 Initializing training engine...' }]);
 
-      // Map TrainingConfig to SimulationConfig
-      const simConfig: SimulationConfig = {
-        learningRate: trainingConfig.learningRate,
-        batchSize: trainingConfig.batchSize,
-        epochs: trainingConfig.epochs,
-        optimizer: trainingConfig.optimizer as SimOptimizerType,
-        architecture: 'medium' as ModelComplexity,
-        datasetSize: dataset.sample_count || 100,
-        classImbalanceRatio: 1.0,
-        dataQualityScore: 0.85,
-      };
-
-      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '🚀 Starting smart training simulation...' }]);
-
-      const runner = createSimulationRunner(
-        simConfig,
+      const runner = createTrainingRunner(
+        {
+          modelType: (project.model_type as 'classification' | 'regression' | 'text_classification' | 'image_classification') || 'classification',
+          data: [],
+          config: {
+            epochs: trainingConfig.epochs,
+            batchSize: trainingConfig.batchSize,
+            learningRate: trainingConfig.learningRate,
+            optimizer: trainingConfig.optimizer as 'adam' | 'sgd' | 'rmsprop',
+            validationSplit: trainingConfig.validationSplit,
+          },
+          projectId,
+        },
         {
           onEpochEnd: (epoch, epochLogs) => {
             if (trainingCancelledRef.current) return;
@@ -504,8 +521,42 @@ export default function TrainingPage() {
             toast.success('Training completed!');
             stopTraining(true);
           },
+          onError: (error) => {
+            console.error('Training error:', error);
+            setCurrentStage('idle');
+            setIsTraining(false);
+            setLogs(prev => [...prev, {
+              timestamp: new Date(),
+              level:     'error',
+              message:   'Training failed',
+              details:   error.message,
+            }]);
+            toast.error('Training failed. Please try again.');
+          },
+          onStatusChange: (status) => {
+            setTrainingStatus(status);
+            if (status.type === 'loading_tf') {
+              setLogs(prev => [...prev, {
+                timestamp: new Date(),
+                level:     'info',
+                message:   `⏳ Loading TensorFlow.js (~${status.estimatedSizeMB}MB)...`,
+              }]);
+            } else if (status.type === 'fallback_to_simulation') {
+              setLogs(prev => [...prev, {
+                timestamp: new Date(),
+                level:     'warning',
+                message:   `📊 Falling back to simulation: ${status.reason}`,
+              }]);
+            } else if (status.type === 'training') {
+              setLogs(prev => [...prev, {
+                timestamp: new Date(),
+                level:     'info',
+                message:   status.isReal ? '🧪 Real TensorFlow.js training started' : '📊 Simulation training started',
+              }]);
+            }
+          },
         },
-        { replayDelayMs: 100 }
+        isAuthenticated
       );
 
       // Store cancel function for stop button
@@ -686,12 +737,47 @@ export default function TrainingPage() {
             <h1 className="text-3xl font-semibold">Step 4: Train Model</h1>
             <p className="text-muted-foreground">{project.title}</p>
           </div>
-          {isCompleted && (
-            <Badge variant="default" className="text-sm px-3 py-1 bg-green-500 text-white">
-              ✓ Training Complete
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {isTraining && trainingStatus?.type === 'training' && (
+              <Badge variant="outline" className="text-sm px-3 py-1">
+                {trainingStatus.isReal ? '🧪 Real Training' : '📊 Simulation'}
+              </Badge>
+            )}
+            {isCompleted && (
+              <Badge variant="default" className="text-sm px-3 py-1 bg-green-500 text-white">
+                ✓ Training Complete
+              </Badge>
+            )}
+          </div>
         </div>
+
+        {/* Training status indicators */}
+        {trainingStatus?.type === 'loading_tf' && (
+          <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center gap-3">
+                <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                <div>
+                  <p className="text-sm font-medium text-blue-800 dark:text-blue-200">Loading TensorFlow.js</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400">Estimated size: ~{trainingStatus.estimatedSizeMB}MB</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        {trainingStatus?.type === 'fallback_to_simulation' && (
+          <Card className="border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center gap-3">
+                <span className="text-lg">📊</span>
+                <div>
+                  <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Using Simulation Mode</p>
+                  <p className="text-xs text-yellow-600 dark:text-yellow-400">{trainingStatus.reason}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Main two-column layout */}
         <div className="grid lg:grid-cols-3 gap-6">
