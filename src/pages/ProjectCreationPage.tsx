@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEntranceAnimation } from '@/hooks/useEntranceAnimation';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { AppLayout } from '@/components/layouts/AppLayout';
+import { DotGridBackground } from '@/components/DotGridBackground';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -716,13 +717,16 @@ export default function ProjectCreationPage() {
             />
           </div>
 
-          <div className="space-y-4 max-w-3xl mx-auto">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-              Learn Machine Learning by Actually Doing It
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              Not videos. Not slides. You build, train, and test real ML models — step by step, with guidance at every turn. Understand the why, not just the how.
-            </p>
+          <div className="relative">
+            <DotGridBackground />
+            <div className="relative z-10 space-y-4 max-w-3xl mx-auto">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+                Learn Machine Learning by Actually Doing It
+              </h1>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+                Not videos. Not slides. You build, train, and test real ML models — step by step, with guidance at every turn. Understand the why, not just the how.
+              </p>
+            </div>
           </div>
 
           {/* Value Props */}
