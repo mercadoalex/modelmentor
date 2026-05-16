@@ -24,6 +24,7 @@ import {
   Users,
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { LanguageToggle } from '@/components/LanguageToggle';
 import { NotificationBell } from '@/components/NotificationBell';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -160,6 +161,9 @@ export function Header() {
                 </span>
               </Button>
             )}
+
+            {/* Language toggle (EN / ES) */}
+            <LanguageToggle />
 
             {/* Theme toggle (light / dark) */}
             <ThemeToggle />

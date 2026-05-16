@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEntranceAnimation } from '@/hooks/useEntranceAnimation';
+import { useLocaleFormat } from '@/hooks/useLocaleFormat';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { AppLayout } from '@/components/layouts/AppLayout';
 import { DotGridBackground } from '@/components/DotGridBackground';
@@ -102,6 +104,7 @@ interface ExampleProject {
 }
 
 interface ExampleCategory {
+  key: string;
   title: string;
   description: string;
   examples: ExampleProject[];
@@ -109,6 +112,7 @@ interface ExampleCategory {
 
 const exampleCategories: ExampleCategory[] = [
   {
+    key: 'imageClassification',
     title: 'Image Classification',
     description: 'Train models to recognize and categorize images',
     examples: [
@@ -164,6 +168,7 @@ const exampleCategories: ExampleCategory[] = [
     ]
   },
   {
+    key: 'textClassification',
     title: 'Text Classification',
     description: 'Analyze and categorize text data',
     examples: [
@@ -219,6 +224,7 @@ const exampleCategories: ExampleCategory[] = [
     ]
   },
   {
+    key: 'regression',
     title: 'Regression',
     description: 'Predict numerical values based on input features',
     examples: [
@@ -267,6 +273,7 @@ const exampleCategories: ExampleCategory[] = [
     ]
   },
   {
+    key: 'huggingFace',
     title: 'Popular Hugging Face Examples',
     description: 'Inspired by well-known datasets and models from the ML community',
     examples: [
@@ -315,6 +322,7 @@ const exampleCategories: ExampleCategory[] = [
     ]
   },
   {
+    key: 'tensorflowModelScope',
     title: 'ModelScope & TensorFlow Hub Examples',
     description: 'Real-world projects from leading ML platforms',
     examples: [
@@ -363,6 +371,7 @@ const exampleCategories: ExampleCategory[] = [
     ]
   },
   {
+    key: 'kaggle',
     title: 'Kaggle Competition Classics',
     description: 'Popular projects from Kaggle competitions and datasets',
     examples: [
@@ -425,6 +434,7 @@ const exampleCategories: ExampleCategory[] = [
     ]
   },
   {
+    key: 'github',
     title: 'GitHub Open Source Projects',
     description: 'Community-driven ML projects from GitHub repositories',
     examples: [
@@ -501,6 +511,8 @@ export default function ProjectCreationPage() {
     source: string;
   } | null>(null);
   
+  const { t } = useTranslation();
+  const { formatNumber } = useLocaleFormat();
   const { user } = useAuth();
   const navigate = useNavigate();
   const formCardRef = useRef<HTMLDivElement>(null);
@@ -551,7 +563,7 @@ export default function ProjectCreationPage() {
     }, 100);
     
     // Show a more prominent toast with action hint
-    toast.success('Example loaded! Click "Analyze Project" to continue', {
+    toast.success(t('pages.projectCreation.exampleLoaded'), {
       duration: 4000,
       icon: <ArrowUp className="h-4 w-4" />,
     });
@@ -642,7 +654,7 @@ export default function ProjectCreationPage() {
 
   const handleAnalyze = () => {
     if (!description.trim()) {
-      toast.error('Please describe your project');
+      toast.error(t('pages.projectCreation.pleaseDescribe'));
       return;
     }
     
@@ -654,7 +666,7 @@ export default function ProjectCreationPage() {
     if (!parsedInfo) return;
     
     if (!user && triesRemaining !== null && triesRemaining <= 0) {
-      toast.error('You have reached the limit of 10 tries. Please register to continue.');
+      toast.error(t('pages.projectCreation.limitReached'));
       navigate('/login');
       return;
     }
@@ -690,7 +702,7 @@ export default function ProjectCreationPage() {
       
       navigate(`/project/${project.id}/data-collection`);
     } catch (error) {
-      toast.error('Failed to create project');
+      toast.error(t('pages.projectCreation.failedToCreate'));
       console.error(error);
     } finally {
       setLoading(false);
@@ -721,10 +733,10 @@ export default function ProjectCreationPage() {
             <DotGridBackground />
             <div className="relative z-10 space-y-4 max-w-3xl mx-auto">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-                Learn Machine Learning by Actually Doing It
+                {t('pages.projectCreation.heroTitle')}
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-                Not videos. Not slides. You build, train, and test real ML models — step by step, with guidance at every turn. Understand the why, not just the how.
+                {t('pages.projectCreation.heroSubtitle')}
               </p>
             </div>
           </div>
@@ -735,23 +747,23 @@ export default function ProjectCreationPage() {
             <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               <div className="flex flex-col items-center space-y-2 p-4">
                 <span className="text-3xl">🎯</span>
-                <h3 className="font-semibold text-lg">Hands-On Learning</h3>
+                <h3 className="font-semibold text-lg">{t('pages.projectCreation.valueProps.handsOn.title')}</h3>
                 <p className="text-sm text-muted-foreground text-center">
-                  Pick a project, load data, train a model, and see results — all guided, all interactive
+                  {t('pages.projectCreation.valueProps.handsOn.description')}
                 </p>
               </div>
               <div className="flex flex-col items-center space-y-2 p-4">
                 <span className="text-3xl">💡</span>
-                <h3 className="font-semibold text-lg">Understand the Concepts</h3>
+                <h3 className="font-semibold text-lg">{t('pages.projectCreation.valueProps.concepts.title')}</h3>
                 <p className="text-sm text-muted-foreground text-center">
-                  Learn what overfitting means by seeing it happen. Quizzes, matching games, and real feedback
+                  {t('pages.projectCreation.valueProps.concepts.description')}
                 </p>
               </div>
               <div className="flex flex-col items-center space-y-2 p-4">
                 <span className="text-3xl">🚀</span>
-                <h3 className="font-semibold text-lg">No Code Required</h3>
+                <h3 className="font-semibold text-lg">{t('pages.projectCreation.valueProps.noCode.title')}</h3>
                 <p className="text-sm text-muted-foreground text-center">
-                  Designed for students and beginners. Just describe what you want to build and follow the steps
+                  {t('pages.projectCreation.valueProps.noCode.description')}
                 </p>
               </div>
             </div>
@@ -763,10 +775,10 @@ export default function ProjectCreationPage() {
               size="lg"
               onClick={() => formCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
             >
-              Start Free — No Signup
+              {t('pages.projectCreation.ctaStartFree')}
             </Button>
             <Button variant="outline" size="lg" asChild>
-              <Link to="/pricing">See Pricing</Link>
+              <Link to="/pricing">{t('pages.projectCreation.ctaSeePricing')}</Link>
             </Button>
           </div>
 
@@ -774,8 +786,8 @@ export default function ProjectCreationPage() {
             <Alert className="max-w-2xl mx-auto">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                You have {triesRemaining} {triesRemaining === 1 ? 'try' : 'tries'} remaining. 
-                {triesRemaining <= 3 && ' Register to get unlimited access!'}
+                {t('pages.projectCreation.triesRemaining', { count: triesRemaining, triesWord: triesRemaining === 1 ? t('pages.projectCreation.tryWord') : t('pages.projectCreation.triesWord') })}
+                {triesRemaining <= 3 && ` ${t('pages.projectCreation.triesRemainingLow')}`}
               </AlertDescription>
             </Alert>
           )}
@@ -792,9 +804,9 @@ export default function ProjectCreationPage() {
         <div className="max-w-4xl mx-auto space-y-8">
           <Card ref={formCardRef}>
             <CardHeader>
-              <CardTitle>Step 1: Describe Your Project</CardTitle>
+              <CardTitle>{t('pages.projectCreation.stepTitle')}</CardTitle>
               <CardDescription>
-                Tell us what you want to build, or <button 
+                {t('pages.projectCreation.stepDescription')} <button 
                   type="button"
                   onClick={() => {
                     const examplesSection = document.getElementById('example-projects');
@@ -802,13 +814,13 @@ export default function ProjectCreationPage() {
                   }}
                   className="text-primary hover:underline font-medium inline-flex items-center gap-1"
                 >
-                  browse example projects below <ChevronDown className="h-3 w-3" />
+                  {t('pages.projectCreation.browseExamples')} <ChevronDown className="h-3 w-3" />
                 </button>
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <Textarea
-                placeholder="I want to train an AI to..."
+                placeholder={t('pages.projectCreation.textareaPlaceholder')}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={6}
@@ -818,7 +830,7 @@ export default function ProjectCreationPage() {
               
               <Button onClick={handleAnalyze} className="w-full" size="lg">
                 <Sparkles className="h-5 w-5 mr-2" />
-                Analyze Project
+                {t('pages.projectCreation.analyzeButton')}
               </Button>
             </CardContent>
           </Card>
@@ -826,27 +838,27 @@ export default function ProjectCreationPage() {
           {parsedInfo && (
             <Card className="border-primary">
               <CardHeader>
-                <CardTitle>Project Analysis</CardTitle>
-                <CardDescription>We've analyzed your project description</CardDescription>
+                <CardTitle>{t('pages.projectCreation.projectAnalysis.title')}</CardTitle>
+                <CardDescription>{t('pages.projectCreation.projectAnalysis.subtitle')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
                   <div data-tour="model-type">
-                    <p className="text-sm text-muted-foreground mb-2">Detected Model Type</p>
+                    <p className="text-sm text-muted-foreground mb-2">{t('pages.projectCreation.projectAnalysis.detectedModelType')}</p>
                     <Badge variant="secondary" className="text-base px-4 py-2">
                       {parsedInfo.modelType.replace('_', ' ').toUpperCase()}
                     </Badge>
                   </div>
                   
                   <div data-tour="project-description">
-                    <p className="text-sm text-muted-foreground mb-2">Your Journey</p>
+                    <p className="text-sm text-muted-foreground mb-2">{t('pages.projectCreation.projectAnalysis.yourJourney')}</p>
                     <p className="text-sm">
                       {parsedInfo.modelType === 'image_classification' && 
-                        'You will collect images, train a classification model, and test its accuracy on new images.'}
+                        t('pages.projectCreation.projectAnalysis.journeyImage')}
                       {parsedInfo.modelType === 'text_classification' && 
-                        'You will collect text samples, train a classification model, and evaluate its performance on new text.'}
+                        t('pages.projectCreation.projectAnalysis.journeyText')}
                       {parsedInfo.modelType === 'regression' && 
-                        'You will collect numerical data, train a regression model, and test its predictions on new data points.'}
+                        t('pages.projectCreation.projectAnalysis.journeyRegression')}
                     </p>
                   </div>
                 </div>
@@ -859,7 +871,7 @@ export default function ProjectCreationPage() {
                     size="lg"
                     data-tour="create-button"
                   >
-                    Start with My Data
+                    {t('pages.projectCreation.startWithMyData')}
                   </Button>
                   <Button 
                     onClick={() => handleStartProject(true)} 
@@ -870,7 +882,7 @@ export default function ProjectCreationPage() {
                     data-tour="create-project-button"
                   >
                     <BookOpen className="h-5 w-5 mr-2" />
-                    Start Guided Tour
+                    {t('pages.projectCreation.startGuidedTour')}
                   </Button>
                 </div>
               </CardContent>
@@ -880,9 +892,9 @@ export default function ProjectCreationPage() {
           {/* Example Projects - Grouped by Category */}
           <div id="example-projects" className="space-y-12 scroll-mt-8">
             <div className="text-center space-y-2">
-              <h2 className="text-2xl font-semibold">Example Projects</h2>
+              <h2 className="text-2xl font-semibold">{t('pages.projectCreation.exampleProjects.title')}</h2>
               <p className="text-muted-foreground">
-                Click any project to use it as your starting point
+                {t('pages.projectCreation.exampleProjects.subtitle')}
               </p>
             </div>
 
@@ -890,8 +902,8 @@ export default function ProjectCreationPage() {
               <div key={categoryIndex} className="space-y-6">
                 {/* Category Header */}
                 <div className="space-y-1">
-                  <h3 className="text-xl font-medium">{category.title}</h3>
-                  <p className="text-sm text-muted-foreground">{category.description}</p>
+                  <h3 className="text-xl font-medium">{t(`datasets.templates.categories.${category.key}.title`)}</h3>
+                  <p className="text-sm text-muted-foreground">{t(`datasets.templates.categories.${category.key}.description`)}</p>
                 </div>
 
                 {/* Category Examples */}
@@ -936,7 +948,7 @@ export default function ProjectCreationPage() {
                               variant="secondary" 
                               className={`text-xs capitalize flex-shrink-0 ${getDifficultyColor(example.difficulty)}`}
                             >
-                              {example.difficulty}
+                              {t(`pages.projectCreation.difficulty.${example.difficulty}`)}
                             </Badge>
                           </div>
                           {example.source && (
@@ -953,7 +965,7 @@ export default function ProjectCreationPage() {
                                     className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                                     onClick={(e) => e.stopPropagation()}
                                   >
-                                    View Dataset
+                                    {t('common.actions.viewDataset')}
                                     <ExternalLink className="h-3 w-3" />
                                   </a>
                                   <Button
@@ -971,7 +983,7 @@ export default function ProjectCreationPage() {
                                     }}
                                   >
                                     <Database className="h-3 w-3 mr-1" />
-                                    Connection Guide
+                                    {t('common.actions.connectionGuide')}
                                   </Button>
                                 </>
                               )}
@@ -981,7 +993,7 @@ export default function ProjectCreationPage() {
                         <div className="flex-shrink-0 self-center">
                           <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded-full">
                             <ArrowUp className="h-3 w-3" />
-                            Use
+                            {t('common.actions.use')}
                           </span>
                         </div>
                       </div>

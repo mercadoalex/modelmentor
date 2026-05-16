@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { datasetStorageService } from '@/services/datasetStorageService';
@@ -66,6 +67,7 @@ export default function DataCollectionPage() {
   const { user, isAuthenticated } = useAuth();
   const { tier, limits } = useSubscription();
   const navigate      = useNavigate();
+  const { t } = useTranslation();
 
   // ── Storage quota state ────────────────────────────────────────────────────
   const [storageUsedMb, setStorageUsedMb] = useState<number>(0);
@@ -209,7 +211,7 @@ export default function DataCollectionPage() {
         setValidation(validationResult);
         setShowPreview(true);
         
-        toast.success(`✅ Loaded "${datasetName}" dataset — ${imageDataset.images.length} images ready!`);
+        toast.success(t('pages.dataCollection.toasts.syntheticLoaded', { name: datasetName, count: imageDataset.images.length }));
 
         // Scroll to preview section after a brief delay
         setTimeout(() => {
@@ -237,7 +239,7 @@ export default function DataCollectionPage() {
         const file = new File([blob], `synthetic-${modelType}-sample.csv`, { type: 'text/csv' });
         setUploadedFiles([file]);
         
-        toast.success(`✅ Loaded synthetic dataset — ${tabularDataset.rows.length} rows ready!`);
+        toast.success(t('pages.dataCollection.toasts.syntheticTabularLoaded', { count: tabularDataset.rows.length }));
 
         // Scroll to preview section after a brief delay
         setTimeout(() => {
@@ -246,7 +248,7 @@ export default function DataCollectionPage() {
       }
     } catch (error) {
       console.error('Failed to auto-select synthetic template:', error);
-      toast.error('Failed to load synthetic dataset. Please select a template manually.');
+      toast.error(t('pages.dataCollection.toasts.syntheticFailed'));
     }
   }, [project?.description]);
 
@@ -285,7 +287,7 @@ export default function DataCollectionPage() {
         console.error('Failed to load sample datasets:', error);
         // In guided tour mode, show error with retry option and auto-select synthetic
         if (projectData.is_guided_tour) {
-          setSampleLoadError('Failed to load sample datasets. Using built-in synthetic data instead.');
+          setSampleLoadError(t('pages.dataCollection.guidedTour.failedToLoad'));
           setSampleLoadEmpty(true);
           // Auto-select synthetic template as fallback
           autoSelectSyntheticTemplate(projectData.model_type, projectData.description);
@@ -300,7 +302,7 @@ export default function DataCollectionPage() {
     if (!project || !projectId) return;
 
     if (!selectedSample && uploadedFiles.length === 0) {
-      toast.error('Please upload files or select a sample dataset');
+      toast.error(t('pages.dataCollection.toasts.noDataSelected'));
       return;
     }
 
@@ -362,9 +364,9 @@ export default function DataCollectionPage() {
       // In guided tour mode, show more specific error with guidance
       if (project.is_guided_tour) {
         setAutoAdvanceFailed(true); // Prevent auto-advance from re-triggering
-        toast.error('Failed to save dataset. Please try again or select a different template.', {
+        toast.error(t('pages.dataCollection.toasts.uploadFailedRetry'), {
           action: {
-            label: 'Retry',
+            label: t('common.actions.retry'),
             onClick: () => {
               setAutoAdvanceFailed(false);
               handleContinue();
@@ -372,7 +374,7 @@ export default function DataCollectionPage() {
           },
         });
       } else {
-        toast.error('Failed to save dataset');
+        toast.error(t('pages.dataCollection.toasts.uploadFailed'));
       }
       console.error(error);
     } finally {
@@ -425,10 +427,10 @@ export default function DataCollectionPage() {
         if (file.size > 1024 * 1024) {
           try {
             const compressed = await imageCompression.compressImage(file);
-            toast.success(`${file.name} compressed to ${(compressed.size / 1024).toFixed(0)}KB`);
+            toast.success(t('pages.dataCollection.toasts.imageCompressed', { filename: file.name, size: (compressed.size / 1024).toFixed(0) }));
             validFiles.push(compressed);
           } catch {
-            toast.error(`Failed to compress ${file.name}`);
+            toast.error(t('pages.dataCollection.toasts.imageCompressFailed', { filename: file.name }));
           }
         } else {
           validFiles.push(file);
@@ -446,10 +448,10 @@ export default function DataCollectionPage() {
             setShowPreview(true);
 
             validationResult.qualityScore >= 60
-              ? toast.success(`${file.name} uploaded! Quality score: ${validationResult.qualityScore}`)
-              : toast.warning(`${file.name} has quality issues. Score: ${validationResult.qualityScore}`);
+              ? toast.success(t('pages.dataCollection.toasts.qualityGood', { filename: file.name, score: validationResult.qualityScore }))
+              : toast.warning(t('pages.dataCollection.toasts.qualityWarning', { filename: file.name, score: validationResult.qualityScore }));
           } catch {
-            toast.error(`Failed to parse ${file.name}`);
+            toast.error(t('pages.dataCollection.toasts.parseFailed', { filename: file.name }));
             continue;
           }
         }
@@ -495,9 +497,9 @@ export default function DataCollectionPage() {
       const file = new File([blob], filename, { type: 'text/csv' });
       setUploadedFiles([file]);
 
-      toast.success(`"${template.name}" loaded — scroll down to preview your data!`);
+      toast.success(t('pages.dataCollection.toasts.templateLoaded', { name: template.name }));
     } catch {
-      toast.error('Failed to load template data');
+      toast.error(t('pages.dataCollection.toasts.templateFailed'));
     }
   };
 
@@ -523,10 +525,10 @@ export default function DataCollectionPage() {
       });
       
       setUploadedFiles(imageFiles);
-      toast.success(`"${template.name}" loaded — ${images.length} images ready!`);
+      toast.success(t('pages.dataCollection.toasts.imageTemplateLoaded', { name: template.name, count: images.length }));
     } catch (error) {
       console.error('Failed to load image dataset:', error);
-      toast.error('Failed to load image dataset');
+      toast.error(t('pages.dataCollection.toasts.imageTemplateFailed'));
     }
   };
 
@@ -545,7 +547,7 @@ export default function DataCollectionPage() {
 
     if (validation && newValidation.qualityScore > validation.qualityScore) {
       toast.success(
-        `Data quality improved from ${validation.qualityScore} to ${newValidation.qualityScore}!`,
+        t('pages.dataCollection.toasts.qualityImproved', { oldScore: validation.qualityScore, newScore: newValidation.qualityScore }),
       );
     }
   };
@@ -554,7 +556,7 @@ export default function DataCollectionPage() {
   const handleFeaturesSelected = (features: string[], target: string) => {
     setSelectedFeatures(features);
     setTargetColumn(target);
-    toast.success(`Selected ${features.length} features with target: ${target}`);
+    toast.success(t('pages.dataCollection.toasts.featuresSelected', { count: features.length, target }));
   };
 
   // ── Feature engineering callback ───────────────────────────────────────────
@@ -566,7 +568,7 @@ export default function DataCollectionPage() {
     setCsvData(transformedData);
     const newValidation = dataValidationService.validateData(transformedData);
     setValidation(newValidation);
-    toast.success(`Created ${newColumns.length} new features. Dataset updated!`);
+    toast.success(t('pages.dataCollection.toasts.featuresEngineered', { count: newColumns.length }));
   };
 
   // ── Loading / project-not-found guard ─────────────────────────────────────
@@ -603,7 +605,7 @@ export default function DataCollectionPage() {
 
           {/* ── Page heading ── */}
           <div className="space-y-2">
-            <h1 className="text-3xl font-semibold">Step 2: Input Data</h1>
+            <h1 className="text-3xl font-semibold">{t('pages.dataCollection.stepTitle')}</h1>
             <p className="text-muted-foreground">{project.title}</p>
           </div>
 
@@ -616,7 +618,7 @@ export default function DataCollectionPage() {
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription className="flex items-center justify-between">
                     <span>
-                      🎓 <strong>Guided Tour Mode:</strong> {sampleLoadError}
+                      🎓 <strong>{t('pages.dataCollection.guidedTour.guidedTourMode')}</strong> {sampleLoadError}
                     </span>
                     <Button 
                       variant="outline" 
@@ -625,7 +627,7 @@ export default function DataCollectionPage() {
                       className="ml-4"
                     >
                       <RefreshCw className="h-4 w-4 mr-2" />
-                      Retry
+                      {t('common.actions.retry')}
                     </Button>
                   </AlertDescription>
                 </Alert>
@@ -636,12 +638,12 @@ export default function DataCollectionPage() {
                 <Alert className="border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30">
                   <Info className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                   <AlertDescription className="text-emerald-700 dark:text-emerald-300">
-                    🎓 <strong>Guided Tour Mode:</strong> Using built-in synthetic data for your learning experience.
+                    🎓 <strong>{t('pages.dataCollection.guidedTour.guidedTourMode')}</strong> {t('pages.dataCollection.guidedTour.syntheticLoaded')}
                     {project.model_type === 'image_classification' 
-                      ? ` Loaded ${uploadedFiles.length} shape images.`
-                      : ` Loaded ${csvData ? csvData.length - 1 : 0} sample rows.`
+                      ? ` ${t('pages.dataCollection.guidedTour.imageCount', { count: uploadedFiles.length })}`
+                      : ` ${t('pages.dataCollection.guidedTour.rowCount', { count: csvData ? csvData.length - 1 : 0 })}`
                     }
-                    {' '}Explore the data below, then click <strong>"Continue to Learning"</strong> when you're ready.
+                    {' '}{t('pages.dataCollection.guidedTour.exploreData')} <strong>"{t('pages.dataCollection.guidedTour.continueToLearning')}"</strong> {t('pages.dataCollection.guidedTour.whenReady')}
                   </AlertDescription>
                 </Alert>
               )}
@@ -651,8 +653,7 @@ export default function DataCollectionPage() {
                 <Alert>
                   <Info className="h-4 w-4" />
                   <AlertDescription>
-                    🎓 <strong>Guided Tour Mode:</strong> No pre-made dataset is available for this project type.
-                    Don't worry — select a template dataset below to continue your learning journey!
+                    🎓 <strong>{t('pages.dataCollection.guidedTour.guidedTourMode')}</strong> {t('pages.dataCollection.guidedTour.noDataset')}
                   </AlertDescription>
                 </Alert>
               )}
@@ -662,8 +663,8 @@ export default function DataCollectionPage() {
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    🎓 <strong>Guided Tour Mode:</strong> A sample dataset has been pre-selected for you.
-                    Explore the data below, then click <strong>"Continue to Learning"</strong> when you're ready.
+                    🎓 <strong>{t('pages.dataCollection.guidedTour.guidedTourMode')}</strong> {t('pages.dataCollection.guidedTour.preSelected')}
+                    {' '}<strong>"{t('pages.dataCollection.guidedTour.continueToLearning')}"</strong> {t('pages.dataCollection.guidedTour.whenReady')}
                   </AlertDescription>
                 </Alert>
               )}
@@ -678,13 +679,13 @@ export default function DataCollectionPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Upload className="h-5 w-5" />
-                  Upload Your Data
+                  {t('pages.dataCollection.upload.title')}
                 </CardTitle>
                 <CardDescription>
-                  {project.model_type === 'image_classification' && `Upload at least ${minSamples} images (JPG, PNG, GIF, WEBP)`}
-                  {project.model_type === 'text_classification' && `Upload at least ${minSamples} text samples (TXT, CSV)`}
-                  {project.model_type === 'regression'           && `Upload at least ${minSamples} data points (CSV)`}
-                  {project.model_type === 'classification'       && `Upload at least ${minSamples} data points (CSV)`}
+                  {project.model_type === 'image_classification' && t('pages.dataCollection.upload.imageDescription', { min: minSamples })}
+                  {project.model_type === 'text_classification' && t('pages.dataCollection.upload.textDescription', { min: minSamples })}
+                  {project.model_type === 'regression'           && t('pages.dataCollection.upload.regressionDescription', { min: minSamples })}
+                  {project.model_type === 'classification'       && t('pages.dataCollection.upload.classificationDescription', { min: minSamples })}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -695,10 +696,10 @@ export default function DataCollectionPage() {
                     <HardDrive className="h-4 w-4 flex-shrink-0" />
                     <div className="flex-1">
                       <span>
-                        Storage: {storageUsedMb.toFixed(1)} MB used
+                        {t('pages.dataCollection.upload.storageInfo', { used: storageUsedMb.toFixed(1) })}
                         {limits.max_storage_mb !== null
-                          ? ` / ${limits.max_storage_mb} MB (${storageRemainingMb !== null ? storageRemainingMb.toFixed(1) : '—'} MB remaining)`
-                          : ' (unlimited)'}
+                          ? t('pages.dataCollection.upload.storageWithLimit', { limit: limits.max_storage_mb, remaining: storageRemainingMb !== null ? storageRemainingMb.toFixed(1) : '—' })
+                          : ` ${t('pages.dataCollection.upload.storageUnlimited')}`}
                       </span>
                       {limits.max_storage_mb !== null && (
                         <Progress
@@ -729,14 +730,14 @@ export default function DataCollectionPage() {
                   <input {...getInputProps()} />
                   <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-sm text-muted-foreground">
-                    {isDragActive ? 'Drop files here' : 'Drag & drop files or click to browse'}
+                    {isDragActive ? t('pages.dataCollection.upload.dropActive') : t('pages.dataCollection.upload.dropInactive')}
                   </p>
                 </div>
 
                 {/* Uploaded file list */}
                 {uploadedFiles.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">Uploaded Files ({uploadedFiles.length})</p>
+                    <p className="text-sm font-medium">{t('pages.dataCollection.upload.uploadedFiles', { count: uploadedFiles.length })}</p>
                     <div className="max-h-40 overflow-y-auto space-y-1">
                       {uploadedFiles.map((file, index) => (
                         <div key={index} className="flex items-center justify-between text-sm bg-muted p-2 rounded">
@@ -753,7 +754,7 @@ export default function DataCollectionPage() {
                 {/* Upload progress bar */}
                 {uploadProgress > 0 && uploadProgress < 100 && (
                   <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Uploading…</p>
+                    <p className="text-sm text-muted-foreground">{t('common.messages.uploading')}</p>
                     <Progress value={uploadProgress} />
                   </div>
                 )}
@@ -782,24 +783,24 @@ export default function DataCollectionPage() {
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-semibold flex items-center gap-2">
                   <Eye className="h-6 w-6" />
-                  Data Preview & Validation
+                  {t('pages.dataCollection.preview.title')}
                 </h2>
                 <Button variant="outline" onClick={() => setShowPreview(false)}>
-                  Hide Preview
+                  {t('common.actions.hidePreview')}
                 </Button>
               </div>
 
               <Tabs defaultValue="preview" className="w-full">
                 <TabsList className="grid w-full max-w-5xl grid-cols-9">
-                  <TabsTrigger value="preview">Preview</TabsTrigger>
-                  <TabsTrigger value="validation">Validation</TabsTrigger>
-                  <TabsTrigger value="statistics">Statistics</TabsTrigger>
-                  <TabsTrigger value="profiling">Profiling</TabsTrigger>
-                  <TabsTrigger value="features">Features</TabsTrigger>
-                  <TabsTrigger value="engineering">Engineering</TabsTrigger>
-                  <TabsTrigger value="workshop">Workshop</TabsTrigger>
-                  <TabsTrigger value="interactions">Interactions</TabsTrigger>
-                  <TabsTrigger value="cleaning">Cleaning</TabsTrigger>
+                  <TabsTrigger value="preview">{t('pages.dataCollection.preview.tabs.preview')}</TabsTrigger>
+                  <TabsTrigger value="validation">{t('pages.dataCollection.preview.tabs.validation')}</TabsTrigger>
+                  <TabsTrigger value="statistics">{t('pages.dataCollection.preview.tabs.statistics')}</TabsTrigger>
+                  <TabsTrigger value="profiling">{t('pages.dataCollection.preview.tabs.profiling')}</TabsTrigger>
+                  <TabsTrigger value="features">{t('pages.dataCollection.preview.tabs.features')}</TabsTrigger>
+                  <TabsTrigger value="engineering">{t('pages.dataCollection.preview.tabs.engineering')}</TabsTrigger>
+                  <TabsTrigger value="workshop">{t('pages.dataCollection.preview.tabs.workshop')}</TabsTrigger>
+                  <TabsTrigger value="interactions">{t('pages.dataCollection.preview.tabs.interactions')}</TabsTrigger>
+                  <TabsTrigger value="cleaning">{t('pages.dataCollection.preview.tabs.cleaning')}</TabsTrigger>
                 </TabsList>
 
                 {/* Raw data table — first 10 rows */}
@@ -873,13 +874,13 @@ export default function DataCollectionPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Dataset Status</p>
+                  <p className="font-medium">{t('pages.dataCollection.status.title')}</p>
                   <p className="text-sm text-muted-foreground">
                     {hasEnoughData
                       ? validation && !validation.isValid
-                        ? 'Please fix critical data issues before proceeding'
-                        : 'Ready to proceed to the learning module'
-                      : `Need at least ${minSamples} samples to continue`}
+                        ? t('pages.dataCollection.status.fixIssues')
+                        : t('pages.dataCollection.status.ready')
+                      : t('pages.dataCollection.status.needMore', { min: minSamples })}
                   </p>
                 </div>
                 <Button
@@ -888,7 +889,7 @@ export default function DataCollectionPage() {
                   size="lg"
                   data-tour="continue-button"
                 >
-                  {loading ? 'Saving…' : 'Continue to Learning'}
+                  {loading ? t('common.messages.saving') : t('pages.dataCollection.status.continueButton')}
                   <ArrowRight className="h-5 w-5 ml-2" />
                 </Button>
               </div>

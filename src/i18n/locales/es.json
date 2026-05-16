@@ -1,0 +1,539 @@
+{
+  "common": {
+    "nav": {
+      "projects": "Proyectos",
+      "datasets": "Conjuntos de datos",
+      "pricing": "Precios",
+      "teacherResources": "Recursos para docentes",
+      "badges": "Insignias",
+      "dashboard": "Panel",
+      "tutorial": "Tutorial",
+      "help": "Ayuda",
+      "signIn": "Iniciar sesión",
+      "signUp": "Registrarse",
+      "signOut": "Cerrar sesión",
+      "settings": "Configuración",
+      "myAccount": "Mi cuenta",
+      "bulkImport": "Importación masiva de usuarios"
+    },
+    "actions": {
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "edit": "Editar",
+      "create": "Crear",
+      "submit": "Enviar",
+      "back": "Atrás",
+      "next": "Siguiente",
+      "close": "Cerrar",
+      "confirm": "Confirmar",
+      "retry": "Reintentar",
+      "continue": "Continuar",
+      "start": "Iniciar",
+      "stop": "Detener",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "export": "Exportar",
+      "download": "Descargar",
+      "upload": "Subir",
+      "browse": "Explorar",
+      "use": "Usar",
+      "hidePreview": "Ocultar vista previa",
+      "viewDataset": "Ver conjunto de datos",
+      "connectionGuide": "Guía de conexión"
+    },
+    "messages": {
+      "loading": "Cargando...",
+      "success": "Operación completada con éxito",
+      "error": "Ocurrió un error",
+      "noData": "No hay datos disponibles",
+      "saving": "Guardando…",
+      "uploading": "Subiendo…",
+      "processing": "Procesando…",
+      "redirecting": "Redirigiendo..."
+    }
+  },
+  "pages": {
+    "projectCreation": {
+      "heroTitle": "Aprende Machine Learning haciéndolo de verdad",
+      "heroSubtitle": "Sin videos. Sin diapositivas. Tú construyes, entrenas y pruebas modelos de ML reales — paso a paso, con guía en cada momento. Entiende el porqué, no solo el cómo.",
+      "valueProps": {
+        "handsOn": {
+          "title": "Aprendizaje práctico",
+          "description": "Elige un proyecto, carga datos, entrena un modelo y ve los resultados — todo guiado, todo interactivo"
+        },
+        "concepts": {
+          "title": "Entiende los conceptos",
+          "description": "Aprende qué significa el sobreajuste viéndolo ocurrir. Cuestionarios, juegos de asociación y retroalimentación real"
+        },
+        "noCode": {
+          "title": "Sin código",
+          "description": "Diseñado para estudiantes y principiantes. Solo describe lo que quieres construir y sigue los pasos"
+        }
+      },
+      "ctaStartFree": "Comenzar gratis — Sin registro",
+      "ctaSeePricing": "Ver precios",
+      "triesRemaining": "Te quedan {{count}} {{triesWord}}.",
+      "triesRemainingLow": "¡Regístrate para obtener acceso ilimitado!",
+      "tryWord": "intento",
+      "triesWord": "intentos",
+      "stepTitle": "Paso 1: Describe tu proyecto",
+      "stepDescription": "Cuéntanos qué quieres construir, o",
+      "browseExamples": "explora proyectos de ejemplo abajo",
+      "textareaPlaceholder": "Quiero entrenar una IA para...",
+      "analyzeButton": "Analizar proyecto",
+      "projectAnalysis": {
+        "title": "Análisis del proyecto",
+        "subtitle": "Hemos analizado la descripción de tu proyecto",
+        "detectedModelType": "Tipo de modelo detectado",
+        "yourJourney": "Tu recorrido",
+        "journeyImage": "Recopilarás imágenes, entrenarás un modelo de clasificación y probarás su precisión con imágenes nuevas.",
+        "journeyText": "Recopilarás muestras de texto, entrenarás un modelo de clasificación y evaluarás su rendimiento con texto nuevo.",
+        "journeyRegression": "Recopilarás datos numéricos, entrenarás un modelo de regresión y probarás sus predicciones con nuevos datos."
+      },
+      "startWithMyData": "Comenzar con mis datos",
+      "startGuidedTour": "Iniciar recorrido guiado",
+      "exampleProjects": {
+        "title": "Proyectos de ejemplo",
+        "subtitle": "Haz clic en cualquier proyecto para usarlo como punto de partida"
+      },
+      "difficulty": {
+        "beginner": "principiante",
+        "intermediate": "intermedio",
+        "advanced": "avanzado"
+      },
+      "exampleLoaded": "¡Ejemplo cargado! Haz clic en \"Analizar proyecto\" para continuar",
+      "pleaseDescribe": "Por favor describe tu proyecto",
+      "limitReached": "Has alcanzado el límite de 10 intentos. Por favor regístrate para continuar.",
+      "failedToCreate": "No se pudo crear el proyecto"
+    },
+    "pricing": {
+      "title": "Precios simples y transparentes",
+      "subtitle": "Comienza gratis. Mejora tu plan cuando estés listo. Sin cargos ocultos.",
+      "billingToggle": {
+        "monthly": "Mensual",
+        "yearly": "Anual",
+        "savePercent": "Ahorra 30%"
+      },
+      "trialBanner": "Estás en prueba gratuita — {{days}} {{daysWord}} restantes",
+      "dayWord": "día",
+      "daysWord": "días",
+      "currentPlan": "Plan actual:",
+      "trainingSessionsUsed": "{{count}} sesiones de entrenamiento usadas este mes",
+      "storageUsed": "{{amount}} MB de almacenamiento usado",
+      "plans": {
+        "free": {
+          "name": "Gratis",
+          "description": "Aprende conceptos de ML con simulaciones interactivas — sin registro",
+          "cta": "Comenzar gratis",
+          "features": [
+            "Simulación inteligente de entrenamiento",
+            "Actividades de aprendizaje interactivas",
+            "3 proyectos activos",
+            "Recorrido guiado con conjuntos de datos asociados",
+            "Herramientas de validación e ingeniería de datos",
+            "Exportación a CSV",
+            "Entrenamiento real con TensorFlow.js",
+            "Predicciones reales del modelo",
+            "Almacenamiento de datos en la nube",
+            "Despliegue de modelos",
+            "Integración con Kaggle",
+            "Soporte prioritario"
+          ]
+        },
+        "pro": {
+          "name": "Pro",
+          "description": "Entrenamiento real de modelos en tu navegador — entrena, prueba y predice",
+          "cta": "Iniciar prueba Pro",
+          "badge": "Más popular",
+          "features": [
+            "Entrenamiento real con TensorFlow.js ✨",
+            "Predicciones reales con datos nuevos",
+            "Modelo guardado en el navegador (IndexedDB)",
+            "50 proyectos activos",
+            "500 sesiones de entrenamiento/mes",
+            "5 GB de almacenamiento en la nube",
+            "Todos los tipos de modelos ML (4 arquitecturas)",
+            "Exportación a CSV y PDF",
+            "Integración con Kaggle",
+            "Visualizaciones avanzadas",
+            "Herramientas de colaboración",
+            "Soporte prioritario"
+          ]
+        },
+        "school": {
+          "name": "Escuela",
+          "description": "Precio por estudiante para aulas. Mínimo 6 estudiantes.",
+          "cta": "Iniciar plan Escuela",
+          "badge": "Mejor valor",
+          "features": [
+            "Entrenamiento con GPU en servidor (próximamente)",
+            "Proyectos y sesiones ilimitados",
+            "50 GB de almacenamiento por escuela",
+            "Despliegue de modelos como API",
+            "Cuentas para múltiples docentes",
+            "Gestión de clases y grupos",
+            "Panel de progreso de estudiantes",
+            "Reportes programados y analíticas",
+            "Calificación de tareas",
+            "Autenticación SSO/SAML",
+            "Soporte dedicado",
+            "Integraciones personalizadas"
+          ],
+          "perStudentPrice": "${{price}}/estudiante/{{period}} × {{count}} estudiantes",
+          "studentsLabel": "Estudiantes:",
+          "minStudents": "(mín. 6)"
+        }
+      },
+      "perPeriod": "/{{period}}",
+      "year": "año",
+      "month": "mes",
+      "free": "Gratis",
+      "custom": "Personalizado",
+      "yourPlan": "Tu plan",
+      "currentPlanButton": "Plan actual",
+      "signUpToStart": "Regístrate para comenzar",
+      "faq": {
+        "title": "Preguntas frecuentes",
+        "items": [
+          {
+            "question": "¿Puedo cambiar de plan en cualquier momento?",
+            "answer": "Sí, puedes cambiar tu plan en cualquier momento. Las mejoras se aplican de inmediato, las reducciones al final de tu período de facturación."
+          },
+          {
+            "question": "¿Qué pasa cuando alcanzo los límites del plan gratuito?",
+            "answer": "Verás una invitación a mejorar tu plan. Tus datos nunca se eliminan — simplemente no puedes crear nuevos recursos hasta que mejores tu plan o se reinicie el mes."
+          },
+          {
+            "question": "¿Hay prueba gratuita para Pro?",
+            "answer": "¡Sí! Pro incluye una prueba gratuita de 14 días. No se requiere tarjeta de crédito."
+          },
+          {
+            "question": "¿Ofrecen descuentos para organizaciones sin fines de lucro o escuelas?",
+            "answer": "Sí, contáctanos en non-profit@modelmentor.ai para descuentos educativos."
+          }
+        ]
+      },
+      "checkoutSuccess": "¡Pago exitoso! Tu plan ha sido mejorado.",
+      "checkoutCancelled": "El pago fue cancelado. No se realizaron cambios en tu plan."
+    },
+    "training": {
+      "stepTitle": "Paso 4: Entrenar modelo",
+      "realTraining": "Entrenamiento real",
+      "simulation": "Simulación",
+      "trainingComplete": "Entrenamiento completo",
+      "loadingTensorflow": "Cargando TensorFlow.js",
+      "estimatedSize": "Tamaño estimado: ~{{size}}MB",
+      "simulationMode": "Usando modo de simulación",
+      "currentEpoch": "Epoch actual",
+      "accuracy": "Precisión",
+      "loss": "Loss",
+      "controls": {
+        "title": "Controles de entrenamiento",
+        "completedDescription": "Entrenamiento completado — explora los resultados abajo",
+        "inProgressDescription": "Entrenamiento en progreso…",
+        "idleDescription": "Configura las opciones arriba y luego inicia el entrenamiento",
+        "progress": "Progreso",
+        "startTraining": "Iniciar entrenamiento del modelo",
+        "preparingEnvironment": "Preparando entorno de entrenamiento…",
+        "pause": "Pausar",
+        "stop": "Detener",
+        "resume": "Reanudar",
+        "continueToTesting": "Continuar a pruebas",
+        "downloadModel": "Descargar modelo",
+        "exportPdf": "Exportar PDF"
+      },
+      "metrics": {
+        "title": "Métricas de entrenamiento",
+        "subtitle": "Precisión y loss en tiempo real por epoch",
+        "accuracyLabel": "Precisión (%)",
+        "lossLabel": "Loss",
+        "valueAxis": "Valor"
+      },
+      "tabs": {
+        "validation": "Validación",
+        "hyperparams": "Hiperparámetros",
+        "analysis": "Análisis",
+        "architecture": "Arquitectura",
+        "results": "Resultados",
+        "interpretability": "Explicabilidad",
+        "advanced": "Avanzado",
+        "deploy": "Desplegar",
+        "monitor": "Monitorear"
+      },
+      "toasts": {
+        "trainingCompleted": "¡Entrenamiento completado!",
+        "trainingFailed": "El entrenamiento falló. Por favor intenta de nuevo.",
+        "pauseNotSupported": "No se puede pausar durante el entrenamiento activo. Por favor detén y reinicia.",
+        "modelDownloaded": "Modelo descargado con éxito",
+        "modelDownloadFailed": "No se pudo descargar el modelo",
+        "noTrainingData": "No hay datos de entrenamiento disponibles para exportar",
+        "pdfExported": "Reporte de entrenamiento exportado como PDF",
+        "pdfExportFailed": "No se pudo exportar el PDF",
+        "localTrainingMode": "Usando modo de entrenamiento local (inicia sesión para entrenamiento en la nube)",
+        "splitApplied": "División {{train}}-{{val}} aplicada",
+        "transferLearningEnabled": "Transfer learning habilitado con {{model}}"
+      },
+      "logs": {
+        "preparingEnvironment": "Preparando entorno de entrenamiento...",
+        "settingUpSession": "Configurando sesión de entrenamiento...",
+        "readyLoadingData": "Listo. Cargando datos...",
+        "initializingEngine": "Inicializando motor de entrenamiento...",
+        "submittingJob": "Enviando trabajo de entrenamiento al servidor...",
+        "jobStarted": "Trabajo de entrenamiento iniciado ({{sessionId}})",
+        "epochCompleted": "Epoch {{current}}/{{total}} completado",
+        "epochDetails": "Loss: {{loss}}, Precisión: {{accuracy}}%",
+        "trainingCompletedSuccess": "¡Entrenamiento completado con éxito!",
+        "finalAccuracy": "Precisión final: {{accuracy}}%",
+        "trainingFailed": "El entrenamiento falló",
+        "stoppedByUser": "Entrenamiento detenido por el usuario",
+        "loadingTf": "Cargando TensorFlow.js (~{{size}}MB)...",
+        "fallbackSimulation": "Usando simulación como respaldo: {{reason}}",
+        "realTrainingStarted": "Entrenamiento real con TensorFlow.js iniciado",
+        "simulationStarted": "Entrenamiento por simulación iniciado"
+      },
+      "quota": {
+        "limitReached": "Límite de entrenamiento alcanzado",
+        "upgrade": "Mejorar plan"
+      }
+    },
+    "dataCollection": {
+      "stepTitle": "Paso 2: Ingresar datos",
+      "guidedTour": {
+        "syntheticLoaded": "Usando datos sintéticos integrados para tu experiencia de aprendizaje.",
+        "imageCount": "Se cargaron {{count}} imágenes de formas.",
+        "rowCount": "Se cargaron {{count}} filas de ejemplo.",
+        "exploreData": "Explora los datos abajo, luego haz clic en",
+        "continueToLearning": "Continuar al aprendizaje",
+        "whenReady": "cuando estés listo.",
+        "noDataset": "No hay un conjunto de datos predefinido disponible para este tipo de proyecto. No te preocupes — selecciona un conjunto de datos de plantilla abajo para continuar tu aprendizaje.",
+        "preSelected": "Se ha preseleccionado un conjunto de datos de ejemplo para ti. Explora los datos abajo, luego haz clic en",
+        "failedToLoad": "No se pudieron cargar los conjuntos de datos de ejemplo. Usando datos sintéticos integrados.",
+        "guidedTourMode": "Modo de recorrido guiado:"
+      },
+      "upload": {
+        "title": "Sube tus datos",
+        "imageDescription": "Sube al menos {{min}} imágenes (JPG, PNG, GIF, WEBP)",
+        "textDescription": "Sube al menos {{min}} muestras de texto (TXT, CSV)",
+        "regressionDescription": "Sube al menos {{min}} puntos de datos (CSV)",
+        "classificationDescription": "Sube al menos {{min}} puntos de datos (CSV)",
+        "dropActive": "Suelta los archivos aquí",
+        "dropInactive": "Arrastra y suelta archivos o haz clic para explorar",
+        "uploadedFiles": "Archivos subidos ({{count}})",
+        "storageInfo": "Almacenamiento: {{used}} MB usados",
+        "storageWithLimit": "/ {{limit}} MB ({{remaining}} MB restantes)",
+        "storageUnlimited": "(ilimitado)"
+      },
+      "preview": {
+        "title": "Vista previa y validación de datos",
+        "tabs": {
+          "preview": "Vista previa",
+          "validation": "Validación",
+          "statistics": "Estadísticas",
+          "profiling": "Perfilado",
+          "features": "Características",
+          "engineering": "Ingeniería",
+          "workshop": "Taller",
+          "interactions": "Interacciones",
+          "cleaning": "Limpieza"
+        }
+      },
+      "status": {
+        "title": "Estado del conjunto de datos",
+        "ready": "Listo para continuar al módulo de aprendizaje",
+        "fixIssues": "Por favor corrige los problemas críticos de datos antes de continuar",
+        "needMore": "Se necesitan al menos {{min}} muestras para continuar",
+        "continueButton": "Continuar al aprendizaje"
+      },
+      "toasts": {
+        "qualityGood": "¡{{filename}} subido! Puntuación de calidad: {{score}}",
+        "qualityWarning": "{{filename}} tiene problemas de calidad. Puntuación: {{score}}",
+        "parseFailed": "No se pudo analizar {{filename}}",
+        "templateLoaded": "\"{{name}}\" cargado — ¡desplázate hacia abajo para ver tus datos!",
+        "imageTemplateLoaded": "\"{{name}}\" cargado — ¡{{count}} imágenes listas!",
+        "syntheticLoaded": "Conjunto de datos \"{{name}}\" cargado — ¡{{count}} imágenes listas!",
+        "syntheticTabularLoaded": "Conjunto de datos sintético cargado — ¡{{count}} filas listas!",
+        "syntheticFailed": "No se pudo cargar el conjunto de datos sintético. Por favor selecciona una plantilla manualmente.",
+        "imageTemplateFailed": "No se pudo cargar el conjunto de datos de imágenes",
+        "templateFailed": "No se pudieron cargar los datos de la plantilla",
+        "uploadFailed": "No se pudo guardar el conjunto de datos",
+        "uploadFailedRetry": "No se pudo guardar el conjunto de datos. Por favor intenta de nuevo o selecciona otra plantilla.",
+        "noDataSelected": "Por favor sube archivos o selecciona un conjunto de datos de ejemplo",
+        "qualityImproved": "¡La calidad de los datos mejoró de {{oldScore}} a {{newScore}}!",
+        "featuresSelected": "Se seleccionaron {{count}} características con objetivo: {{target}}",
+        "featuresEngineered": "Se crearon {{count}} nuevas características. ¡Conjunto de datos actualizado!",
+        "imageCompressed": "{{filename}} comprimido a {{size}}KB",
+        "imageCompressFailed": "No se pudo comprimir {{filename}}"
+      }
+    },
+    "testing": {
+      "stepTitle": "Paso 5: Probar y depurar",
+      "versionSelector": {
+        "title": "Versión del modelo",
+        "description": "Selecciona qué versión entrenada quieres probar",
+        "loadingVersions": "Cargando versiones…",
+        "noVersions": "No se encontraron versiones guardadas. Entrena el modelo primero.",
+        "selectPlaceholder": "Selecciona una versión",
+        "active": "activa",
+        "accuracyLabel": "Precisión: {{value}}%",
+        "lossLabel": "Loss: {{value}}",
+        "epochsLabel": "Epochs: {{value}}"
+      },
+      "modelStatus": {
+        "noModel": "No se encontró un modelo entrenado para este proyecto. Las predicciones usarán simulación.",
+        "goToTraining": "Ir a entrenamiento →",
+        "realModelLoaded": "Modelo real entrenado cargado",
+        "realModelDetails": "las predicciones usarán el modelo de TensorFlow.js entrenado el {{date}} (precisión: {{accuracy}}%)"
+      },
+      "summaryCards": {
+        "modelAccuracy": "Precisión del modelo",
+        "finalLoss": "Loss final",
+        "epochsTrained": "Epochs entrenados",
+        "testPredictions": "Predicciones de prueba",
+        "notAvailable": "N/D"
+      },
+      "testInterface": {
+        "title": "Prueba tu modelo",
+        "description": "Ejecuta predicciones individuales o pruebas por lotes con datos CSV",
+        "usingVersion": "— usando v{{version}}",
+        "tabs": {
+          "single": "Predicción individual",
+          "batch": "Pruebas por lotes"
+        }
+      },
+      "singlePrediction": {
+        "textPlaceholder": "Ingresa texto para clasificar…",
+        "regressionPlaceholder": "Ingresa valores (separados por comas)…",
+        "runPrediction": "Ejecutar predicción",
+        "uploadImage": "Haz clic para subir una imagen",
+        "imageFormats": "Soporta JPG, PNG, GIF (máx. 5MB)",
+        "orEnterUrl": "O ingresa la URL de la imagen",
+        "urlPlaceholder": "https://ejemplo.com/imagen.jpg",
+        "predictionLabel": "Predicción: {{value}}",
+        "confidenceLabel": "Confianza: {{value}}%"
+      },
+      "batchTesting": {
+        "uploadCsv": "Haz clic para subir un archivo CSV",
+        "csvFormat": "Formato CSV: cada fila es una muestra de prueba (máx. 10MB, 100 filas)",
+        "runBatchTest": "Ejecutar prueba por lotes"
+      },
+      "actions": {
+        "exportResults": "Exportar resultados de prueba",
+        "exportDescription": "Descarga un reporte detallado de pruebas como PDF",
+        "exportPdf": "Exportar PDF",
+        "readyToShare": "Listo para compartir",
+        "shareDescription": "Exporta tu modelo y crea una demostración compartible",
+        "exportAndShare": "Exportar y compartir"
+      },
+      "toasts": {
+        "predictionGenerated": "Predicción generada",
+        "predictionFailed": "No se pudo generar la predicción",
+        "imageUploaded": "Imagen subida con éxito",
+        "invalidImage": "Por favor selecciona un archivo de imagen válido",
+        "imageTooLarge": "El tamaño de la imagen debe ser menor a 5MB",
+        "noImageInput": "Por favor sube una imagen o ingresa una URL de imagen",
+        "noTextInput": "Por favor proporciona una entrada de prueba",
+        "noTrainingSession": "No se encontró sesión de entrenamiento",
+        "csvUploaded": "Archivo CSV subido con éxito",
+        "invalidCsv": "Por favor selecciona un archivo CSV válido",
+        "csvTooLarge": "El tamaño del archivo debe ser menor a 10MB",
+        "noCsvFile": "Por favor sube un archivo CSV",
+        "csvMinRows": "El archivo CSV debe contener al menos una fila de encabezado y una fila de datos",
+        "batchProcessed": "Se procesaron {{count}} predicciones",
+        "batchFailed": "No se pudo procesar el archivo CSV",
+        "noResultsToExport": "No hay resultados de prueba para exportar",
+        "pdfExported": "Resultados de prueba exportados como PDF",
+        "pdfExportFailed": "No se pudo exportar el PDF"
+      }
+    }
+  },
+  "datasets": {
+    "templates": {
+      "categories": {
+        "imageClassification": {
+          "title": "Clasificación de imágenes",
+          "description": "Entrena modelos para reconocer y categorizar imágenes"
+        },
+        "textClassification": {
+          "title": "Clasificación de texto",
+          "description": "Analiza y categoriza datos de texto"
+        },
+        "regression": {
+          "title": "Regresión",
+          "description": "Predice valores numéricos basados en características de entrada"
+        },
+        "huggingFace": {
+          "title": "Ejemplos populares de Hugging Face",
+          "description": "Inspirados en conjuntos de datos y modelos reconocidos de la comunidad de ML"
+        },
+        "tensorflowModelScope": {
+          "title": "Ejemplos de ModelScope y TensorFlow Hub",
+          "description": "Proyectos del mundo real de plataformas líderes de ML"
+        },
+        "kaggle": {
+          "title": "Clásicos de competencias Kaggle",
+          "description": "Proyectos populares de competencias y conjuntos de datos de Kaggle"
+        },
+        "github": {
+          "title": "Proyectos de código abierto en GitHub",
+          "description": "Proyectos de ML impulsados por la comunidad en repositorios de GitHub"
+        }
+      }
+    },
+    "columns": {
+      "filename": "Nombre de archivo",
+      "label": "Etiqueta",
+      "prediction": "Predicción",
+      "confidence": "Confianza",
+      "actual": "Real",
+      "input": "Entrada"
+    }
+  },
+  "errors": {
+    "validation": {
+      "required": "Este campo es obligatorio",
+      "invalidEmail": "Por favor ingresa un correo electrónico válido",
+      "invalidUrl": "Por favor ingresa una URL válida",
+      "fileTooLarge": "El tamaño del archivo excede el máximo permitido",
+      "invalidFileType": "Tipo de archivo no válido",
+      "minSamples": "Se necesitan al menos {{min}} muestras para continuar",
+      "criticalIssues": "Por favor corrige los problemas críticos de datos antes de continuar"
+    },
+    "network": {
+      "connectionFailed": "La conexión falló. Por favor verifica tu conexión a internet.",
+      "timeout": "La solicitud expiró. Por favor intenta de nuevo.",
+      "serverError": "Error del servidor. Por favor intenta más tarde."
+    },
+    "auth": {
+      "loginRequired": "Por favor inicia sesión para continuar",
+      "sessionExpired": "Tu sesión ha expirado. Por favor inicia sesión de nuevo.",
+      "unauthorized": "No tienes permiso para realizar esta acción"
+    }
+  },
+  "learning": {
+    "moments": {
+      "data": "Aprende: Datos",
+      "dataDescription": "Entiende la calidad de los datos y las características",
+      "model": "Aprende: Modelo",
+      "modelDescription": "Entiende cómo funciona tu modelo",
+      "nextSteps": "Aprende: Próximos pasos",
+      "nextStepsDescription": "Explora conceptos avanzados de ML"
+    }
+  },
+  "workflow": {
+    "steps": {
+      "describe": "Describir",
+      "describeDescription": "Define los objetivos de tu proyecto de ML",
+      "inputData": "Ingresar datos",
+      "inputDataDescription": "Sube o selecciona datos de entrenamiento",
+      "learn": "Aprender",
+      "learnDescription": "Entiende conceptos de ML",
+      "trainModel": "Entrenar modelo",
+      "trainModelDescription": "Entrena tu modelo de IA",
+      "testDebug": "Probar y depurar",
+      "testDebugDescription": "Evalúa y mejora",
+      "deploy": "Desplegar",
+      "deployDescription": "Comparte tu modelo"
+    }
+  }
+}

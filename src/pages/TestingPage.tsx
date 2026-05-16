@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layouts/AppLayout';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,17 @@ const workflowSteps = [
 export default function TestingPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  // Translated workflow steps
+  const translatedWorkflowSteps = [
+    { id: 'describe', title: t('workflow.steps.describe'),     description: t('workflow.steps.describeDescription'),   icon: FileText      },
+    { id: 'data',     title: t('workflow.steps.inputData'),    description: t('workflow.steps.inputDataDescription'),   icon: Database      },
+    { id: 'learn',    title: t('workflow.steps.learn'),        description: t('workflow.steps.learnDescription'),       icon: GraduationCap },
+    { id: 'train',    title: t('workflow.steps.trainModel'),   description: t('workflow.steps.trainModelDescription'),  icon: Zap           },
+    { id: 'debug',    title: t('workflow.steps.testDebug'),    description: t('workflow.steps.testDebugDescription'),   icon: Bug           },
+    { id: 'deploy',   title: t('workflow.steps.deploy'),       description: t('workflow.steps.deployDescription'),      icon: Share2        },
+  ];
 
   const [project,         setProject]         = useState<Project | null>(null);
   const [trainingSession, setTrainingSession] = useState<TrainingSession | null>(null);
@@ -128,8 +140,8 @@ export default function TestingPage() {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith('image/')) { toast.error('Please select a valid image file'); return; }
-    if (file.size > 5 * 1024 * 1024)    { toast.error('Image size must be less than 5MB'); return; }
+    if (!file.type.startsWith('image/')) { toast.error(t('pages.testing.toasts.invalidImage')); return; }
+    if (file.size > 5 * 1024 * 1024)    { toast.error(t('pages.testing.toasts.imageTooLarge')); return; }
 
     setImageFile(file);
     const reader = new FileReader();
@@ -138,7 +150,7 @@ export default function TestingPage() {
       setTestInput(file.name);
     };
     reader.readAsDataURL(file);
-    toast.success('Image uploaded successfully');
+    toast.success(t('pages.testing.toasts.imageUploaded'));
   };
 
   const handleRemoveImage = () => {
@@ -151,12 +163,12 @@ export default function TestingPage() {
   // ── Single prediction ──────────────────────────────────────────────────────
   const handleTest = async () => {
     if (project?.model_type === 'image_classification' && !selectedImage && !testInput.trim()) {
-      toast.error('Please upload an image or enter an image URL'); return;
+      toast.error(t('pages.testing.toasts.noImageInput')); return;
     }
     if (project?.model_type !== 'image_classification' && !testInput.trim()) {
-      toast.error('Please provide test input'); return;
+      toast.error(t('pages.testing.toasts.noTextInput')); return;
     }
-    if (!trainingSession) { toast.error('No training session found'); return; }
+    if (!trainingSession) { toast.error(t('pages.testing.toasts.noTrainingSession')); return; }
 
     setLoading(true);
     try {
@@ -188,9 +200,9 @@ export default function TestingPage() {
         accuracy:    activeAccuracy,
       });
 
-      toast.success('Prediction generated');
+      toast.success(t('pages.testing.toasts.predictionGenerated'));
     } catch (error) {
-      toast.error('Failed to generate prediction');
+      toast.error(t('pages.testing.toasts.predictionFailed'));
       console.error(error);
     } finally {
       setLoading(false);
@@ -288,16 +300,16 @@ export default function TestingPage() {
   const handleCsvUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (!file.name.endsWith('.csv'))     { toast.error('Please select a valid CSV file'); return; }
-    if (file.size > 10 * 1024 * 1024)   { toast.error('File size must be less than 10MB'); return; }
+    if (!file.name.endsWith('.csv'))     { toast.error(t('pages.testing.toasts.invalidCsv')); return; }
+    if (file.size > 10 * 1024 * 1024)   { toast.error(t('pages.testing.toasts.csvTooLarge')); return; }
     setCsvFile(file);
-    toast.success('CSV file uploaded successfully');
+    toast.success(t('pages.testing.toasts.csvUploaded'));
   };
 
   // ── Batch test ─────────────────────────────────────────────────────────────
   const handleBatchTest = async () => {
-    if (!csvFile)          { toast.error('Please upload a CSV file'); return; }
-    if (!trainingSession)  { toast.error('No training session found'); return; }
+    if (!csvFile)          { toast.error(t('pages.testing.toasts.noCsvFile')); return; }
+    if (!trainingSession)  { toast.error(t('pages.testing.toasts.noTrainingSession')); return; }
 
     setIsProcessing(true);
     try {
@@ -305,7 +317,7 @@ export default function TestingPage() {
       const lines = text.split('\n').filter(line => line.trim());
 
       if (lines.length < 2) {
-        toast.error('CSV file must contain at least a header row and one data row');
+        toast.error(t('pages.testing.toasts.csvMinRows'));
         setIsProcessing(false);
         return;
       }
@@ -352,10 +364,10 @@ export default function TestingPage() {
         accuracy:    activeAccuracy,
       });
 
-      toast.success(`Processed ${results.length} predictions`);
+      toast.success(t('pages.testing.toasts.batchProcessed', { count: results.length }));
       setActiveTab('batch');
     } catch (error) {
-      toast.error('Failed to process CSV file');
+      toast.error(t('pages.testing.toasts.batchFailed'));
       console.error(error);
     } finally {
       setIsProcessing(false);
@@ -365,7 +377,7 @@ export default function TestingPage() {
   // ── PDF export ─────────────────────────────────────────────────────────────
   const handleExportPDF = () => {
     if (!project || (batchResults.length === 0 && !prediction)) {
-      toast.error('No test results to export'); return;
+      toast.error(t('pages.testing.toasts.noResultsToExport')); return;
     }
     try {
       const predictions: PredictionResult[] =
@@ -386,10 +398,10 @@ export default function TestingPage() {
         },
         { author: 'Student' }
       );
-      toast.success('Test results exported as PDF');
+      toast.success(t('pages.testing.toasts.pdfExported'));
     } catch (error) {
       console.error('PDF export error:', error);
-      toast.error('Failed to export PDF');
+      toast.error(t('pages.testing.toasts.pdfExportFailed'));
     }
   };
 
@@ -416,12 +428,12 @@ export default function TestingPage() {
         {/* Workflow progress */}
         <Card className="border-none shadow-none bg-muted/30">
           <CardContent className="pt-6 pb-6">
-            <MLWorkflowVisualizer steps={workflowSteps} currentStep={4} />
+            <MLWorkflowVisualizer steps={translatedWorkflowSteps} currentStep={4} />
           </CardContent>
         </Card>
 
         <div className="space-y-2">
-          <h1 className="text-3xl font-semibold">Step 5: Test & Debug</h1>
+          <h1 className="text-3xl font-semibold">{t('pages.testing.stepTitle')}</h1>
           <p className="text-muted-foreground">{project.title}</p>
         </div>
 
@@ -430,20 +442,20 @@ export default function TestingPage() {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <GitBranch className="h-4 w-4" />
-              Model Version
+              {t('pages.testing.versionSelector.title')}
             </CardTitle>
             <CardDescription>
-              Select which trained version to test against
+              {t('pages.testing.versionSelector.description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {versionsLoading ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
-                Loading versions…
+                {t('pages.testing.versionSelector.loadingVersions')}
               </div>
             ) : versions.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No saved versions found. Train the model first.</p>
+              <p className="text-sm text-muted-foreground">{t('pages.testing.versionSelector.noVersions')}</p>
             ) : (
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                 <Select
@@ -456,7 +468,7 @@ export default function TestingPage() {
                   }}
                 >
                   <SelectTrigger className="w-full sm:w-72">
-                    <SelectValue placeholder="Select a version" />
+                    <SelectValue placeholder={t('pages.testing.versionSelector.selectPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {versions.map(v => (
@@ -467,7 +479,7 @@ export default function TestingPage() {
                             <span className="text-muted-foreground">— {v.version_name}</span>
                           )}
                           {v.is_active && (
-                            <Badge variant="secondary" className="text-xs ml-1">active</Badge>
+                            <Badge variant="secondary" className="text-xs ml-1">{t('pages.testing.versionSelector.active')}</Badge>
                           )}
                         </div>
                       </SelectItem>
@@ -479,17 +491,17 @@ export default function TestingPage() {
                   <div className="flex flex-wrap gap-3 text-sm">
                     {selectedVersion.accuracy != null && (
                       <Badge variant="outline">
-                        Accuracy: {(selectedVersion.accuracy * 100).toFixed(1)}%
+                        {t('pages.testing.versionSelector.accuracyLabel', { value: (selectedVersion.accuracy * 100).toFixed(1) })}
                       </Badge>
                     )}
                     {selectedVersion.loss != null && (
                       <Badge variant="outline">
-                        Loss: {selectedVersion.loss.toFixed(4)}
+                        {t('pages.testing.versionSelector.lossLabel', { value: selectedVersion.loss.toFixed(4) })}
                       </Badge>
                     )}
                     {selectedVersion.epochs != null && (
                       <Badge variant="outline">
-                        Epochs: {selectedVersion.epochs}
+                        {t('pages.testing.versionSelector.epochsLabel', { value: selectedVersion.epochs })}
                       </Badge>
                     )}
                     {selectedVersion.created_at && (
@@ -511,13 +523,13 @@ export default function TestingPage() {
         {modelAvailable === false && (
           <Alert>
             <AlertDescription className="flex items-center justify-between">
-              <span>No trained model found for this project. Predictions will use simulation.</span>
+              <span>{t('pages.testing.modelStatus.noModel')}</span>
               <Button
                 variant="link"
                 className="p-0 h-auto"
                 onClick={() => navigate(`/project/${projectId}/training`)}
               >
-                Go to Training →
+                {t('pages.testing.modelStatus.goToTraining')}
               </Button>
             </AlertDescription>
           </Alert>
@@ -526,10 +538,9 @@ export default function TestingPage() {
           <Alert>
             <CheckCircle2 className="h-4 w-4" />
             <AlertDescription>
-              <span className="font-medium">🧪 Real trained model loaded</span>
-              {' — '}predictions will use the TensorFlow.js model trained on{' '}
-              {new Date(realModel.metadata.trainedAt).toLocaleDateString()}
-              {' '}(accuracy: {(realModel.metadata.finalAccuracy * 100).toFixed(1)}%)
+              <span className="font-medium">🧪 {t('pages.testing.modelStatus.realModelLoaded')}</span>
+              {' — '}
+              {t('pages.testing.modelStatus.realModelDetails', { date: new Date(realModel.metadata.trainedAt).toLocaleDateString(), accuracy: (realModel.metadata.finalAccuracy * 100).toFixed(1) })}
             </AlertDescription>
           </Alert>
         )}
@@ -538,29 +549,29 @@ export default function TestingPage() {
         <div className="grid md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Model Accuracy</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('pages.testing.summaryCards.modelAccuracy')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold">
-                {activeAccuracy ? `${(activeAccuracy * 100).toFixed(1)}%` : 'N/A'}
+                {activeAccuracy ? `${(activeAccuracy * 100).toFixed(1)}%` : t('pages.testing.summaryCards.notAvailable')}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Final Loss</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('pages.testing.summaryCards.finalLoss')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold">
-                {(selectedVersion?.loss ?? trainingSession.loss)?.toFixed(4) ?? 'N/A'}
+                {(selectedVersion?.loss ?? trainingSession.loss)?.toFixed(4) ?? t('pages.testing.summaryCards.notAvailable')}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Epochs Trained</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('pages.testing.summaryCards.epochsTrained')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold">
@@ -571,7 +582,7 @@ export default function TestingPage() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Test Predictions</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('pages.testing.summaryCards.testPredictions')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold">
@@ -584,10 +595,10 @@ export default function TestingPage() {
         {/* Testing interface */}
         <Card>
           <CardHeader>
-            <CardTitle>Test Your Model</CardTitle>
+            <CardTitle>{t('pages.testing.testInterface.title')}</CardTitle>
             <CardDescription>
-              Run single predictions or batch test with CSV data
-              {selectedVersion && ` — using v${selectedVersion.version_number}`}
+              {t('pages.testing.testInterface.description')}
+              {selectedVersion && ` ${t('pages.testing.testInterface.usingVersion', { version: selectedVersion.version_number })}`}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -595,11 +606,11 @@ export default function TestingPage() {
               <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="single">
                   <Play className="h-4 w-4 mr-2" />
-                  Single Prediction
+                  {t('pages.testing.testInterface.tabs.single')}
                 </TabsTrigger>
                 <TabsTrigger value="batch">
                   <BarChart3 className="h-4 w-4 mr-2" />
-                  Batch Testing
+                  {t('pages.testing.testInterface.tabs.batch')}
                 </TabsTrigger>
               </TabsList>
 
@@ -610,8 +621,8 @@ export default function TestingPage() {
                     <Textarea
                       placeholder={
                         project.model_type === 'text_classification'
-                          ? 'Enter text to classify…'
-                          : 'Enter values (comma-separated)…'
+                          ? t('pages.testing.singlePrediction.textPlaceholder')
+                          : t('pages.testing.singlePrediction.regressionPlaceholder')
                       }
                       value={testInput}
                       onChange={(e) => setTestInput(e.target.value)}
@@ -620,7 +631,7 @@ export default function TestingPage() {
                     />
                     <Button onClick={handleTest} disabled={loading} className="w-full" size="lg">
                       <Play className="h-5 w-5 mr-2" />
-                      Run Prediction
+                      {t('pages.testing.singlePrediction.runPrediction')}
                     </Button>
                   </div>
                 ) : (
@@ -639,8 +650,8 @@ export default function TestingPage() {
                         onClick={() => document.getElementById('image-upload-input')?.click()}
                       >
                         <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                        <p className="text-sm font-medium mb-2">Click to upload an image</p>
-                        <p className="text-xs text-muted-foreground">Supports JPG, PNG, GIF (max 5MB)</p>
+                        <p className="text-sm font-medium mb-2">{t('pages.testing.singlePrediction.uploadImage')}</p>
+                        <p className="text-xs text-muted-foreground">{t('pages.testing.singlePrediction.imageFormats')}</p>
                       </div>
                     ) : (
                       <div className="relative border-2 rounded-lg p-4">
@@ -673,13 +684,13 @@ export default function TestingPage() {
                         <span className="w-full border-t" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">Or enter image URL</span>
+                        <span className="bg-background px-2 text-muted-foreground">{t('pages.testing.singlePrediction.orEnterUrl')}</span>
                       </div>
                     </div>
 
                     <Input
                       type="text"
-                      placeholder="https://example.com/image.jpg"
+                      placeholder={t('pages.testing.singlePrediction.urlPlaceholder')}
                       value={selectedImage ? '' : testInput}
                       onChange={(e) => {
                         setTestInput(e.target.value);
@@ -690,7 +701,7 @@ export default function TestingPage() {
 
                     <Button onClick={handleTest} disabled={loading} className="w-full" size="lg">
                       <Play className="h-5 w-5 mr-2" />
-                      Run Prediction
+                      {t('pages.testing.singlePrediction.runPrediction')}
                     </Button>
                   </div>
                 )}
@@ -700,8 +711,8 @@ export default function TestingPage() {
                     <CheckCircle2 className="h-4 w-4" />
                     <AlertDescription>
                       <div className="space-y-2">
-                        <p className="font-medium">Prediction: {prediction.prediction}</p>
-                        <p className="text-sm">Confidence: {(prediction.confidence * 100).toFixed(1)}%</p>
+                        <p className="font-medium">{t('pages.testing.singlePrediction.predictionLabel', { value: prediction.prediction })}</p>
+                        <p className="text-sm">{t('pages.testing.singlePrediction.confidenceLabel', { value: (prediction.confidence * 100).toFixed(1) })}</p>
                       </div>
                     </AlertDescription>
                   </Alert>
@@ -725,9 +736,9 @@ export default function TestingPage() {
                       onClick={() => document.getElementById('csv-upload-input')?.click()}
                     >
                       <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-sm font-medium mb-2">Click to upload CSV file</p>
+                      <p className="text-sm font-medium mb-2">{t('pages.testing.batchTesting.uploadCsv')}</p>
                       <p className="text-xs text-muted-foreground">
-                        CSV format: each row is a test sample (max 10MB, 100 rows)
+                        {t('pages.testing.batchTesting.csvFormat')}
                       </p>
                     </div>
                   ) : (
@@ -758,12 +769,12 @@ export default function TestingPage() {
                     {isProcessing ? (
                       <>
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                        Processing…
+                        {t('common.messages.processing')}
                       </>
                     ) : (
                       <>
                         <BarChart3 className="h-5 w-5 mr-2" />
-                        Run Batch Test
+                        {t('pages.testing.batchTesting.runBatchTest')}
                       </>
                     )}
                   </Button>
@@ -798,8 +809,8 @@ export default function TestingPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Export Test Results</p>
-                  <p className="text-sm text-muted-foreground">Download detailed test report as PDF</p>
+                  <p className="font-medium">{t('pages.testing.actions.exportResults')}</p>
+                  <p className="text-sm text-muted-foreground">{t('pages.testing.actions.exportDescription')}</p>
                 </div>
                 <Button
                   onClick={handleExportPDF}
@@ -809,7 +820,7 @@ export default function TestingPage() {
                   data-tour="export-results"
                 >
                   <FileDown className="h-5 w-5 mr-2" />
-                  Export PDF
+                  {t('pages.testing.actions.exportPdf')}
                 </Button>
               </div>
             </CardContent>
@@ -819,11 +830,11 @@ export default function TestingPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Ready to Share</p>
-                  <p className="text-sm text-muted-foreground">Export your model and create a shareable demo</p>
+                  <p className="font-medium">{t('pages.testing.actions.readyToShare')}</p>
+                  <p className="text-sm text-muted-foreground">{t('pages.testing.actions.shareDescription')}</p>
                 </div>
                 <Button onClick={handleContinueToExport} size="lg">
-                  Export & Share
+                  {t('pages.testing.actions.exportAndShare')}
                   <ArrowRight className="h-5 w-5 ml-2" />
                 </Button>
               </div>
