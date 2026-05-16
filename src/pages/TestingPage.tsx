@@ -118,15 +118,44 @@ export default function TestingPage() {
             trainingSimulation.generateConfusionMatrix(labels, session.accuracy || 0.85)
           );
         }
+      } else {
+        // No persisted session (e.g., simulation mode) — create a local fallback
+        const fallbackSession = {
+          id: `local-${projectId}`,
+          project_id: projectId,
+          dataset_id: null,
+          epochs: 20,
+          current_epoch: 20,
+          status: 'completed',
+          accuracy: 0.85,
+          loss: 0.15,
+          started_at: new Date().toISOString(),
+        } as unknown as TrainingSession;
+        setTrainingSession(fallbackSession);
+
+        if (
+          projectData.model_type === 'image_classification' ||
+          projectData.model_type === 'text_classification'
+        ) {
+          const labels = ['Class A', 'Class B', 'Class C'];
+          setTestLabels(labels);
+          setConfusionMatrix(
+            trainingSimulation.generateConfusionMatrix(labels, 0.85)
+          );
+        }
       }
 
       // Load versions
       setVersionsLoading(true);
-      const versionList = await modelVersionService.getVersions(projectId);
-      setVersions(versionList);
-      if (versionList.length > 0) {
-        const active = versionList.find(v => v.is_active) ?? versionList[0];
-        setSelectedVersion(active);
+      try {
+        const versionList = await modelVersionService.getVersions(projectId);
+        setVersions(versionList);
+        if (versionList.length > 0) {
+          const active = versionList.find(v => v.is_active) ?? versionList[0];
+          setSelectedVersion(active);
+        }
+      } catch {
+        // model_versions table may not exist — continue without versions
       }
       setVersionsLoading(false);
     }
