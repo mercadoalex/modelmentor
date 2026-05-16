@@ -8,22 +8,22 @@ All code is TypeScript. The project uses vitest for testing and will add `fast-c
 
 ## Tasks
 
-- [-] 1. Types and infrastructure setup
-  - [-] 1.1 Create shared type definitions (`src/utils/tfTraining/types.ts`)
+- [x] 1. Types and infrastructure setup
+  - [x] 1.1 Create shared type definitions (`src/utils/tfTraining/types.ts`)
     - Define `TrainingRequest`, `TrainingResult`, `TrainingConfig`, `TrainingCallbacks`, `TrainingStatus`, `TrainingRunner` interfaces
     - Define `EpochLogs`, `DeviceCapabilities`, `StoredModelMetadata`, `PreprocessingMetadata` interfaces
     - Define `ModelBuilderOptions`, `TFModule`, `LoaderStatus` types
     - Export all types from barrel `src/utils/tfTraining/index.ts`
     - _Requirements: 1.1, 1.2, 7.1, 8.3_
 
-  - [ ] 1.2 Implement dynamic TensorFlow.js loader (`src/utils/tfTraining/dynamicLoader.ts`)
+  - [x] 1.2 Implement dynamic TensorFlow.js loader (`src/utils/tfTraining/dynamicLoader.ts`)
     - Implement `loadTensorFlow()` using dynamic `import('@tensorflow/tfjs')` with module caching
     - Implement `getTFStatus()` and `isTFLoaded()` helper functions
     - Cache the module reference after first successful load so subsequent calls return immediately
     - Handle network errors by rejecting with a descriptive error
     - _Requirements: 2.1, 2.2, 2.5_
 
-  - [ ] 1.3 Implement device capability detector (`src/utils/tfTraining/deviceCapability.ts`)
+  - [x] 1.3 Implement device capability detector (`src/utils/tfTraining/deviceCapability.ts`)
     - Implement `detectCapabilities(tf)` that checks WebGL via `tf.env().get('WEBGL_VERSION')`
     - Use `navigator.deviceMemory` with fallback heuristic for memory estimation
     - Set `maxParameters` to 50,000 and `maxSamples` to 500 on low-memory devices (< 2GB)
@@ -41,8 +41,8 @@ All code is TypeScript. The project uses vitest for testing and will add `fast-c
     - For memory ≥ 2GB, verify no such constraint is applied
     - **Validates: Requirements 9.3, 9.4**
 
-- [ ] 2. Data preprocessors
-  - [ ] 2.1 Implement normalization preprocessor (`src/utils/tfTraining/preprocessing/normalization.ts`)
+- [x] 2. Data preprocessors
+  - [x] 2.1 Implement normalization preprocessor (`src/utils/tfTraining/preprocessing/normalization.ts`)
     - Implement `normalizeFeatures(tf, data)` returning tensor, mean, and std arrays
     - Implement `normalizeTargets(tf, targets)` for regression target normalization
     - Implement `denormalize(value, mean, std)` utility for prediction denormalization
@@ -57,7 +57,7 @@ All code is TypeScript. The project uses vitest for testing and will add `fast-c
     - Verify normalizing then denormalizing recovers original values within ±1e-6
     - **Validates: Requirements 4.5**
 
-  - [ ] 2.3 Implement label encoding preprocessor (`src/utils/tfTraining/preprocessing/labelEncoding.ts`)
+  - [x] 2.3 Implement label encoding preprocessor (`src/utils/tfTraining/preprocessing/labelEncoding.ts`)
     - Implement `encodeLabels(tf, labels)` returning one-hot tensor, labelMap, and numClasses
     - Use one-hot encoding for multi-class (K ≥ 3) and binary encoding for two-class
     - _Requirements: 3.3_
@@ -67,7 +67,7 @@ All code is TypeScript. The project uses vitest for testing and will add `fast-c
     - For K unique classes (K ≥ 2), verify output shape [N, K], each row has exactly one 1, row sums equal 1
     - **Validates: Requirements 3.3**
 
-  - [ ] 2.5 Implement tokenization preprocessor (`src/utils/tfTraining/preprocessing/tokenization.ts`)
+  - [x] 2.5 Implement tokenization preprocessor (`src/utils/tfTraining/preprocessing/tokenization.ts`)
     - Implement `tokenizeTexts(tf, texts, maxVocab?, maxLength?)` with whitespace splitting
     - Build vocabulary from training data, limit to 1000 words max
     - Pad or truncate all sequences to maxLength (default 100)
@@ -81,7 +81,7 @@ All code is TypeScript. The project uses vitest for testing and will add `fast-c
     - Verify every non-zero index maps back to a word in the input corpus
     - **Validates: Requirements 5.2**
 
-  - [ ] 2.7 Implement image resize preprocessor (`src/utils/tfTraining/preprocessing/imageResize.ts`)
+  - [x] 2.7 Implement image resize preprocessor (`src/utils/tfTraining/preprocessing/imageResize.ts`)
     - Implement `preprocessImages(tf, images)` that resizes to 224×224 and normalizes to [0, 1]
     - Return tensor of shape [batch, 224, 224, 3]
     - _Requirements: 6.3_
@@ -91,29 +91,29 @@ All code is TypeScript. The project uses vitest for testing and will add `fast-c
     - For arbitrary input dimensions, verify output shape [224, 224, 3] and pixel values in [0, 1]
     - **Validates: Requirements 6.3**
 
-  - [ ] 2.9 Create preprocessing barrel export (`src/utils/tfTraining/preprocessing/index.ts`)
+  - [x] 2.9 Create preprocessing barrel export (`src/utils/tfTraining/preprocessing/index.ts`)
     - Export all preprocessors from a single entry point
     - _Requirements: 3.2, 5.2, 6.3_
 
-- [ ] 3. Checkpoint - Ensure all tests pass
+- [x] 3. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 4. Model builders
-  - [ ] 4.1 Implement classification model builder (`src/utils/tfTraining/modelBuilders/classification.ts`)
+- [x] 4. Model builders
+  - [x] 4.1 Implement classification model builder (`src/utils/tfTraining/modelBuilders/classification.ts`)
     - Implement `buildClassificationModel(tf, opts)` with architecture: Input → Dense(64, ReLU) → Dense(32, ReLU) → Dense(numClasses, Softmax)
     - Compile with user-specified optimizer and learning rate, using categoricalCrossentropy loss
     - _Requirements: 3.1, 3.5_
 
-  - [ ] 4.2 Implement regression model builder (`src/utils/tfTraining/modelBuilders/regression.ts`)
+  - [x] 4.2 Implement regression model builder (`src/utils/tfTraining/modelBuilders/regression.ts`)
     - Implement `buildRegressionModel(tf, opts)` with architecture: Input → Dense(64, ReLU) → Dense(32, ReLU) → Dense(1, Linear)
     - Compile with meanSquaredError loss
     - _Requirements: 4.1, 4.3_
 
-  - [ ] 4.3 Implement text classification model builder (`src/utils/tfTraining/modelBuilders/textClassification.ts`)
+  - [x] 4.3 Implement text classification model builder (`src/utils/tfTraining/modelBuilders/textClassification.ts`)
     - Implement `buildTextClassificationModel(tf, opts)` with architecture: Embedding(vocabSize, 32) → GlobalAveragePooling → Dense(16, ReLU) → Dense(numClasses, Softmax)
     - _Requirements: 5.1_
 
-  - [ ] 4.4 Implement image classification model builder (`src/utils/tfTraining/modelBuilders/imageClassification.ts`)
+  - [x] 4.4 Implement image classification model builder (`src/utils/tfTraining/modelBuilders/imageClassification.ts`)
     - Implement `buildImageClassificationModel(tf, opts)` that loads MobileNet, freezes base layers, adds GlobalAveragePooling → Dense(numClasses, Softmax)
     - Implement fallback to Conv2D → MaxPool → Flatten → Dense if MobileNet fails to load
     - _Requirements: 6.1, 6.2, 6.4, 6.5_
@@ -125,12 +125,12 @@ All code is TypeScript. The project uses vitest for testing and will add `fast-c
     - Verify text model has Embedding → GlobalAveragePooling → Dense(16, relu) → Dense(numClasses, softmax)
     - **Validates: Requirements 3.1, 4.1, 5.1**
 
-  - [ ] 4.6 Create model builders barrel export (`src/utils/tfTraining/modelBuilders/index.ts`)
+  - [x] 4.6 Create model builders barrel export (`src/utils/tfTraining/modelBuilders/index.ts`)
     - Export all builders and create a builder registry that selects the correct builder by modelType
     - _Requirements: 3.1, 4.1, 5.1, 6.1_
 
 - [ ] 5. Epoch reporter and model registry
-  - [ ] 5.1 Implement epoch reporter (`src/utils/tfTraining/epochReporter.ts`)
+  - [x] 5.1 Implement epoch reporter (`src/utils/tfTraining/epochReporter.ts`)
     - Implement `createEpochReporter(config)` that formats TF.js logs into `{loss, acc, val_loss, val_acc}`
     - Replace NaN/Infinity with 0 before dispatching
     - Compute pseudo-accuracy for regression as `max(0, 1 - normalizedMSE)`
@@ -148,7 +148,7 @@ All code is TypeScript. The project uses vitest for testing and will add `fast-c
     - For any non-negative MSE, verify pseudo-accuracy = max(0, 1 - normalizedMSE) and is in [0, 1]
     - **Validates: Requirements 4.4**
 
-  - [ ] 5.3 Implement model registry (`src/utils/tfTraining/modelRegistry.ts`)
+  - [x] 5.3 Implement model registry (`src/utils/tfTraining/modelRegistry.ts`)
     - Implement `saveModel(entry)` that saves model to `indexeddb://modelmentor-{projectId}` and metadata to localStorage
     - Implement `loadModel(projectId)` that retrieves model and metadata
     - Implement `hasModel(projectId)` and `deleteModel(projectId)` utilities
@@ -164,7 +164,7 @@ All code is TypeScript. The project uses vitest for testing and will add `fast-c
     - **Validates: Requirements 8.6**
 
 - [ ] 6. TF Engine (core training loop)
-  - [ ] 6.1 Implement TF Engine (`src/utils/tfTraining/tfEngine.ts`)
+  - [x] 6.1 Implement TF Engine (`src/utils/tfTraining/tfEngine.ts`)
     - Implement `createTFEngine(config)` returning `{ start, cancel }` handle
     - Orchestrate: preprocess data → build model → compile → train with per-epoch callbacks
     - Check cancellation flag between epochs; on cancel, dispose all tensors and return partial result
@@ -184,7 +184,7 @@ All code is TypeScript. The project uses vitest for testing and will add `fast-c
     - **Validates: Requirements 10.2**
 
 - [ ] 7. Training orchestrator (auth gate)
-  - [ ] 7.1 Implement training orchestrator (`src/utils/tfTraining/orchestrator.ts`)
+  - [x] 7.1 Implement training orchestrator (`src/utils/tfTraining/orchestrator.ts`)
     - Implement `createTrainingRunner(request, callbacks, isAuthenticated)` that routes to simulation or TF engine
     - When `isAuthenticated` is false, delegate to `createSimulationRunner`
     - When `isAuthenticated` is true, load TF.js → detect capabilities → start TF engine
@@ -198,32 +198,32 @@ All code is TypeScript. The project uses vitest for testing and will add `fast-c
     - For any training request, verify unauthenticated routes to simulation and authenticated routes to TF engine
     - **Validates: Requirements 1.1, 1.2**
 
-- [ ] 8. Checkpoint - Ensure all tests pass
+- [x] 8. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 9. TrainingPage integration
-  - [ ] 9.1 Update TrainingPage to use the training orchestrator
+  - [x] 9.1 Update TrainingPage to use the training orchestrator
     - Replace direct `createSimulationRunner` usage with `createTrainingRunner` from the orchestrator
     - Pass `isAuthenticated` from `useAuth()` context to the orchestrator
     - Wire `onStatusChange` callback to display loading/training/fallback status indicators
     - Show "Real Training" or "Simulation" badge based on training status
     - _Requirements: 1.1, 1.2, 1.5, 2.3_
 
-  - [ ] 9.2 Add training status UI indicators to TrainingPage
+  - [x] 9.2 Add training status UI indicators to TrainingPage
     - Display TF.js loading progress with estimated size when `status.type === 'loading_tf'`
     - Show device capability check status
     - Display fallback-to-simulation notification with reason when applicable
     - Add `beforeunload` handler that triggers cancellation and tensor disposal
     - _Requirements: 2.3, 9.2, 9.3, 10.3_
 
-- [ ] 10. TestingPage integration (real predictions)
-  - [ ] 10.1 Integrate model registry with TestingPage for real predictions
+- [x] 10. TestingPage integration (real predictions)
+  - [x] 10.1 Integrate model registry with TestingPage for real predictions
     - Import `loadModel` from model registry
     - On page load, check `hasModel(projectId)` and load the trained model if available
     - Display "No trained model" message with link to training page when model is not found
     - _Requirements: 8.4, 8.5_
 
-  - [ ] 10.2 Implement real prediction pipeline on TestingPage
+  - [x] 10.2 Implement real prediction pipeline on TestingPage
     - Accept user input (text, numeric features, or image depending on model type)
     - Preprocess input using stored `PreprocessingMetadata` (normalize, tokenize, or resize)
     - Run `model.predict()` on preprocessed input
@@ -239,7 +239,7 @@ All code is TypeScript. The project uses vitest for testing and will add `fast-c
     - Configure vitest timeout to 30s for property test files
     - _Requirements: All properties_
 
-- [ ] 12. Final checkpoint - Ensure all tests pass
+- [x] 12. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { LayoutDashboard, Users, AlertTriangle, TrendingUp, Eye, FileText, Download, Shield, CheckSquare } from 'lucide-react';
+import { LayoutDashboard, Users, AlertTriangle, TrendingUp, Eye, FileText, Download, Shield, CheckSquare, BookOpen } from 'lucide-react';
 import { BarChart } from '@/components/charts/ChartComponents';
 import { dashboardService } from '@/services/dashboardService';
 import { exportStudentProgressPDF, exportClassSummaryPDF } from '@/utils/pdfExport';
@@ -177,6 +177,13 @@ export default function TeacherDashboardPage() {
               >
                 <Users className="h-4 w-4 mr-2" />
                 School Admin
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate('/teacher/lesson-plans')}
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                Lesson Plans
               </Button>
             </div>
           </CardContent>

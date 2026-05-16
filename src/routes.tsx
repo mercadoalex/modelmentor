@@ -36,6 +36,8 @@ import BulkUserImportPage from './pages/BulkUserImportPage';
 import SharedConfigurationPage from './pages/SharedConfigurationPage';
 import AssignmentGradingPage from './pages/AssignmentGradingPage';
 import ModelComparisonDashboard from './pages/ModelComparisonDashboard';
+import LessonPlanLibraryPage from './pages/LessonPlanLibraryPage';
+import LessonPlanDetailPage from './pages/LessonPlanDetailPage';
 
 export interface RouteConfig {
   name: string;
@@ -286,6 +288,20 @@ export const routes: RouteConfig[] = [
     path: '/models/compare',
     element: <ModelComparisonDashboard />,
     visible: true,
+    public: false,
+  },
+  {
+    name: 'Lesson Plan Library',
+    path: '/teacher/lesson-plans',
+    element: <LessonPlanLibraryPage />,
+    visible: false,
+    public: false,
+  },
+  {
+    name: 'Lesson Plan Detail',
+    path: '/teacher/lesson-plans/:planId',
+    element: <LessonPlanDetailPage />,
+    visible: false,
     public: false,
   },
 ];
