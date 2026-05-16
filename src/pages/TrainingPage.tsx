@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTraining } from '@/contexts/TrainingContext';
@@ -93,6 +94,17 @@ export default function TrainingPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  // Translated workflow steps and pipeline stages
+  const translatedWorkflowSteps = [
+    { id: 'describe', title: t('workflow.steps.describe'),     description: t('workflow.steps.describeDescription'),   icon: FileText      },
+    { id: 'data',     title: t('workflow.steps.inputData'),    description: t('workflow.steps.inputDataDescription'),   icon: Database      },
+    { id: 'learn',    title: t('workflow.steps.learn'),        description: t('workflow.steps.learnDescription'),       icon: GraduationCap },
+    { id: 'train',    title: t('workflow.steps.trainModel'),   description: t('workflow.steps.trainModelDescription'),  icon: Zap           },
+    { id: 'debug',    title: t('workflow.steps.testDebug'),    description: t('workflow.steps.testDebugDescription'),   icon: Bug           },
+    { id: 'deploy',   title: t('workflow.steps.deploy'),       description: t('workflow.steps.deployDescription'),      icon: Share2        },
+  ];
 
   // Backend integration contexts
   const training = useTraining();
@@ -228,8 +240,8 @@ export default function TrainingPage() {
         });
       }
 
-      setLogs(prev => [...prev, { timestamp: new Date(), level: 'success', message: 'Training completed!' }]);
-      toast.success('Training completed!');
+      setLogs(prev => [...prev, { timestamp: new Date(), level: 'success', message: t('pages.training.logs.trainingCompletedSuccess') }]);
+      toast.success(t('pages.training.toasts.trainingCompleted'));
 
       // Refresh usage after training completes
       subscription.refreshUsage();
@@ -239,9 +251,9 @@ export default function TrainingPage() {
       setLogs(prev => [...prev, {
         timestamp: new Date(),
         level: 'error',
-        message: recentJob.error || `Training ${recentJob.status}`,
+        message: recentJob.error || t('pages.training.logs.trainingFailed'),
       }]);
-      toast.error(recentJob.error || `Training ${recentJob.status}`);
+      toast.error(recentJob.error || t('pages.training.logs.trainingFailed'));
     }
   }, [isAuthenticated, isTraining, training.jobHistory, trainingStartTime, trainingConfig.epochs, subscription]);
 
@@ -327,9 +339,9 @@ export default function TrainingPage() {
       // Check quota/limits before starting
       const canTrain = subscription.checkCanPerform('training');
       if (!canTrain.allowed) {
-        toast.error(canTrain.reason || 'Training limit reached', {
+        toast.error(canTrain.reason || t('pages.training.quota.limitReached'), {
           action: {
-            label: 'Upgrade',
+            label: t('pages.training.quota.upgrade'),
             onClick: () => navigate('/pricing'),
           },
         });
@@ -348,7 +360,7 @@ export default function TrainingPage() {
       setCurrentStage('training');
       trainingCancelledRef.current = false;
 
-      setLogs([{ timestamp: new Date(), level: 'info', message: 'Submitting training job to backend...' }]);
+      setLogs([{ timestamp: new Date(), level: 'info', message: t('pages.training.logs.submittingJob') }]);
 
       try {
         const response = await training.startTraining({
@@ -383,16 +395,16 @@ export default function TrainingPage() {
               bestAccuracy: response.metrics.accuracy,
             });
           }
-          setLogs(prev => [...prev, { timestamp: new Date(), level: 'success', message: 'Training completed!' }]);
-          toast.success('Training completed!');
+          setLogs(prev => [...prev, { timestamp: new Date(), level: 'success', message: t('pages.training.logs.trainingCompletedSuccess') }]);
+          toast.success(t('pages.training.toasts.trainingCompleted'));
         } else if (response.status === 'failed') {
           setIsTraining(false);
           setCurrentStage('idle');
-          setLogs(prev => [...prev, { timestamp: new Date(), level: 'error', message: response.error || 'Training failed' }]);
-          toast.error(response.error || 'Training failed');
+          setLogs(prev => [...prev, { timestamp: new Date(), level: 'error', message: response.error || t('pages.training.logs.trainingFailed') }]);
+          toast.error(response.error || t('pages.training.toasts.trainingFailed'));
         } else {
           // Job is running/queued — progress will come via Realtime subscription in TrainingContext
-          setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: `Training job started (${response.session_id})` }]);
+          setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: t('pages.training.logs.jobStarted', { sessionId: response.session_id }) }]);
         }
       } catch (error) {
         console.error('Backend training error, falling back to simulated training:', error);
@@ -401,7 +413,7 @@ export default function TrainingPage() {
         setLogs([]);
         
         // Fall back to simulated training instead of blocking the user
-        toast.info('Using local training mode (sign in for cloud training)');
+        toast.info(t('pages.training.toasts.localTrainingMode'));
         // Don't return — let it fall through to the offline training below
       }
     }
@@ -415,7 +427,7 @@ export default function TrainingPage() {
     setElapsedTime(0);
     setCurrentEpoch(0);
     setMetrics([]);
-    setLogs([{ timestamp: new Date(), level: 'info', message: '🔧 Preparing training environment...' }]);
+    setLogs([{ timestamp: new Date(), level: 'info', message: `🔧 ${t('pages.training.logs.preparingEnvironment')}` }]);
     setCurrentMetrics({});
     setCurrentStage('training');
     trainingCancelledRef.current = false;
@@ -423,7 +435,7 @@ export default function TrainingPage() {
     let session = trainingSession;
 
     if (!session) {
-      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '📦 Setting up training session...' }]);
+      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: `📦 ${t('pages.training.logs.settingUpSession')}` }]);
       try {
         const sessionPromise = trainingService.create({
           project_id:    projectId,
@@ -439,11 +451,11 @@ export default function TrainingPage() {
       } catch {
         session = { id: `local-${Date.now()}` } as unknown as typeof session;
       }
-      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '✅ Ready. Loading data...' }]);
+      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: `✅ ${t('pages.training.logs.readyLoadingData')}` }]);
     }
 
     try {
-      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: '🧠 Initializing training engine...' }]);
+      setLogs(prev => [...prev, { timestamp: new Date(), level: 'info', message: `🧠 ${t('pages.training.logs.initializingEngine')}` }]);
 
       const runner = createTrainingRunner(
         {
@@ -494,8 +506,8 @@ export default function TrainingPage() {
             setLogs(prev => [...prev, {
               timestamp: new Date(),
               level:     'success' as const,
-              message:   `Epoch ${epoch}/${trainingConfig.epochs} completed`,
-              details:   `Loss: ${epochLogs.loss.toFixed(4)}, Accuracy: ${(epochLogs.acc * 100).toFixed(2)}%`,
+              message:   t('pages.training.logs.epochCompleted', { current: epoch, total: trainingConfig.epochs }),
+              details:   t('pages.training.logs.epochDetails', { loss: epochLogs.loss.toFixed(4), accuracy: (epochLogs.acc * 100).toFixed(2) }),
             }]);
 
             if (session) {
@@ -515,10 +527,10 @@ export default function TrainingPage() {
             setLogs(prev => [...prev, {
               timestamp: new Date(),
               level:     'success' as const,
-              message:   'Training completed successfully!',
-              details:   `Final accuracy: ${(result.finalMetrics.accuracy * 100).toFixed(2)}%`,
+              message:   t('pages.training.logs.trainingCompletedSuccess'),
+              details:   t('pages.training.logs.finalAccuracy', { accuracy: (result.finalMetrics.accuracy * 100).toFixed(2) }),
             }]);
-            toast.success('Training completed!');
+            toast.success(t('pages.training.toasts.trainingCompleted'));
             stopTraining(true);
           },
           onError: (error) => {
@@ -528,10 +540,10 @@ export default function TrainingPage() {
             setLogs(prev => [...prev, {
               timestamp: new Date(),
               level:     'error',
-              message:   'Training failed',
+              message:   t('pages.training.logs.trainingFailed'),
               details:   error.message,
             }]);
-            toast.error('Training failed. Please try again.');
+            toast.error(t('pages.training.toasts.trainingFailed'));
           },
           onStatusChange: (status) => {
             setTrainingStatus(status);
@@ -539,19 +551,19 @@ export default function TrainingPage() {
               setLogs(prev => [...prev, {
                 timestamp: new Date(),
                 level:     'info',
-                message:   `⏳ Loading TensorFlow.js (~${status.estimatedSizeMB}MB)...`,
+                message:   `⏳ ${t('pages.training.logs.loadingTf', { size: status.estimatedSizeMB })}`,
               }]);
             } else if (status.type === 'fallback_to_simulation') {
               setLogs(prev => [...prev, {
                 timestamp: new Date(),
                 level:     'warning',
-                message:   `📊 Falling back to simulation: ${status.reason}`,
+                message:   `📊 ${t('pages.training.logs.fallbackSimulation', { reason: status.reason })}`,
               }]);
             } else if (status.type === 'training') {
               setLogs(prev => [...prev, {
                 timestamp: new Date(),
                 level:     'info',
-                message:   status.isReal ? '🧪 Real TensorFlow.js training started' : '📊 Simulation training started',
+                message:   status.isReal ? `🧪 ${t('pages.training.logs.realTrainingStarted')}` : `📊 ${t('pages.training.logs.simulationStarted')}`,
               }]);
             }
           },
@@ -569,16 +581,16 @@ export default function TrainingPage() {
       setLogs(prev => [...prev, {
         timestamp: new Date(),
         level:     'error',
-        message:   'Training failed',
+        message:   t('pages.training.logs.trainingFailed'),
         details:   error instanceof Error ? error.message : String(error),
       }]);
-      toast.error('Training failed. Please try again.');
+      toast.error(t('pages.training.toasts.trainingFailed'));
       setIsTraining(false);
     }
   };
 
   const pauseTraining = () => {
-    toast.info('Pausing is not supported during active training. Please stop and restart.');
+    toast.info(t('pages.training.toasts.pauseNotSupported'));
   };
 
   const resumeTraining = () => {
@@ -643,31 +655,31 @@ export default function TrainingPage() {
         });
       }
 
-      toast.success('Training completed!');
+      toast.success(t('pages.training.toasts.trainingCompleted'));
     } else if (!completed) {
       setCurrentStage('idle');
       setLogs(prev => [...prev, {
         timestamp: new Date(),
         level:     'warning',
-        message:   'Training stopped by user',
+        message:   t('pages.training.logs.stoppedByUser'),
       }]);
     }
   };
 
   // ── Export helpers ─────────────────────────────────────────────────────────
   const handleDownloadModel = async () => {
-    if (!trainedModel || !project) { toast.error('No trained model available'); return; }
+    if (!trainedModel || !project) { toast.error(t('pages.training.toasts.modelDownloadFailed')); return; }
     try {
       await downloadModel(trainedModel, project.title.replace(/\s+/g, '_'));
-      toast.success('Model downloaded successfully');
+      toast.success(t('pages.training.toasts.modelDownloaded'));
     } catch (error) {
       console.error('Download error:', error);
-      toast.error('Failed to download model');
+      toast.error(t('pages.training.toasts.modelDownloadFailed'));
     }
   };
 
   const handleExportPDF = () => {
-    if (!project || metrics.length === 0) { toast.error('No training data available to export'); return; }
+    if (!project || metrics.length === 0) { toast.error(t('pages.training.toasts.noTrainingData')); return; }
     try {
       const finalMetrics = metrics[metrics.length - 1];
       exportTrainingResultsPDF(
@@ -682,10 +694,10 @@ export default function TrainingPage() {
         metrics.map(m => ({ epoch: m.epoch, loss: m.loss, accuracy: m.accuracy })),
         { author: user?.email || 'Student' }
       );
-      toast.success('Training report exported as PDF');
+      toast.success(t('pages.training.toasts.pdfExported'));
     } catch (error) {
       console.error('PDF export error:', error);
-      toast.error('Failed to export PDF');
+      toast.error(t('pages.training.toasts.pdfExportFailed'));
     }
   };
 
@@ -728,24 +740,24 @@ export default function TrainingPage() {
         {/* Workflow progress */}
         <Card className="border-none shadow-none bg-muted/30">
           <CardContent className="pt-6 pb-6">
-            <MLWorkflowVisualizer steps={workflowSteps} currentStep={3} />
+            <MLWorkflowVisualizer steps={translatedWorkflowSteps} currentStep={3} />
           </CardContent>
         </Card>
 
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h1 className="text-3xl font-semibold">Step 4: Train Model</h1>
+            <h1 className="text-3xl font-semibold">{t('pages.training.stepTitle')}</h1>
             <p className="text-muted-foreground">{project.title}</p>
           </div>
           <div className="flex items-center gap-2">
             {isTraining && trainingStatus?.type === 'training' && (
               <Badge variant="outline" className="text-sm px-3 py-1">
-                {trainingStatus.isReal ? '🧪 Real Training' : '📊 Simulation'}
+                {trainingStatus.isReal ? `🧪 ${t('pages.training.realTraining')}` : `📊 ${t('pages.training.simulation')}`}
               </Badge>
             )}
             {isCompleted && (
               <Badge variant="default" className="text-sm px-3 py-1 bg-green-500 text-white">
-                ✓ Training Complete
+                ✓ {t('pages.training.trainingComplete')}
               </Badge>
             )}
           </div>
@@ -758,8 +770,8 @@ export default function TrainingPage() {
               <div className="flex items-center gap-3">
                 <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
                 <div>
-                  <p className="text-sm font-medium text-blue-800 dark:text-blue-200">Loading TensorFlow.js</p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400">Estimated size: ~{trainingStatus.estimatedSizeMB}MB</p>
+                  <p className="text-sm font-medium text-blue-800 dark:text-blue-200">{t('pages.training.loadingTensorflow')}</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400">{t('pages.training.estimatedSize', { size: trainingStatus.estimatedSizeMB })}</p>
                 </div>
               </div>
             </CardContent>
@@ -771,7 +783,7 @@ export default function TrainingPage() {
               <div className="flex items-center gap-3">
                 <span className="text-lg">📊</span>
                 <div>
-                  <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Using Simulation Mode</p>
+                  <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">{t('pages.training.simulationMode')}</p>
                   <p className="text-xs text-yellow-600 dark:text-yellow-400">{trainingStatus.reason}</p>
                 </div>
               </div>
@@ -806,7 +818,7 @@ export default function TrainingPage() {
             <div className="grid grid-cols-1 gap-4">
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium">Current Epoch</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('pages.training.currentEpoch')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-semibold">{currentEpoch} / {trainingConfig.epochs}</p>
@@ -815,7 +827,7 @@ export default function TrainingPage() {
 
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium">Accuracy</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('pages.training.accuracy')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-semibold">
@@ -826,7 +838,7 @@ export default function TrainingPage() {
 
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium">Loss</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('pages.training.loss')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-semibold">
@@ -860,10 +872,10 @@ export default function TrainingPage() {
             {!isTraining && !isCompleted && (
               <Tabs defaultValue="validation" className="w-full">
                 <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="validation">Validation</TabsTrigger>
-                  <TabsTrigger value="hyperparams">Hyperparams</TabsTrigger>
-                  <TabsTrigger value="analysis">Analysis</TabsTrigger>
-                  <TabsTrigger value="architecture">Architecture</TabsTrigger>
+                  <TabsTrigger value="validation">{t('pages.training.tabs.validation')}</TabsTrigger>
+                  <TabsTrigger value="hyperparams">{t('pages.training.tabs.hyperparams')}</TabsTrigger>
+                  <TabsTrigger value="analysis">{t('pages.training.tabs.analysis')}</TabsTrigger>
+                  <TabsTrigger value="architecture">{t('pages.training.tabs.architecture')}</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="validation" className="space-y-6 mt-4">
@@ -872,7 +884,7 @@ export default function TrainingPage() {
                     numClasses={labels.length || 2}
                     onRecommendationApply={(ratio) => {
                       setTrainingConfig({ ...trainingConfig, validationSplit: 1 - ratio });
-                      toast.success(`Applied ${(ratio * 100).toFixed(0)}-${((1 - ratio) * 100).toFixed(0)} split`);
+                      toast.success(t('pages.training.toasts.splitApplied', { train: (ratio * 100).toFixed(0), val: ((1 - ratio) * 100).toFixed(0) }));
                     }}
                   />
                   <EarlyStoppingConfigPanel
@@ -892,7 +904,7 @@ export default function TrainingPage() {
                       datasetSize={sampleCount}
                       targetClasses={labels.length || 2}
                       onEnableTransferLearning={(enabled, model) => {
-                        if (enabled && model) toast.success(`Transfer learning enabled with ${model.name}`);
+                        if (enabled && model) toast.success(t('pages.training.toasts.transferLearningEnabled', { model: model.name }));
                       }}
                     />
                   )}
@@ -934,19 +946,19 @@ export default function TrainingPage() {
             {/* Training controls — always visible */}
             <Card>
               <CardHeader>
-                <CardTitle>Training Controls</CardTitle>
+                <CardTitle>{t('pages.training.controls.title')}</CardTitle>
                 <CardDescription>
                   {isCompleted
-                    ? 'Training completed — explore results below'
+                    ? t('pages.training.controls.completedDescription')
                     : isTraining
-                    ? 'Training in progress…'
-                    : 'Configure options above then start training'}
+                    ? t('pages.training.controls.inProgressDescription')
+                    : t('pages.training.controls.idleDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Progress</span>
+                    <span className="text-muted-foreground">{t('pages.training.controls.progress')}</span>
                     <span className="font-medium">{progress.toFixed(0)}%</span>
                   </div>
                   <Progress value={progress} />
@@ -956,14 +968,14 @@ export default function TrainingPage() {
                   {!isTraining && !isCompleted && (
                     <Button onClick={startTraining} size="lg" className="flex-1 min-w-[200px]" data-tour="start-training">
                       <Play className="h-5 w-5 mr-2" />
-                      Start Training the Model
+                      {t('pages.training.controls.startTraining')}
                     </Button>
                   )}
 
                   {isTraining && currentEpoch === 0 && !isPaused && (
                     <div className="flex-1 min-w-[200px] flex items-center justify-center gap-3 p-3 rounded-lg bg-primary/10 border border-primary/20">
                       <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                      <span className="text-sm font-medium text-primary">Preparing training environment…</span>
+                      <span className="text-sm font-medium text-primary">{t('pages.training.controls.preparingEnvironment')}</span>
                     </div>
                   )}
 
@@ -971,11 +983,11 @@ export default function TrainingPage() {
                     <>
                       <Button onClick={pauseTraining} variant="outline" size="lg" className="flex-1">
                         <Pause className="h-5 w-5 mr-2" />
-                        Pause
+                        {t('pages.training.controls.pause')}
                       </Button>
                       <Button onClick={() => stopTraining(false)} variant="destructive" size="lg" className="flex-1">
                         <Square className="h-5 w-5 mr-2" />
-                        Stop
+                        {t('pages.training.controls.stop')}
                       </Button>
                     </>
                   )}
@@ -984,11 +996,11 @@ export default function TrainingPage() {
                     <>
                       <Button onClick={resumeTraining} size="lg" className="flex-1">
                         <Play className="h-5 w-5 mr-2" />
-                        Resume
+                        {t('pages.training.controls.resume')}
                       </Button>
                       <Button onClick={() => stopTraining(false)} variant="destructive" size="lg" className="flex-1">
                         <Square className="h-5 w-5 mr-2" />
-                        Stop
+                        {t('pages.training.controls.stop')}
                       </Button>
                     </>
                   )}
@@ -996,19 +1008,19 @@ export default function TrainingPage() {
                   {isCompleted && (
                     <>
                       <Button onClick={handleContinueToTesting} size="lg" className="flex-1">
-                        Continue to Testing
+                        {t('pages.training.controls.continueToTesting')}
                         <ArrowRight className="h-5 w-5 ml-2" />
                       </Button>
                       {trainedModel && (
                         <Button onClick={handleDownloadModel} variant="outline" size="lg">
                           <Download className="h-5 w-5 mr-2" />
-                          Download Model
+                          {t('pages.training.controls.downloadModel')}
                         </Button>
                       )}
                       {metrics.length > 0 && (
                         <Button onClick={handleExportPDF} variant="outline" size="lg">
                           <FileDown className="h-5 w-5 mr-2" />
-                          Export PDF
+                          {t('pages.training.controls.exportPdf')}
                         </Button>
                       )}
                     </>
@@ -1028,8 +1040,8 @@ export default function TrainingPage() {
             {metrics.length > 0 && (
               <Card data-tour="training-chart">
                 <CardHeader>
-                  <CardTitle>Training Metrics</CardTitle>
-                  <CardDescription>Real-time accuracy and loss per epoch</CardDescription>
+                  <CardTitle>{t('pages.training.metrics.title')}</CardTitle>
+                  <CardDescription>{t('pages.training.metrics.subtitle')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <LineChart
@@ -1037,7 +1049,7 @@ export default function TrainingPage() {
                       labels: metrics.map(m => `Epoch ${m.epoch}`),
                       datasets: [
                         {
-                          label:           'Accuracy (%)',
+                          label:           t('pages.training.metrics.accuracyLabel'),
                           data:            metrics.map(m => m.accuracy * 100),
                           borderColor:     'hsl(var(--chart-1))',
                           backgroundColor: 'hsla(var(--chart-1), 0.1)',
@@ -1045,7 +1057,7 @@ export default function TrainingPage() {
                           fill:    true,
                         },
                         {
-                          label:           'Loss',
+                          label:           t('pages.training.metrics.lossLabel'),
                           data:            metrics.map(m => m.loss),
                           borderColor:     'hsl(var(--chart-3))',
                           backgroundColor: 'hsla(var(--chart-3), 0.1)',
@@ -1060,7 +1072,7 @@ export default function TrainingPage() {
                           beginAtZero: true,
                           title: {
                             display: true,
-                            text:    'Value',
+                            text:    t('pages.training.metrics.valueAxis'),
                             color:   'hsl(var(--muted-foreground))',
                             font: { size: 12 },
                           },
@@ -1092,11 +1104,11 @@ export default function TrainingPage() {
 
                 <Tabs defaultValue="results" className="w-full">
                   <TabsList className="grid w-full grid-cols-5">
-                    <TabsTrigger value="results">Results</TabsTrigger>
-                    <TabsTrigger value="interpretability">Explainability</TabsTrigger>
-                    <TabsTrigger value="advanced">Advanced</TabsTrigger>
-                    <TabsTrigger value="deploy">Deploy</TabsTrigger>
-                    <TabsTrigger value="monitor">Monitor</TabsTrigger>
+                    <TabsTrigger value="results">{t('pages.training.tabs.results')}</TabsTrigger>
+                    <TabsTrigger value="interpretability">{t('pages.training.tabs.interpretability')}</TabsTrigger>
+                    <TabsTrigger value="advanced">{t('pages.training.tabs.advanced')}</TabsTrigger>
+                    <TabsTrigger value="deploy">{t('pages.training.tabs.deploy')}</TabsTrigger>
+                    <TabsTrigger value="monitor">{t('pages.training.tabs.monitor')}</TabsTrigger>
                   </TabsList>
 
                   {/* Results */}

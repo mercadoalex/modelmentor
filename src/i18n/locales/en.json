@@ -1,0 +1,539 @@
+{
+  "common": {
+    "nav": {
+      "projects": "Projects",
+      "datasets": "Datasets",
+      "pricing": "Pricing",
+      "teacherResources": "Teacher Resources",
+      "badges": "Badges",
+      "dashboard": "Dashboard",
+      "tutorial": "Tutorial",
+      "help": "Help",
+      "signIn": "Sign In",
+      "signUp": "Sign Up",
+      "signOut": "Sign Out",
+      "settings": "Settings",
+      "myAccount": "My Account",
+      "bulkImport": "Bulk User Import"
+    },
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "create": "Create",
+      "submit": "Submit",
+      "back": "Back",
+      "next": "Next",
+      "close": "Close",
+      "confirm": "Confirm",
+      "retry": "Retry",
+      "continue": "Continue",
+      "start": "Start",
+      "stop": "Stop",
+      "pause": "Pause",
+      "resume": "Resume",
+      "export": "Export",
+      "download": "Download",
+      "upload": "Upload",
+      "browse": "Browse",
+      "use": "Use",
+      "hidePreview": "Hide Preview",
+      "viewDataset": "View Dataset",
+      "connectionGuide": "Connection Guide"
+    },
+    "messages": {
+      "loading": "Loading...",
+      "success": "Operation completed successfully",
+      "error": "An error occurred",
+      "noData": "No data available",
+      "saving": "Saving…",
+      "uploading": "Uploading…",
+      "processing": "Processing…",
+      "redirecting": "Redirecting..."
+    }
+  },
+  "pages": {
+    "projectCreation": {
+      "heroTitle": "Learn Machine Learning by Actually Doing It",
+      "heroSubtitle": "Not videos. Not slides. You build, train, and test real ML models — step by step, with guidance at every turn. Understand the why, not just the how.",
+      "valueProps": {
+        "handsOn": {
+          "title": "Hands-On Learning",
+          "description": "Pick a project, load data, train a model, and see results — all guided, all interactive"
+        },
+        "concepts": {
+          "title": "Understand the Concepts",
+          "description": "Learn what overfitting means by seeing it happen. Quizzes, matching games, and real feedback"
+        },
+        "noCode": {
+          "title": "No Code Required",
+          "description": "Designed for students and beginners. Just describe what you want to build and follow the steps"
+        }
+      },
+      "ctaStartFree": "Start Free — No Signup",
+      "ctaSeePricing": "See Pricing",
+      "triesRemaining": "You have {{count}} {{triesWord}} remaining.",
+      "triesRemainingLow": "Register to get unlimited access!",
+      "tryWord": "try",
+      "triesWord": "tries",
+      "stepTitle": "Step 1: Describe Your Project",
+      "stepDescription": "Tell us what you want to build, or",
+      "browseExamples": "browse example projects below",
+      "textareaPlaceholder": "I want to train an AI to...",
+      "analyzeButton": "Analyze Project",
+      "projectAnalysis": {
+        "title": "Project Analysis",
+        "subtitle": "We've analyzed your project description",
+        "detectedModelType": "Detected Model Type",
+        "yourJourney": "Your Journey",
+        "journeyImage": "You will collect images, train a classification model, and test its accuracy on new images.",
+        "journeyText": "You will collect text samples, train a classification model, and evaluate its performance on new text.",
+        "journeyRegression": "You will collect numerical data, train a regression model, and test its predictions on new data points."
+      },
+      "startWithMyData": "Start with My Data",
+      "startGuidedTour": "Start Guided Tour",
+      "exampleProjects": {
+        "title": "Example Projects",
+        "subtitle": "Click any project to use it as your starting point"
+      },
+      "difficulty": {
+        "beginner": "beginner",
+        "intermediate": "intermediate",
+        "advanced": "advanced"
+      },
+      "exampleLoaded": "Example loaded! Click \"Analyze Project\" to continue",
+      "pleaseDescribe": "Please describe your project",
+      "limitReached": "You have reached the limit of 10 tries. Please register to continue.",
+      "failedToCreate": "Failed to create project"
+    },
+    "pricing": {
+      "title": "Simple, transparent pricing",
+      "subtitle": "Start free. Upgrade when you're ready. No hidden fees.",
+      "billingToggle": {
+        "monthly": "Monthly",
+        "yearly": "Yearly",
+        "savePercent": "Save 30%"
+      },
+      "trialBanner": "You're on a free trial — {{days}} {{daysWord}} remaining",
+      "dayWord": "day",
+      "daysWord": "days",
+      "currentPlan": "Current plan:",
+      "trainingSessionsUsed": "{{count}} training sessions used this month",
+      "storageUsed": "{{amount}} MB storage used",
+      "plans": {
+        "free": {
+          "name": "Free",
+          "description": "Learn ML concepts with interactive simulations — no signup required",
+          "cta": "Get Started Free",
+          "features": [
+            "Smart training simulation",
+            "Interactive learning activities",
+            "3 active projects",
+            "Guided tour with matched datasets",
+            "Data validation & engineering tools",
+            "CSV exports",
+            "Real TensorFlow.js training",
+            "Real model predictions",
+            "Cloud dataset storage",
+            "Model deployment",
+            "Kaggle dataset integration",
+            "Priority support"
+          ]
+        },
+        "pro": {
+          "name": "Pro",
+          "description": "Real model training in your browser — train, test, and predict",
+          "cta": "Start Pro Trial",
+          "badge": "Most Popular",
+          "features": [
+            "Real TensorFlow.js training ✨",
+            "Real predictions on new data",
+            "Model saved to browser (IndexedDB)",
+            "50 active projects",
+            "500 training sessions/month",
+            "5 GB cloud storage",
+            "All ML model types (4 architectures)",
+            "CSV & PDF exports",
+            "Kaggle dataset integration",
+            "Advanced visualizations",
+            "Collaboration tools",
+            "Priority support"
+          ]
+        },
+        "school": {
+          "name": "School",
+          "description": "Per-student pricing for classrooms. Minimum 6 students.",
+          "cta": "Start School Plan",
+          "badge": "Best Value",
+          "features": [
+            "Server-side GPU training (coming soon)",
+            "Unlimited projects & sessions",
+            "50 GB storage per school",
+            "Model deployment as API",
+            "Multi-teacher accounts",
+            "Class & group management",
+            "Student progress dashboard",
+            "Scheduled reports & analytics",
+            "Assignment grading",
+            "SSO/SAML authentication",
+            "Dedicated support",
+            "Custom integrations"
+          ],
+          "perStudentPrice": "${{price}}/student/{{period}} × {{count}} students",
+          "studentsLabel": "Students:",
+          "minStudents": "(min 6)"
+        }
+      },
+      "perPeriod": "/{{period}}",
+      "year": "year",
+      "month": "month",
+      "free": "Free",
+      "custom": "Custom",
+      "yourPlan": "Your Plan",
+      "currentPlanButton": "Current Plan",
+      "signUpToStart": "Sign up to get started",
+      "faq": {
+        "title": "Frequently Asked Questions",
+        "items": [
+          {
+            "question": "Can I upgrade or downgrade anytime?",
+            "answer": "Yes, you can change your plan at any time. Upgrades take effect immediately, downgrades at the end of your billing period."
+          },
+          {
+            "question": "What happens when I reach my free tier limits?",
+            "answer": "You'll see an upgrade prompt. Your existing data is never deleted — you just can't create new resources until you upgrade or the month resets."
+          },
+          {
+            "question": "Is there a free trial for Pro?",
+            "answer": "Yes! Pro comes with a 14-day free trial. No credit card required."
+          },
+          {
+            "question": "Do you offer discounts for non-profit organizations or schools?",
+            "answer": "Yes, contact us at non-profit@modelmentor.ai for educational discounts."
+          }
+        ]
+      },
+      "checkoutSuccess": "Payment successful! Your plan has been upgraded.",
+      "checkoutCancelled": "Checkout was cancelled. No changes were made to your plan."
+    },
+    "training": {
+      "stepTitle": "Step 4: Train Model",
+      "realTraining": "Real Training",
+      "simulation": "Simulation",
+      "trainingComplete": "Training Complete",
+      "loadingTensorflow": "Loading TensorFlow.js",
+      "estimatedSize": "Estimated size: ~{{size}}MB",
+      "simulationMode": "Using Simulation Mode",
+      "currentEpoch": "Current Epoch",
+      "accuracy": "Accuracy",
+      "loss": "Loss",
+      "controls": {
+        "title": "Training Controls",
+        "completedDescription": "Training completed — explore results below",
+        "inProgressDescription": "Training in progress…",
+        "idleDescription": "Configure options above then start training",
+        "progress": "Progress",
+        "startTraining": "Start Training the Model",
+        "preparingEnvironment": "Preparing training environment…",
+        "pause": "Pause",
+        "stop": "Stop",
+        "resume": "Resume",
+        "continueToTesting": "Continue to Testing",
+        "downloadModel": "Download Model",
+        "exportPdf": "Export PDF"
+      },
+      "metrics": {
+        "title": "Training Metrics",
+        "subtitle": "Real-time accuracy and loss per epoch",
+        "accuracyLabel": "Accuracy (%)",
+        "lossLabel": "Loss",
+        "valueAxis": "Value"
+      },
+      "tabs": {
+        "validation": "Validation",
+        "hyperparams": "Hyperparams",
+        "analysis": "Analysis",
+        "architecture": "Architecture",
+        "results": "Results",
+        "interpretability": "Explainability",
+        "advanced": "Advanced",
+        "deploy": "Deploy",
+        "monitor": "Monitor"
+      },
+      "toasts": {
+        "trainingCompleted": "Training completed!",
+        "trainingFailed": "Training failed. Please try again.",
+        "pauseNotSupported": "Pausing is not supported during active training. Please stop and restart.",
+        "modelDownloaded": "Model downloaded successfully",
+        "modelDownloadFailed": "Failed to download model",
+        "noTrainingData": "No training data available to export",
+        "pdfExported": "Training report exported as PDF",
+        "pdfExportFailed": "Failed to export PDF",
+        "localTrainingMode": "Using local training mode (sign in for cloud training)",
+        "splitApplied": "Applied {{train}}-{{val}} split",
+        "transferLearningEnabled": "Transfer learning enabled with {{model}}"
+      },
+      "logs": {
+        "preparingEnvironment": "Preparing training environment...",
+        "settingUpSession": "Setting up training session...",
+        "readyLoadingData": "Ready. Loading data...",
+        "initializingEngine": "Initializing training engine...",
+        "submittingJob": "Submitting training job to backend...",
+        "jobStarted": "Training job started ({{sessionId}})",
+        "epochCompleted": "Epoch {{current}}/{{total}} completed",
+        "epochDetails": "Loss: {{loss}}, Accuracy: {{accuracy}}%",
+        "trainingCompletedSuccess": "Training completed successfully!",
+        "finalAccuracy": "Final accuracy: {{accuracy}}%",
+        "trainingFailed": "Training failed",
+        "stoppedByUser": "Training stopped by user",
+        "loadingTf": "Loading TensorFlow.js (~{{size}}MB)...",
+        "fallbackSimulation": "Falling back to simulation: {{reason}}",
+        "realTrainingStarted": "Real TensorFlow.js training started",
+        "simulationStarted": "Simulation training started"
+      },
+      "quota": {
+        "limitReached": "Training limit reached",
+        "upgrade": "Upgrade"
+      }
+    },
+    "dataCollection": {
+      "stepTitle": "Step 2: Input Data",
+      "guidedTour": {
+        "syntheticLoaded": "Using built-in synthetic data for your learning experience.",
+        "imageCount": "Loaded {{count}} shape images.",
+        "rowCount": "Loaded {{count}} sample rows.",
+        "exploreData": "Explore the data below, then click",
+        "continueToLearning": "Continue to Learning",
+        "whenReady": "when you're ready.",
+        "noDataset": "No pre-made dataset is available for this project type. Don't worry — select a template dataset below to continue your learning journey!",
+        "preSelected": "A sample dataset has been pre-selected for you. Explore the data below, then click",
+        "failedToLoad": "Failed to load sample datasets. Using built-in synthetic data instead.",
+        "guidedTourMode": "Guided Tour Mode:"
+      },
+      "upload": {
+        "title": "Upload Your Data",
+        "imageDescription": "Upload at least {{min}} images (JPG, PNG, GIF, WEBP)",
+        "textDescription": "Upload at least {{min}} text samples (TXT, CSV)",
+        "regressionDescription": "Upload at least {{min}} data points (CSV)",
+        "classificationDescription": "Upload at least {{min}} data points (CSV)",
+        "dropActive": "Drop files here",
+        "dropInactive": "Drag & drop files or click to browse",
+        "uploadedFiles": "Uploaded Files ({{count}})",
+        "storageInfo": "Storage: {{used}} MB used",
+        "storageWithLimit": "/ {{limit}} MB ({{remaining}} MB remaining)",
+        "storageUnlimited": "(unlimited)"
+      },
+      "preview": {
+        "title": "Data Preview & Validation",
+        "tabs": {
+          "preview": "Preview",
+          "validation": "Validation",
+          "statistics": "Statistics",
+          "profiling": "Profiling",
+          "features": "Features",
+          "engineering": "Engineering",
+          "workshop": "Workshop",
+          "interactions": "Interactions",
+          "cleaning": "Cleaning"
+        }
+      },
+      "status": {
+        "title": "Dataset Status",
+        "ready": "Ready to proceed to the learning module",
+        "fixIssues": "Please fix critical data issues before proceeding",
+        "needMore": "Need at least {{min}} samples to continue",
+        "continueButton": "Continue to Learning"
+      },
+      "toasts": {
+        "qualityGood": "{{filename}} uploaded! Quality score: {{score}}",
+        "qualityWarning": "{{filename}} has quality issues. Score: {{score}}",
+        "parseFailed": "Failed to parse {{filename}}",
+        "templateLoaded": "\"{{name}}\" loaded — scroll down to preview your data!",
+        "imageTemplateLoaded": "\"{{name}}\" loaded — {{count}} images ready!",
+        "syntheticLoaded": "Loaded \"{{name}}\" dataset — {{count}} images ready!",
+        "syntheticTabularLoaded": "Loaded synthetic dataset — {{count}} rows ready!",
+        "syntheticFailed": "Failed to load synthetic dataset. Please select a template manually.",
+        "imageTemplateFailed": "Failed to load image dataset",
+        "templateFailed": "Failed to load template data",
+        "uploadFailed": "Failed to save dataset",
+        "uploadFailedRetry": "Failed to save dataset. Please try again or select a different template.",
+        "noDataSelected": "Please upload files or select a sample dataset",
+        "qualityImproved": "Data quality improved from {{oldScore}} to {{newScore}}!",
+        "featuresSelected": "Selected {{count}} features with target: {{target}}",
+        "featuresEngineered": "Created {{count}} new features. Dataset updated!",
+        "imageCompressed": "{{filename}} compressed to {{size}}KB",
+        "imageCompressFailed": "Failed to compress {{filename}}"
+      }
+    },
+    "testing": {
+      "stepTitle": "Step 5: Test & Debug",
+      "versionSelector": {
+        "title": "Model Version",
+        "description": "Select which trained version to test against",
+        "loadingVersions": "Loading versions…",
+        "noVersions": "No saved versions found. Train the model first.",
+        "selectPlaceholder": "Select a version",
+        "active": "active",
+        "accuracyLabel": "Accuracy: {{value}}%",
+        "lossLabel": "Loss: {{value}}",
+        "epochsLabel": "Epochs: {{value}}"
+      },
+      "modelStatus": {
+        "noModel": "No trained model found for this project. Predictions will use simulation.",
+        "goToTraining": "Go to Training →",
+        "realModelLoaded": "Real trained model loaded",
+        "realModelDetails": "predictions will use the TensorFlow.js model trained on {{date}} (accuracy: {{accuracy}}%)"
+      },
+      "summaryCards": {
+        "modelAccuracy": "Model Accuracy",
+        "finalLoss": "Final Loss",
+        "epochsTrained": "Epochs Trained",
+        "testPredictions": "Test Predictions",
+        "notAvailable": "N/A"
+      },
+      "testInterface": {
+        "title": "Test Your Model",
+        "description": "Run single predictions or batch test with CSV data",
+        "usingVersion": "— using v{{version}}",
+        "tabs": {
+          "single": "Single Prediction",
+          "batch": "Batch Testing"
+        }
+      },
+      "singlePrediction": {
+        "textPlaceholder": "Enter text to classify…",
+        "regressionPlaceholder": "Enter values (comma-separated)…",
+        "runPrediction": "Run Prediction",
+        "uploadImage": "Click to upload an image",
+        "imageFormats": "Supports JPG, PNG, GIF (max 5MB)",
+        "orEnterUrl": "Or enter image URL",
+        "urlPlaceholder": "https://example.com/image.jpg",
+        "predictionLabel": "Prediction: {{value}}",
+        "confidenceLabel": "Confidence: {{value}}%"
+      },
+      "batchTesting": {
+        "uploadCsv": "Click to upload CSV file",
+        "csvFormat": "CSV format: each row is a test sample (max 10MB, 100 rows)",
+        "runBatchTest": "Run Batch Test"
+      },
+      "actions": {
+        "exportResults": "Export Test Results",
+        "exportDescription": "Download detailed test report as PDF",
+        "exportPdf": "Export PDF",
+        "readyToShare": "Ready to Share",
+        "shareDescription": "Export your model and create a shareable demo",
+        "exportAndShare": "Export & Share"
+      },
+      "toasts": {
+        "predictionGenerated": "Prediction generated",
+        "predictionFailed": "Failed to generate prediction",
+        "imageUploaded": "Image uploaded successfully",
+        "invalidImage": "Please select a valid image file",
+        "imageTooLarge": "Image size must be less than 5MB",
+        "noImageInput": "Please upload an image or enter an image URL",
+        "noTextInput": "Please provide test input",
+        "noTrainingSession": "No training session found",
+        "csvUploaded": "CSV file uploaded successfully",
+        "invalidCsv": "Please select a valid CSV file",
+        "csvTooLarge": "File size must be less than 10MB",
+        "noCsvFile": "Please upload a CSV file",
+        "csvMinRows": "CSV file must contain at least a header row and one data row",
+        "batchProcessed": "Processed {{count}} predictions",
+        "batchFailed": "Failed to process CSV file",
+        "noResultsToExport": "No test results to export",
+        "pdfExported": "Test results exported as PDF",
+        "pdfExportFailed": "Failed to export PDF"
+      }
+    }
+  },
+  "datasets": {
+    "templates": {
+      "categories": {
+        "imageClassification": {
+          "title": "Image Classification",
+          "description": "Train models to recognize and categorize images"
+        },
+        "textClassification": {
+          "title": "Text Classification",
+          "description": "Analyze and categorize text data"
+        },
+        "regression": {
+          "title": "Regression",
+          "description": "Predict numerical values based on input features"
+        },
+        "huggingFace": {
+          "title": "Popular Hugging Face Examples",
+          "description": "Inspired by well-known datasets and models from the ML community"
+        },
+        "tensorflowModelScope": {
+          "title": "ModelScope & TensorFlow Hub Examples",
+          "description": "Real-world projects from leading ML platforms"
+        },
+        "kaggle": {
+          "title": "Kaggle Competition Classics",
+          "description": "Popular projects from Kaggle competitions and datasets"
+        },
+        "github": {
+          "title": "GitHub Open Source Projects",
+          "description": "Community-driven ML projects from GitHub repositories"
+        }
+      }
+    },
+    "columns": {
+      "filename": "Filename",
+      "label": "Label",
+      "prediction": "Prediction",
+      "confidence": "Confidence",
+      "actual": "Actual",
+      "input": "Input"
+    }
+  },
+  "errors": {
+    "validation": {
+      "required": "This field is required",
+      "invalidEmail": "Please enter a valid email address",
+      "invalidUrl": "Please enter a valid URL",
+      "fileTooLarge": "File size exceeds the maximum allowed",
+      "invalidFileType": "Invalid file type",
+      "minSamples": "Need at least {{min}} samples to continue",
+      "criticalIssues": "Please fix critical data issues before proceeding"
+    },
+    "network": {
+      "connectionFailed": "Connection failed. Please check your internet connection.",
+      "timeout": "Request timed out. Please try again.",
+      "serverError": "Server error. Please try again later."
+    },
+    "auth": {
+      "loginRequired": "Please log in to continue",
+      "sessionExpired": "Your session has expired. Please log in again.",
+      "unauthorized": "You don't have permission to perform this action"
+    }
+  },
+  "learning": {
+    "moments": {
+      "data": "Learn: Data",
+      "dataDescription": "Understand data quality & features",
+      "model": "Learn: Model",
+      "modelDescription": "Understand how your model works",
+      "nextSteps": "Learn: Next Steps",
+      "nextStepsDescription": "Explore advanced ML concepts"
+    }
+  },
+  "workflow": {
+    "steps": {
+      "describe": "Describe",
+      "describeDescription": "Define your ML project goals",
+      "inputData": "Input Data",
+      "inputDataDescription": "Upload or select training data",
+      "learn": "Learn",
+      "learnDescription": "Understand ML concepts",
+      "trainModel": "Train Model",
+      "trainModelDescription": "Train your AI model",
+      "testDebug": "Test & Debug",
+      "testDebugDescription": "Evaluate and refine",
+      "deploy": "Deploy",
+      "deployDescription": "Share your model"
+    }
+  }
+}

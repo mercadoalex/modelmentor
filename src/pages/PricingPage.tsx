@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layouts/AppLayout';
 import { Button } from '@/components/ui/button';
@@ -11,107 +12,41 @@ import { CheckCircle2, X, Zap, GraduationCap, Building2, Clock, Loader2 } from '
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useLocaleFormat } from '@/hooks/useLocaleFormat';
 
-const plans = [
+const planConfigs = [
   {
     id:          'free',
-    name:        'Free',
     icon:        GraduationCap,
-    description: 'Learn ML concepts with interactive simulations — no signup required',
     monthlyPrice: 0,
     yearlyPrice:  0,
     badge:        null,
-    features: [
-      { label: 'Smart training simulation',     included: true  },
-      { label: 'Interactive learning activities', included: true  },
-      { label: '3 active projects',             included: true  },
-      { label: 'Guided tour with matched datasets', included: true  },
-      { label: 'Data validation & engineering tools', included: true  },
-      { label: 'CSV exports',                   included: true  },
-      { label: 'Real TensorFlow.js training',   included: false },
-      { label: 'Real model predictions',        included: false },
-      { label: 'Cloud dataset storage',         included: false },
-      { label: 'Model deployment',              included: false },
-      { label: 'Kaggle dataset integration',    included: false },
-      { label: 'Priority support',              included: false },
-    ],
-    cta:      'Get Started Free',
+    includedCount: 6,
     ctaStyle: 'outline' as const,
   },
   {
     id:           'pro',
-    name:         'Pro',
     icon:         Zap,
-    description:  'Real model training in your browser — train, test, and predict',
     monthlyPrice: 12,
     yearlyPrice:  99,
-    badge:        'Most Popular',
-    features: [
-      { label: 'Real TensorFlow.js training ✨', included: true },
-      { label: 'Real predictions on new data',  included: true },
-      { label: 'Model saved to browser (IndexedDB)', included: true },
-      { label: '50 active projects',            included: true },
-      { label: '500 training sessions/month',   included: true },
-      { label: '5 GB cloud storage',            included: true },
-      { label: 'All ML model types (4 architectures)', included: true },
-      { label: 'CSV & PDF exports',             included: true },
-      { label: 'Kaggle dataset integration',    included: true },
-      { label: 'Advanced visualizations',       included: true },
-      { label: 'Collaboration tools',           included: true },
-      { label: 'Priority support',              included: true },
-    ],
-    cta:      'Start Pro Trial',
+    includedCount: 12,
     ctaStyle: 'default' as const,
   },
   {
     id:           'enterprise',
-    name:         'School',
     icon:         Building2,
-    description:  'Per-student pricing for classrooms. Minimum 6 students.',
-    monthlyPrice: 6,   // $6/student/month
-    yearlyPrice:  50,   // $50/student/year (30% off monthly: $6×12=$72, 30% off = $50.40 ≈ $50)
-    badge:        'Best Value',
+    monthlyPrice: 6,
+    yearlyPrice:  50,
     perStudent:   true,
     minStudents:  6,
-    features: [
-      { label: 'Server-side GPU training (coming soon)', included: true },
-      { label: 'Unlimited projects & sessions', included: true },
-      { label: '50 GB storage per school',      included: true },
-      { label: 'Model deployment as API',       included: true },
-      { label: 'Multi-teacher accounts',        included: true },
-      { label: 'Class & group management',      included: true },
-      { label: 'Student progress dashboard',    included: true },
-      { label: 'Scheduled reports & analytics', included: true },
-      { label: 'Assignment grading',            included: true },
-      { label: 'SSO/SAML authentication',       included: true },
-      { label: 'Dedicated support',             included: true },
-      { label: 'Custom integrations',           included: true },
-    ],
-    cta:      'Start School Plan',
+    includedCount: 12,
     ctaStyle: 'outline' as const,
   },
 ];
 
-const faqs = [
-  {
-    q: 'Can I upgrade or downgrade anytime?',
-    a: 'Yes, you can change your plan at any time. Upgrades take effect immediately, downgrades at the end of your billing period.',
-  },
-  {
-    q: 'What happens when I reach my free tier limits?',
-    a: "You'll see an upgrade prompt. Your existing data is never deleted — you just can't create new resources until you upgrade or the month resets.",
-  },
-  {
-    q: 'Is there a free trial for Pro?',
-    a: 'Yes! Pro comes with a 14-day free trial. No credit card required.',
-  },
-  {
-    q: 'Do you offer discounts for non-profit organizations or schools?',
-    a: 'Yes, contact us at non-profit@modelmentor.ai for educational discounts.',
-  },
-];
-
 export default function PricingPage() {
+  const { t } = useTranslation();
+  const { formatCurrency } = useLocaleFormat();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [yearly, setYearly] = useState(false);
@@ -125,13 +60,13 @@ export default function PricingPage() {
   useEffect(() => {
     const checkoutStatus = searchParams.get('checkout');
     if (checkoutStatus === 'success') {
-      toast.success('Payment successful! Your plan has been upgraded.');
+      toast.success(t('pages.pricing.checkoutSuccess'));
       setSearchParams({}, { replace: true });
     } else if (checkoutStatus === 'cancelled') {
-      toast.info('Checkout was cancelled. No changes were made to your plan.');
+      toast.info(t('pages.pricing.checkoutCancelled'));
       setSearchParams({}, { replace: true });
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, t]);
 
   const handleCTA = async (planId: string) => {
     if (!isAuthenticated) {
@@ -139,7 +74,6 @@ export default function PricingPage() {
     }
 
     if (planId === 'free') {
-      // Already on free or navigating to signup
       return navigate('/dashboard');
     }
 
@@ -161,22 +95,23 @@ export default function PricingPage() {
     }
   };
 
-  const getButtonLabel = (plan: typeof plans[number]) => {
+  const getButtonLabel = (planId: string, cta: string) => {
     if (!isAuthenticated) {
-      return 'Sign up to get started';
+      return t('pages.pricing.signUpToStart');
     }
 
-    // If this is the user's current tier, show "Current Plan"
-    if (plan.id === subscription.tier) {
-      return 'Current Plan';
+    if (planId === subscription.tier) {
+      return t('pages.pricing.currentPlanButton');
     }
 
-    return plan.cta;
+    return cta;
   };
 
   const isCurrentPlan = (planId: string) => {
     return isAuthenticated && planId === subscription.tier;
   };
+
+  const faqItems = t('pages.pricing.faq.items', { returnObjects: true }) as Array<{ question: string; answer: string }>;
 
   return (
     <AppLayout>
@@ -184,9 +119,9 @@ export default function PricingPage() {
 
         {/* Header */}
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold">Simple, transparent pricing</h1>
+          <h1 className="text-4xl font-bold">{t('pages.pricing.title')}</h1>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-            Start free. Upgrade when you're ready. No hidden fees.
+            {t('pages.pricing.subtitle')}
           </p>
 
           {/* Trial status banner */}
@@ -194,7 +129,10 @@ export default function PricingPage() {
             <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium">
               <Clock className="h-4 w-4" />
               <span>
-                You're on a free trial — {subscription.trialDaysRemaining} day{subscription.trialDaysRemaining !== 1 ? 's' : ''} remaining
+                {t('pages.pricing.trialBanner', {
+                  days: subscription.trialDaysRemaining,
+                  daysWord: subscription.trialDaysRemaining !== 1 ? t('pages.pricing.daysWord') : t('pages.pricing.dayWord')
+                })}
               </span>
             </div>
           )}
@@ -202,35 +140,41 @@ export default function PricingPage() {
           {/* Usage summary for authenticated users */}
           {isAuthenticated && (
             <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground pt-1">
-              <span>Current plan: <Badge variant="secondary" className="ml-1">{subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</Badge></span>
+              <span>{t('pages.pricing.currentPlan')} <Badge variant="secondary" className="ml-1">{subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</Badge></span>
               <span>•</span>
-              <span>{subscription.usage.training_sessions} training sessions used this month</span>
+              <span>{t('pages.pricing.trainingSessionsUsed', { count: subscription.usage.training_sessions })}</span>
               <span>•</span>
-              <span>{subscription.usage.storage_mb} MB storage used</span>
+              <span>{t('pages.pricing.storageUsed', { amount: subscription.usage.storage_mb })}</span>
             </div>
           )}
 
           {/* Billing toggle */}
           <div className="flex items-center justify-center gap-3 pt-2">
-            <Label htmlFor="billing-toggle" className="text-sm">Monthly</Label>
+            <Label htmlFor="billing-toggle" className="text-sm">{t('pages.pricing.billingToggle.monthly')}</Label>
             <Switch
               id="billing-toggle"
               checked={yearly}
               onCheckedChange={setYearly}
             />
             <Label htmlFor="billing-toggle" className="text-sm">
-              Yearly
-              <Badge variant="secondary" className="ml-2 text-xs">Save 30%</Badge>
+              {t('pages.pricing.billingToggle.yearly')}
+              <Badge variant="secondary" className="ml-2 text-xs">{t('pages.pricing.billingToggle.savePercent')}</Badge>
             </Label>
           </div>
         </div>
 
         {/* Plans */}
         <div className="grid md:grid-cols-3 gap-8">
-          {plans.map((plan) => {
+          {planConfigs.map((plan) => {
             const Icon  = plan.icon;
             const price = yearly ? plan.yearlyPrice : plan.monthlyPrice;
-            const isPopular = plan.badge === 'Most Popular';
+            const planKey = plan.id === 'enterprise' ? 'school' : plan.id;
+            const planName = t(`pages.pricing.plans.${planKey}.name`);
+            const planDescription = t(`pages.pricing.plans.${planKey}.description`);
+            const planCta = t(`pages.pricing.plans.${planKey}.cta`);
+            const planBadge = plan.id === 'pro' ? t('pages.pricing.plans.pro.badge') : plan.id === 'enterprise' ? t('pages.pricing.plans.school.badge') : null;
+            const planFeatures = t(`pages.pricing.plans.${planKey}.features`, { returnObjects: true }) as string[];
+            const isPopular = plan.id === 'pro';
             const isCurrent = isCurrentPlan(plan.id);
 
             return (
@@ -238,10 +182,10 @@ export default function PricingPage() {
                 key={plan.id}
                 className={`relative flex flex-col ${isPopular ? 'border-primary shadow-lg scale-105' : ''} ${isCurrent ? 'ring-2 ring-primary' : ''}`}
               >
-                {plan.badge && (
+                {planBadge && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <Badge className={isPopular ? 'bg-primary text-primary-foreground' : ''}>
-                      {plan.badge}
+                      {planBadge}
                     </Badge>
                   </div>
                 )}
@@ -249,7 +193,7 @@ export default function PricingPage() {
                 {isCurrent && (
                   <div className="absolute -top-3 right-4">
                     <Badge variant="outline" className="bg-background">
-                      Your Plan
+                      {t('pages.pricing.yourPlan')}
                     </Badge>
                   </div>
                 )}
@@ -257,26 +201,30 @@ export default function PricingPage() {
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2">
                     <Icon className="h-5 w-5 text-primary" />
-                    <CardTitle>{plan.name}</CardTitle>
+                    <CardTitle>{planName}</CardTitle>
                   </div>
-                  <CardDescription>{plan.description}</CardDescription>
+                  <CardDescription>{planDescription}</CardDescription>
 
                   <div className="pt-2">
                     {plan.id === 'enterprise' ? (
                       <div className="space-y-2">
                         <div className="flex items-end gap-1">
                           <span className="text-3xl font-bold">
-                            ${yearly ? (plan.yearlyPrice ?? 0) * studentCount : (plan.monthlyPrice ?? 0) * studentCount}
+                            {formatCurrency(yearly ? (plan.yearlyPrice ?? 0) * studentCount : (plan.monthlyPrice ?? 0) * studentCount)}
                           </span>
                           <span className="text-muted-foreground text-sm mb-1">
-                            /{yearly ? 'year' : 'month'}
+                            {t('pages.pricing.perPeriod', { period: yearly ? t('pages.pricing.year') : t('pages.pricing.month') })}
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          ${yearly ? plan.yearlyPrice ?? 0 : plan.monthlyPrice ?? 0}/student/{yearly ? 'year' : 'month'} × {studentCount} students
+                          {t('pages.pricing.plans.school.perStudentPrice', {
+                            price: yearly ? plan.yearlyPrice ?? 0 : plan.monthlyPrice ?? 0,
+                            period: yearly ? t('pages.pricing.year') : t('pages.pricing.month'),
+                            count: studentCount
+                          })}
                         </p>
                         <div className="flex items-center gap-2 pt-1">
-                          <Label htmlFor="student-count" className="text-xs whitespace-nowrap">Students:</Label>
+                          <Label htmlFor="student-count" className="text-xs whitespace-nowrap">{t('pages.pricing.plans.school.studentsLabel')}</Label>
                           <Input
                             id="student-count"
                             type="number"
@@ -286,18 +234,18 @@ export default function PricingPage() {
                             onChange={(e) => setStudentCount(Math.max(6, parseInt(e.target.value) || 6))}
                             className="h-8 w-20 text-sm"
                           />
-                          <span className="text-xs text-muted-foreground">(min 6)</span>
+                          <span className="text-xs text-muted-foreground">{t('pages.pricing.plans.school.minStudents')}</span>
                         </div>
                       </div>
                     ) : price === null ? (
-                      <div className="text-3xl font-bold">Custom</div>
+                      <div className="text-3xl font-bold">{t('pages.pricing.custom')}</div>
                     ) : price === 0 ? (
-                      <div className="text-3xl font-bold">Free</div>
+                      <div className="text-3xl font-bold">{t('pages.pricing.free')}</div>
                     ) : (
                       <div className="flex items-end gap-1">
-                        <span className="text-3xl font-bold">${price}</span>
+                        <span className="text-3xl font-bold">{formatCurrency(price)}</span>
                         <span className="text-muted-foreground text-sm mb-1">
-                          /{yearly ? 'year' : 'month'}
+                          {t('pages.pricing.perPeriod', { period: yearly ? t('pages.pricing.year') : t('pages.pricing.month') })}
                         </span>
                       </div>
                     )}
@@ -306,13 +254,15 @@ export default function PricingPage() {
 
                 <CardContent className="flex flex-col flex-1 gap-6">
                   <ul className="space-y-2 flex-1">
-                    {plan.features.map((f) => (
-                      <li key={f.label} className="flex items-center gap-2 text-sm">
-                        {f.included
-                          ? <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
-                          : <X className="h-4 w-4 text-muted-foreground shrink-0" />
+                    {planFeatures.map((feature, index) => (
+                      <li key={feature} className="flex items-center gap-2 text-sm">
+                        {index < plan.includedCount && plan.id !== 'enterprise'
+                          ? (plan.id === 'free' && index >= 6
+                            ? <X className="h-4 w-4 text-muted-foreground shrink-0" />
+                            : <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />)
+                          : <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
                         }
-                        <span className={f.included ? '' : 'text-muted-foreground'}>{f.label}</span>
+                        <span className={plan.id === 'free' && index >= 6 ? 'text-muted-foreground' : ''}>{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -326,10 +276,10 @@ export default function PricingPage() {
                     {checkoutLoading === plan.id ? (
                       <span className="flex items-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        Redirecting...
+                        {t('common.messages.redirecting')}
                       </span>
                     ) : (
-                      getButtonLabel(plan)
+                      getButtonLabel(plan.id, planCta)
                     )}
                   </Button>
                 </CardContent>
@@ -340,15 +290,15 @@ export default function PricingPage() {
 
         {/* FAQ */}
         <div className="max-w-2xl mx-auto space-y-6">
-          <h2 className="text-2xl font-semibold text-center">Frequently Asked Questions</h2>
+          <h2 className="text-2xl font-semibold text-center">{t('pages.pricing.faq.title')}</h2>
           <div className="space-y-4">
-            {faqs.map((faq) => (
-              <Card key={faq.q}>
+            {faqItems.map((faq) => (
+              <Card key={faq.question}>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-base">{faq.q}</CardTitle>
+                  <CardTitle className="text-base">{faq.question}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">{faq.a}</p>
+                  <p className="text-sm text-muted-foreground">{faq.answer}</p>
                 </CardContent>
               </Card>
             ))}
