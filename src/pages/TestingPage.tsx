@@ -466,7 +466,8 @@ export default function TestingPage() {
           <p className="text-muted-foreground">{project.title}</p>
         </div>
 
-        {/* ── Version selector ── */}
+        {/* ── Version selector — only show when versions exist or loading ── */}
+        {(versionsLoading || versions.length > 0) && (
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
@@ -547,9 +548,10 @@ export default function TestingPage() {
             )}
           </CardContent>
         </Card>
+        )}
 
         {/* Real model status indicator */}
-        {modelAvailable === false && (
+        {modelAvailable === false && !trainingSession?.id?.startsWith('local-') && (
           <Alert>
             <AlertDescription className="flex items-center justify-between">
               <span>{t('pages.testing.modelStatus.noModel')}</span>
