@@ -535,5 +535,1015 @@
       "deploy": "Desplegar",
       "deployDescription": "Comparte tu modelo"
     }
+  },
+  "lessonPlans": {
+    "ui": {
+      "library": "Biblioteca de Planes de Clase",
+      "filterBy": "Filtrar por",
+      "gradeBand": "Nivel Escolar",
+      "subjectArea": "Área Temática",
+      "duration": "Duración",
+      "modelType": "Tipo de Modelo",
+      "standard": "Estándar",
+      "clearFilters": "Limpiar Filtros",
+      "noResults": "Ningún plan de clase coincide con tus filtros. Intenta ampliar tus criterios.",
+      "exportPdf": "Exportar PDF",
+      "exportHandout": "Exportar Guía del Estudiante",
+      "print": "Imprimir",
+      "backToLibrary": "Volver a la Biblioteca",
+      "overview": "Descripción General",
+      "procedure": "Procedimiento",
+      "assessment": "Evaluación",
+      "differentiation": "Diferenciación",
+      "handout": "Guía del Estudiante",
+      "teacherNotes": "Notas del Docente",
+      "objectives": "Objetivos de Aprendizaje",
+      "standards": "Alineación con Estándares",
+      "materials": "Materiales Necesarios",
+      "vocabulary": "Vocabulario Clave",
+      "rubric": "Rúbrica de Evaluación",
+      "formativeAssessment": "Evaluación Formativa",
+      "gradeBands": {
+        "6-8": "Grados 6-8 (Secundaria)",
+        "9-12": "Grados 9-12 (Preparatoria)"
+      },
+      "durations": {
+        "45min": "45 minutos",
+        "60min": "60 minutos",
+        "90min": "90 minutos"
+      },
+      "subjects": {
+        "computer-science": "Ciencias de la Computación",
+        "mathematics": "Matemáticas",
+        "science": "Ciencias",
+        "cross-curricular": "Interdisciplinario"
+      },
+      "modelTypes": {
+        "image-classification": "Clasificación de Imágenes",
+        "text-classification": "Clasificación de Texto",
+        "regression": "Regresión"
+      },
+      "levels": {
+        "beginning": "Inicial",
+        "developing": "En Desarrollo",
+        "proficient": "Competente",
+        "advanced": "Avanzado"
+      },
+      "diffLevels": {
+        "struggling": "Estudiantes con Dificultades",
+        "on-level": "Nivel Esperado",
+        "advanced": "Estudiantes Avanzados"
+      }
+    },
+    "phases": {
+      "warmUp": "Activación / Enganche",
+      "directInstruction": "Instrucción Directa",
+      "guidedPractice": "Práctica Guiada",
+      "independentPractice": "Práctica Independiente",
+      "closure": "Cierre / Reflexión"
+    },
+    "standards": {
+      "csta-2-DA-08": {
+        "name": "Recopilar Datos",
+        "description": "Recopilar datos usando herramientas computacionales y transformarlos para hacerlos más útiles y confiables"
+      },
+      "csta-3A-AP-13": {
+        "name": "Crear Prototipos",
+        "description": "Crear prototipos que usen algoritmos para resolver problemas computacionales aprovechando el conocimiento previo y los intereses personales de los estudiantes"
+      },
+      "csta-3A-DA-11": {
+        "name": "Crear Visualizaciones",
+        "description": "Crear visualizaciones de datos interactivas usando herramientas de software para ayudar a otros a comprender mejor fenómenos del mundo real"
+      },
+      "csta-3A-DA-12": {
+        "name": "Crear Modelos Computacionales",
+        "description": "Crear modelos computacionales que representen las relaciones entre diferentes elementos de datos recopilados de un fenómeno o proceso"
+      },
+      "iste-5a": {
+        "name": "Pensador Computacional - Formular Problemas",
+        "description": "Los estudiantes formulan definiciones de problemas adecuadas para métodos asistidos por tecnología como análisis de datos, modelos abstractos y pensamiento algorítmico"
+      },
+      "iste-5c": {
+        "name": "Pensador Computacional - Descomponer Problemas",
+        "description": "Los estudiantes descomponen problemas en partes, extraen información clave y desarrollan modelos descriptivos para entender sistemas complejos"
+      },
+      "iste-3d": {
+        "name": "Constructor de Conocimiento - Construir Conocimiento",
+        "description": "Los estudiantes construyen conocimiento explorando activamente problemas del mundo real, desarrollando ideas y teorías y buscando respuestas"
+      }
+    },
+    "sep": {
+      "pensamientoComputacional": {
+        "area": "Pensamiento Computacional",
+        "description": "Alineado con el área de Pensamiento Computacional de la SEP — los estudiantes usan pensamiento algorítmico y análisis de datos para resolver problemas"
+      }
+    },
+    "plans": {
+      "image-classification-6-8": {
+        "title": "Introducción a la Clasificación de Imágenes",
+        "overview": "Los estudiantes exploran cómo las computadoras pueden aprender a reconocer y clasificar imágenes entrenando su propio modelo de clasificación. Usando objetos cotidianos como flores y animales, los estudiantes recopilan datos de imágenes, entrenan un modelo usando ModelMentor y evalúan su precisión. Esta lección introductoria construye una comprensión fundamental de cómo funciona el aprendizaje automático a través de la experimentación práctica.",
+        "objectives": [
+          "Explicar cómo los modelos de clasificación de imágenes aprenden a reconocer patrones en datos visuales",
+          "Recopilar y organizar un conjunto de datos de imágenes etiquetadas con al menos dos categorías",
+          "Entrenar un modelo de clasificación de imágenes e interpretar sus métricas de precisión"
+        ],
+        "materials": [
+          "Computadoras o tabletas con acceso a internet y ModelMentor cargado",
+          "Guía del estudiante (impresa o digital)",
+          "Conjuntos de imágenes de ejemplo de flores y animales (proporcionados en ModelMentor)",
+          "Pizarrón o proyector para demostraciones en clase"
+        ],
+        "vocabulary": [
+          {
+            "term": "Clasificación de Imágenes",
+            "definition": "Enseñar a una computadora a ordenar imágenes en categorías, como distinguir fotos de gatos y perros"
+          },
+          {
+            "term": "Datos de Entrenamiento",
+            "definition": "La colección de imágenes de ejemplo etiquetadas que la computadora usa para aprender patrones"
+          },
+          {
+            "term": "Etiqueta",
+            "definition": "Una marca que le dice a la computadora a qué categoría pertenece una imagen (por ejemplo, flor o animal)"
+          },
+          {
+            "term": "Precisión",
+            "definition": "Qué tan seguido el modelo identifica correctamente la categoría de una imagen, mostrado como porcentaje"
+          }
+        ],
+        "procedure": {
+          "warmUp": {
+            "steps": [
+              "Mostrar a los estudiantes un conjunto de 6 imágenes mezcladas (3 flores, 3 animales) y pedirles que las ordenen en grupos",
+              "Preguntar: ¿Cómo decidieron a qué grupo pertenece cada imagen? ¿Qué características buscaron?"
+            ],
+            "teacherNotes": [
+              "Usa esta actividad para hacer paralelos entre el reconocimiento de patrones humano y el aprendizaje automático. Los estudiantes naturalmente identifican características como pétalos, pelaje, patas, etc."
+            ],
+            "discussionPrompts": [
+              "¿Qué pistas usaste para distinguir flores de animales? ¿Podrías enseñarle tu método a alguien más?"
+            ]
+          },
+          "directInstruction": {
+            "steps": [
+              "Introducir el concepto de clasificación de imágenes: computadoras aprendiendo a ordenar imágenes en categorías",
+              "Explicar el proceso de entrenamiento: mostrar a la computadora muchos ejemplos etiquetados para que pueda encontrar patrones",
+              "Demostrar cómo abrir ModelMentor y navegar al tipo de proyecto de clasificación de imágenes"
+            ],
+            "teacherNotes": [
+              "Enfatizar que la computadora no entiende las imágenes como los humanos — busca patrones en los valores de píxeles y colores"
+            ],
+            "discussionPrompts": [
+              "¿En qué se diferencia la forma en que una computadora ve las imágenes de cómo las ves tú?",
+              "¿Por qué crees que necesitamos mostrarle a la computadora muchos ejemplos en lugar de solo uno?"
+            ]
+          },
+          "guidedPractice": {
+            "steps": [
+              "Guiar a los estudiantes para cargar el conjunto de datos de flores/animales en ModelMentor",
+              "Recorrer juntos el proceso de entrenamiento, explicando cada paso mientras ocurre",
+              "Hacer que los estudiantes observen la métrica de precisión mientras el modelo entrena y discutir qué significa"
+            ],
+            "discussionPrompts": [
+              "¿Qué notas que le pasa al número de precisión mientras el modelo entrena? ¿Por qué crees que cambia?"
+            ]
+          },
+          "independentPractice": {
+            "steps": [
+              "Los estudiantes prueban el modelo entrenado con imágenes nuevas que no están en el conjunto de entrenamiento",
+              "Los estudiantes registran qué predicciones son correctas y cuáles son incorrectas en su guía"
+            ],
+            "discussionPrompts": [
+              "¿El modelo se equivocó en alguna predicción? ¿Qué crees que lo pudo haber confundido?"
+            ]
+          },
+          "closure": {
+            "steps": [
+              "Discusión en clase: ¿Qué te sorprendió sobre cómo se desempeñó el modelo?",
+              "Boleto de salida: Escribe una cosa que el modelo hizo bien y una cosa con la que tuvo dificultades"
+            ],
+            "discussionPrompts": [
+              "Si pudieras darle más datos de entrenamiento al modelo, ¿qué tipo de imágenes agregarías para ayudarlo a mejorar?"
+            ]
+          }
+        },
+        "formativeAssessment": {
+          "indicators": [
+            "Los estudiantes pueden explicar con sus propias palabras cómo el modelo aprende de los ejemplos",
+            "Los estudiantes identifican correctamente si las predicciones del modelo son precisas o imprecisas",
+            "Los estudiantes sugieren mejoras razonables a los datos de entrenamiento para mejorar la precisión"
+          ]
+        },
+        "rubric": {
+          "conceptualUnderstanding": {
+            "criterion": "Comprensión Conceptual de la Clasificación de Imágenes",
+            "beginning": "No puede explicar cómo el modelo aprende de las imágenes; confunde la clasificación con otras tareas",
+            "developing": "Proporciona una explicación básica de la clasificación pero omite conceptos clave como datos de entrenamiento o etiquetas",
+            "proficient": "Explica claramente cómo el modelo usa datos de entrenamiento etiquetados para aprender a clasificar imágenes nuevas",
+            "advanced": "Explica el proceso de clasificación e identifica factores que afectan el rendimiento del modelo como la calidad y cantidad de datos"
+          },
+          "dataCollection": {
+            "criterion": "Recopilación y Organización de Datos",
+            "beginning": "No puede recopilar u organizar imágenes en categorías etiquetadas sin asistencia significativa",
+            "developing": "Recopila imágenes pero las etiquetas son inconsistentes o las categorías están mal definidas",
+            "proficient": "Recopila un conjunto de datos bien organizado con etiquetas claras y consistentes para cada categoría",
+            "advanced": "Crea un conjunto de datos balanceado y diverso y explica por qué la variedad en los datos de entrenamiento importa para el rendimiento del modelo"
+          },
+          "modelTraining": {
+            "criterion": "Entrenamiento y Evaluación del Modelo",
+            "beginning": "No puede iniciar el entrenamiento ni interpretar la métrica de precisión",
+            "developing": "Puede iniciar el entrenamiento pero tiene dificultades para explicar qué significa la precisión o por qué cambia",
+            "proficient": "Entrena exitosamente un modelo e interpreta correctamente la precisión como una medida de predicciones correctas",
+            "advanced": "Entrena el modelo, interpreta la precisión y propone estrategias específicas para mejorar el rendimiento del modelo"
+          },
+          "criticalThinking": {
+            "criterion": "Pensamiento Crítico y Reflexión",
+            "beginning": "No puede identificar errores del modelo ni sugerir razones para predicciones incorrectas",
+            "developing": "Identifica algunos errores pero no puede explicar por qué el modelo pudo haberse equivocado",
+            "proficient": "Identifica errores y proporciona explicaciones razonables de por qué el modelo tuvo dificultades con ciertas imágenes",
+            "advanced": "Analiza patrones de error, los conecta con limitaciones de los datos de entrenamiento y propone soluciones basadas en datos"
+          }
+        },
+        "differentiation": {
+          "struggling": {
+            "strategies": [
+              "Proporcionar un conjunto de datos pre-etiquetado para que los estudiantes se enfoquen en el entrenamiento en lugar de la recopilación de datos",
+              "Usar el modo de recorrido guiado de ModelMentor que proporciona indicaciones paso a paso",
+              "Emparejar con un compañero mentor que pueda ayudar a explicar conceptos en lenguaje accesible"
+            ]
+          },
+          "onLevel": {
+            "strategies": [
+              "Seguir el flujo estándar de la lección con el conjunto de datos de flores/animales proporcionado",
+              "Animar a los estudiantes a probar con sus propias imágenes encontradas en línea"
+            ]
+          },
+          "advanced": {
+            "strategies": [
+              "Desafiar a los estudiantes a agregar una tercera categoría a su modelo de clasificación",
+              "Pedir a los estudiantes que creen deliberadamente un conjunto de datos sesgado y observen cómo afecta la precisión",
+              "Hacer que los estudiantes escriban una breve explicación de cómo mejorarían el modelo para un estudiante más joven"
+            ]
+          }
+        },
+        "handout": {
+          "title": "Explorador de Clasificación de Imágenes - Guía del Estudiante",
+          "instructions": "Sigue la actividad de la clase. Registra tus observaciones y predicciones en los espacios de abajo.",
+          "sections": [
+            {
+              "heading": "Parte 1: Explorando los Datos",
+              "prompts": [
+                "¿Cuántas imágenes hay en tu conjunto de datos de entrenamiento? ¿Cuántas categorías tienes?",
+                "Describe qué hace que las imágenes de cada categoría sean similares entre sí."
+              ],
+              "reflectionQuestions": [
+                "¿Por qué crees que la computadora necesita muchos ejemplos de cada categoría para aprender?"
+              ]
+            },
+            {
+              "heading": "Parte 2: Entrenando el Modelo",
+              "prompts": [
+                "¿Cuál fue la precisión del modelo después del entrenamiento? Escribe el porcentaje aquí.",
+                "¿La precisión subió o bajó durante el entrenamiento? Describe lo que observaste."
+              ]
+            },
+            {
+              "heading": "Parte 3: Pruebas y Reflexión",
+              "prompts": [
+                "Prueba tu modelo con 5 imágenes nuevas. Registra los resultados: Descripción de la imagen, Categoría predicha, ¿Correcto? (Sí/No)"
+              ],
+              "reflectionQuestions": [
+                "¿Qué tipos de imágenes clasificó mal el modelo? ¿Qué pudo haberlo confundido?",
+                "Si pudieras agregar más imágenes de entrenamiento, ¿qué agregarías para ayudar al modelo a mejorar?"
+              ]
+            }
+          ],
+          "workflowSteps": [
+            "Abre ModelMentor y selecciona el proyecto de Clasificación de Imágenes",
+            "Carga el conjunto de datos de ejemplo o sube tus propias imágenes",
+            "Revisa tus datos en el panel de vista previa",
+            "Haz clic en Entrenar Modelo y observa la métrica de precisión"
+          ]
+        },
+        "teacherNotes": {
+          "misconceptions": [
+            {
+              "misconception": "La computadora entiende lo que hay en la imagen como lo hace un humano",
+              "correction": "La computadora solo detecta patrones en valores de píxeles (colores, formas, bordes). No tiene comprensión de lo que realmente es una flor o un animal."
+            },
+            {
+              "misconception": "Más datos de entrenamiento siempre significa un mejor modelo",
+              "correction": "La calidad importa tanto como la cantidad. Imágenes borrosas, mal etiquetadas o no representativas pueden perjudicar el rendimiento del modelo."
+            },
+            {
+              "misconception": "Si el modelo obtiene 100% de precisión en datos de entrenamiento, funcionará perfectamente con imágenes nuevas",
+              "correction": "Una alta precisión en entrenamiento puede significar que el modelo memorizó los ejemplos en lugar de aprender patrones generales. Aún puede fallar con imágenes nuevas no vistas."
+            }
+          ],
+          "classroomTips": [
+            "Hacer que los estudiantes trabajen en parejas para fomentar la discusión sobre por qué el modelo hace ciertas predicciones",
+            "Si el internet es lento, pre-descargar el conjunto de datos de ejemplo antes de la clase",
+            "Usar el proyector para mostrar a un grupo de estudiantes entrenando en tiempo real para que toda la clase pueda observar"
+          ],
+          "discussionPrompts": {
+            "warmUp": [
+              "¿Qué pistas usaste para distinguir flores de animales? ¿Podrías enseñarle tu método a alguien más?"
+            ],
+            "directInstruction": [
+              "¿En qué se diferencia la forma en que una computadora ve las imágenes de cómo las ves tú?",
+              "¿Por qué crees que necesitamos mostrarle a la computadora muchos ejemplos en lugar de solo uno?"
+            ],
+            "guidedPractice": [
+              "¿Qué notas que le pasa al número de precisión mientras el modelo entrena? ¿Por qué crees que cambia?"
+            ],
+            "closure": [
+              "Si pudieras darle más datos de entrenamiento al modelo, ¿qué tipo de imágenes agregarías para ayudarlo a mejorar?"
+            ]
+          }
+        }
+      },
+      "image-classification-9-12": {
+        "title": "Clasificación Avanzada de Imágenes con Transfer Learning",
+        "overview": "Los estudiantes profundizan su comprensión de la clasificación de imágenes explorando transfer learning, matrices de confusión y métricas de evaluación de modelos. Usando ModelMentor, los estudiantes ajustan un modelo pre-entrenado en un conjunto de datos personalizado, analizan el rendimiento por clase usando una matriz de confusión y evalúan precisión, recall y puntaje F1. Esta lección se conecta con aplicaciones del mundo real como imágenes médicas y vehículos autónomos.",
+        "objectives": [
+          "Explicar cómo el transfer learning aprovecha modelos pre-entrenados para mejorar la clasificación en nuevas tareas",
+          "Interpretar una matriz de confusión para identificar qué clases el modelo confunde con más frecuencia",
+          "Calcular y explicar precisión, recall y puntaje F1 para un clasificador multiclase",
+          "Evaluar las compensaciones entre complejidad del modelo, tiempo de entrenamiento y precisión"
+        ],
+        "materials": [
+          "Computadoras con acceso a internet y ModelMentor cargado",
+          "Guía del estudiante (impresa o digital)",
+          "Conjunto de datos de imágenes multiclase preparado (5+ categorías)",
+          "Pizarrón o proyector para demostrar la interpretación de la matriz de confusión"
+        ],
+        "vocabulary": [
+          {
+            "term": "Transfer Learning",
+            "definition": "Una técnica donde un modelo entrenado en un gran conjunto de datos se adapta a uno nuevo y más pequeño — como usar conocimiento de una tarea para ayudar con otra"
+          },
+          {
+            "term": "Matriz de Confusión",
+            "definition": "Una tabla que muestra con qué frecuencia el modelo clasifica correcta e incorrectamente cada categoría, revelando qué clases se confunden entre sí"
+          },
+          {
+            "term": "Precisión (Precision)",
+            "definition": "De todos los elementos que el modelo predijo como cierta clase, qué fracción realmente pertenecía a esa clase"
+          },
+          {
+            "term": "Recall",
+            "definition": "De todos los elementos que realmente pertenecen a una clase, qué fracción identificó correctamente el modelo"
+          },
+          {
+            "term": "Puntaje F1",
+            "definition": "Un número único que equilibra precisión y recall — útil cuando quieres que ambos sean altos"
+          }
+        ],
+        "procedure": {
+          "warmUp": {
+            "steps": [
+              "Mostrar a los estudiantes dos escenarios: entrenar un modelo desde cero con 50 imágenes vs. ajustar un modelo pre-entrenado con 50 imágenes",
+              "Pedir a los estudiantes que predigan qué enfoque funcionará mejor y por qué"
+            ],
+            "discussionPrompts": [
+              "Si ya supieras identificar perros, ¿sería más fácil aprender a identificar lobos? ¿Por qué?"
+            ]
+          },
+          "directInstruction": {
+            "steps": [
+              "Explicar transfer learning: cómo los modelos pre-entrenados ya conocen características visuales básicas (bordes, texturas, formas)",
+              "Introducir la matriz de confusión como herramienta para entender errores del modelo más allá de la simple precisión",
+              "Recorrer los cálculos de precisión, recall y puntaje F1 con un ejemplo simple de 2 clases",
+              "Discutir aplicaciones del mundo real donde estas métricas importan (imágenes médicas: el recall es crítico; filtro de spam: la precisión es crítica)"
+            ],
+            "teacherNotes": [
+              "Usar la analogía de un estudiante que se cambia de escuela — ya sabe los fundamentos de matemáticas, solo necesita aprender los detalles del nuevo plan de estudios"
+            ],
+            "discussionPrompts": [
+              "En imágenes médicas, ¿preferirías tener alta precisión o alto recall? ¿Cuáles son las consecuencias de cada tipo de error?",
+              "¿Por qué la precisión general podría ser engañosa cuando las clases están desbalanceadas?"
+            ]
+          },
+          "guidedPractice": {
+            "steps": [
+              "Guiar a los estudiantes para cargar un conjunto de datos multiclase y habilitar transfer learning en ModelMentor",
+              "Entrenar el modelo juntos y examinar la salida de la matriz de confusión",
+              "Calcular precisión y recall para una clase como ejercicio grupal"
+            ],
+            "discussionPrompts": [
+              "Mirando la matriz de confusión, ¿qué clases confunde más el modelo? ¿Qué similitudes visuales podrían explicar esto?"
+            ]
+          },
+          "independentPractice": {
+            "steps": [
+              "Los estudiantes entrenan su propio modelo con transfer learning habilitado y analizan la matriz de confusión",
+              "Los estudiantes calculan precisión, recall y F1 para al menos dos clases",
+              "Los estudiantes experimentan agregando más datos de entrenamiento para las clases confundidas y reentrenan"
+            ],
+            "discussionPrompts": [
+              "Después de agregar más datos para las clases confundidas, ¿mejoró la matriz de confusión? ¿En cuánto?"
+            ]
+          },
+          "closure": {
+            "steps": [
+              "Los grupos presentan sus hallazgos de la matriz de confusión y estrategias de mejora",
+              "Discusión en clase: ¿Cuándo elegirías transfer learning en lugar de entrenar desde cero?"
+            ],
+            "discussionPrompts": [
+              "¿Qué problema del mundo real te gustaría resolver con clasificación de imágenes, y qué métrica (precisión o recall) importaría más?"
+            ]
+          }
+        },
+        "formativeAssessment": {
+          "indicators": [
+            "Los estudiantes pueden explicar por qué el transfer learning es más eficiente que entrenar desde cero con datos limitados",
+            "Los estudiantes interpretan correctamente las celdas de la matriz de confusión e identifican los pares de clases más confundidos",
+            "Los estudiantes calculan precisión y recall y explican la compensación entre ellos"
+          ]
+        },
+        "rubric": {
+          "conceptualUnderstanding": {
+            "criterion": "Comprensión del Transfer Learning",
+            "beginning": "No puede explicar qué es el transfer learning o por qué podría ser útil",
+            "developing": "Proporciona una definición básica del transfer learning pero no puede explicar sus ventajas sobre entrenar desde cero",
+            "proficient": "Explica claramente cómo el transfer learning reutiliza características aprendidas y por qué funciona mejor con datos limitados",
+            "advanced": "Explica el transfer learning, identifica cuándo es y no es apropiado, y lo conecta con aplicaciones del mundo real"
+          },
+          "modelEvaluation": {
+            "criterion": "Evaluación del Modelo con Matriz de Confusión",
+            "beginning": "No puede leer ni interpretar una matriz de confusión",
+            "developing": "Puede identificar predicciones correctas en la diagonal pero tiene dificultades para interpretar errores fuera de la diagonal",
+            "proficient": "Interpreta correctamente la matriz de confusión completa e identifica qué clases se confunden con más frecuencia",
+            "advanced": "Usa la matriz de confusión para diagnosticar debilidades específicas del modelo y propone estrategias de recopilación de datos dirigidas"
+          },
+          "transferLearning": {
+            "criterion": "Aplicación del Transfer Learning",
+            "beginning": "No puede habilitar o configurar el transfer learning en la herramienta",
+            "developing": "Habilita el transfer learning pero no puede explicar la diferencia en resultados comparado con entrenar desde cero",
+            "proficient": "Aplica exitosamente el transfer learning y compara resultados con y sin él, notando mejoras",
+            "advanced": "Experimenta con diferentes modelos base pre-entrenados y analiza cómo la elección afecta el rendimiento en clases específicas"
+          },
+          "criticalThinking": {
+            "criterion": "Análisis Crítico de Métricas",
+            "beginning": "No puede calcular ni explicar precisión, recall o puntaje F1",
+            "developing": "Puede calcular una métrica pero confunde precisión con recall o no puede explicar su significado",
+            "proficient": "Calcula correctamente precisión, recall y F1, y explica cuándo cada métrica es más importante",
+            "advanced": "Analiza compensaciones de métricas en contexto, propone ajustes de umbral y conecta con la toma de decisiones del mundo real"
+          }
+        },
+        "differentiation": {
+          "struggling": {
+            "strategies": [
+              "Proporcionar una matriz de confusión pre-calculada y guiar la interpretación con celdas codificadas por colores",
+              "Usar el recorrido guiado de ModelMentor para configurar el transfer learning paso a paso",
+              "Simplificar a un problema de 2 clases antes de intentar clasificación multiclase"
+            ]
+          },
+          "onLevel": {
+            "strategies": [
+              "Seguir la lección estándar con un conjunto de datos de 5 clases y cálculos completos de métricas",
+              "Fomentar la discusión entre pares sobre patrones de la matriz de confusión"
+            ]
+          },
+          "advanced": {
+            "strategies": [
+              "Desafiar a los estudiantes a comparar múltiples modelos base pre-entrenados y analizar cuál funciona mejor para sus datos",
+              "Hacer que los estudiantes investiguen y presenten un caso del mundo real donde las compensaciones de precisión vs. recall tuvieron consecuencias significativas",
+              "Pedir a los estudiantes que creen un conjunto de datos desbalanceado intencionalmente y analicen cómo afecta las métricas"
+            ]
+          }
+        },
+        "handout": {
+          "title": "Clasificación Avanzada de Imágenes - Guía del Estudiante",
+          "instructions": "Completa cada sección mientras trabajas en la lección. Muestra tus cálculos y explica tu razonamiento.",
+          "sections": [
+            {
+              "heading": "Parte 1: Experimento de Transfer Learning",
+              "prompts": [
+                "Entrena tu modelo SIN transfer learning. Registra la precisión: ____%",
+                "Entrena tu modelo CON transfer learning. Registra la precisión: ____%"
+              ],
+              "reflectionQuestions": [
+                "¿Por qué el transfer learning produjo resultados diferentes? ¿Qué conocimiento previo aportó el modelo pre-entrenado?"
+              ]
+            },
+            {
+              "heading": "Parte 2: Análisis de la Matriz de Confusión",
+              "prompts": [
+                "Dibuja o pega tu matriz de confusión abajo. Encierra en un círculo las dos clases que se confunden con más frecuencia.",
+                "Para tu par de clases más confundido, cuenta: Verdaderos Positivos = ___, Falsos Positivos = ___, Falsos Negativos = ___"
+              ]
+            },
+            {
+              "heading": "Parte 3: Métricas y Mejora",
+              "prompts": [
+                "Calcula Precisión = VP/(VP+FP) = ___ y Recall = VP/(VP+FN) = ___ para tu clase elegida"
+              ],
+              "reflectionQuestions": [
+                "¿Qué imágenes específicas podrías agregar a tus datos de entrenamiento para reducir la confusión entre las dos clases más confundidas?",
+                "¿En qué aplicación del mundo real sería más importante un alto recall que una alta precisión? Explica por qué."
+              ]
+            }
+          ],
+          "workflowSteps": [
+            "Abre ModelMentor y crea un nuevo proyecto de Clasificación de Imágenes",
+            "Carga el conjunto de datos multiclase (5+ categorías)",
+            "Entrena una vez sin transfer learning, registra resultados",
+            "Habilita transfer learning y reentrena, compara resultados",
+            "Analiza la matriz de confusión y calcula métricas"
+          ]
+        },
+        "teacherNotes": {
+          "misconceptions": [
+            {
+              "misconception": "El transfer learning siempre produce mejores resultados que entrenar desde cero",
+              "correction": "El transfer learning funciona mejor cuando el modelo pre-entrenado fue entrenado con datos similares. Si la nueva tarea es muy diferente (por ejemplo, radiografías médicas vs. fotos naturales), puede no ayudar mucho."
+            },
+            {
+              "misconception": "Una alta precisión general significa que el modelo funciona bien para todas las clases",
+              "correction": "Con conjuntos de datos desbalanceados, un modelo puede lograr alta precisión prediciendo mayormente la clase mayoritaria mientras tiene mal rendimiento en clases minoritarias."
+            },
+            {
+              "misconception": "La matriz de confusión solo muestra errores",
+              "correction": "La diagonal de la matriz de confusión muestra predicciones correctas. Las celdas fuera de la diagonal muestran errores, revelando qué clases específicas se confunden."
+            }
+          ],
+          "classroomTips": [
+            "Hacer que los estudiantes coloreen sus matrices de confusión (verde para correcto, rojo para errores) para hacer los patrones más visibles",
+            "Usar ejemplos del mundo real como diagnóstico médico para hacer concretas las compensaciones de precisión/recall",
+            "Permitir que los estudiantes elijan sus propias categorías de imágenes para aumentar el compromiso y la apropiación"
+          ],
+          "discussionPrompts": {
+            "warmUp": [
+              "Si ya supieras identificar perros, ¿sería más fácil aprender a identificar lobos? ¿Por qué?"
+            ],
+            "directInstruction": [
+              "En imágenes médicas, ¿preferirías tener alta precisión o alto recall? ¿Cuáles son las consecuencias de cada tipo de error?",
+              "¿Por qué la precisión general podría ser engañosa cuando las clases están desbalanceadas?"
+            ],
+            "guidedPractice": [
+              "Mirando la matriz de confusión, ¿qué clases confunde más el modelo? ¿Qué similitudes visuales podrían explicar esto?"
+            ],
+            "closure": [
+              "¿Qué problema del mundo real te gustaría resolver con clasificación de imágenes, y qué métrica importaría más?"
+            ]
+          }
+        }
+      },
+      "text-classification-9-12": {
+        "title": "Clasificación de Texto: Análisis de Sentimiento y Detección de Spam",
+        "overview": "Los estudiantes exploran el procesamiento de lenguaje natural (NLP) construyendo modelos de clasificación de texto para análisis de sentimiento y detección de spam. Aprenden cómo las computadoras procesan texto a través de la tokenización, construyen conjuntos de datos de entrenamiento a partir de muestras de texto del mundo real y evalúan el rendimiento del modelo en texto no visto. Esta lección se conecta con aplicaciones cotidianas como filtrado de correo electrónico, moderación de redes sociales y análisis de retroalimentación de clientes.",
+        "objectives": [
+          "Explicar cómo el texto se convierte en representaciones numéricas que los modelos de aprendizaje automático pueden procesar",
+          "Diseñar y curar un conjunto de datos de texto etiquetado para una tarea de clasificación binaria",
+          "Entrenar un modelo de clasificación de texto y evaluar su rendimiento usando precisión y métricas por clase",
+          "Analizar cómo la elección de palabras, el contexto y la ambigüedad afectan las predicciones del modelo"
+        ],
+        "materials": [
+          "Computadoras con acceso a internet y ModelMentor cargado",
+          "Guía del estudiante (impresa o digital)",
+          "Conjuntos de datos de texto de ejemplo: reseñas de películas (sentimiento) y muestras de correo electrónico (spam/no-spam)",
+          "Pizarrón o proyector para demostrar conceptos de tokenización"
+        ],
+        "vocabulary": [
+          {
+            "term": "Tokenización",
+            "definition": "El proceso de dividir texto en piezas más pequeñas (tokens) como palabras o subpalabras que el modelo puede procesar individualmente"
+          },
+          {
+            "term": "Análisis de Sentimiento",
+            "definition": "Usar un modelo para determinar el tono emocional del texto — si expresa sentimientos positivos, negativos o neutrales"
+          },
+          {
+            "term": "Procesamiento de Lenguaje Natural (NLP)",
+            "definition": "El campo de la IA enfocado en ayudar a las computadoras a entender, interpretar y generar lenguaje humano"
+          },
+          {
+            "term": "Bolsa de Palabras",
+            "definition": "Una representación simple de texto que cuenta con qué frecuencia aparece cada palabra, ignorando el orden de las palabras y la gramática"
+          }
+        ],
+        "procedure": {
+          "warmUp": {
+            "steps": [
+              "Mostrar 5 mensajes de texto cortos en pantalla y pedir a los estudiantes que clasifiquen cada uno como positivo, negativo o neutral",
+              "Revelar que un mensaje es sarcástico — discutir por qué es difícil de clasificar",
+              "Preguntar: ¿Qué hace que la clasificación de texto sea más difícil que la clasificación de imágenes para las computadoras?"
+            ],
+            "discussionPrompts": [
+              "¿Qué pistas usas para determinar si un mensaje es positivo o negativo? ¿Son esas pistas siempre confiables?"
+            ]
+          },
+          "directInstruction": {
+            "steps": [
+              "Explicar cómo las computadoras no pueden leer texto directamente — necesitan representaciones numéricas",
+              "Demostrar la tokenización: dividir una oración en palabras, luego mostrar cómo cada palabra se mapea a un número",
+              "Introducir el concepto de bolsa de palabras y sus limitaciones (pierde el orden de las palabras y el contexto)",
+              "Mostrar ejemplos del mundo real: filtros de spam, análisis de sentimiento en reseñas de productos, moderación de contenido"
+            ],
+            "teacherNotes": [
+              "Usar una demostración física: escribir una oración en tarjetas (una palabra por tarjeta), mezclarlas y preguntar si el significado cambia — esto ilustra por qué el orden de las palabras importa"
+            ],
+            "discussionPrompts": [
+              "Si mezclamos las palabras de una oración, ¿siempre cambia el significado? ¿Puedes pensar en ejemplos donde sí y donde no?",
+              "¿Por qué un filtro de spam podría marcar incorrectamente un correo legítimo? ¿Qué palabras podrían activarlo?"
+            ]
+          },
+          "guidedPractice": {
+            "steps": [
+              "Guiar a los estudiantes para cargar el conjunto de datos de sentimiento de reseñas de películas en ModelMentor",
+              "Recorrer juntos los pasos de preprocesamiento de texto: tokenización y construcción de vocabulario",
+              "Entrenar el modelo de sentimiento como clase y examinar qué palabras el modelo asocia con positivo vs. negativo"
+            ],
+            "discussionPrompts": [
+              "¿Qué palabras cree el modelo que son más positivas? ¿Más negativas? ¿Estás de acuerdo con sus elecciones?"
+            ]
+          },
+          "independentPractice": {
+            "steps": [
+              "Los estudiantes eligen entre análisis de sentimiento o detección de spam para su proyecto independiente",
+              "Los estudiantes curan su propio pequeño conjunto de datos (al menos 20 muestras por clase) o usan las muestras proporcionadas",
+              "Los estudiantes entrenan, prueban y analizan su modelo, documentando casos donde falla"
+            ],
+            "discussionPrompts": [
+              "Encuentra una muestra de texto que tu modelo clasifique incorrectamente. ¿Por qué crees que falló? ¿Qué tiene de ambiguo el texto?"
+            ]
+          },
+          "closure": {
+            "steps": [
+              "Los estudiantes comparten su clasificación errónea más interesante y explican por qué el modelo se confundió",
+              "Discusión en clase: ¿Cuáles son las implicaciones éticas de la clasificación automatizada de texto en la moderación de contenido?"
+            ],
+            "discussionPrompts": [
+              "¿Deberían las empresas de redes sociales usar IA para eliminar contenido automáticamente? ¿Qué podría salir mal?"
+            ]
+          }
+        },
+        "formativeAssessment": {
+          "indicators": [
+            "Los estudiantes pueden explicar el proceso de tokenización y por qué el texto debe convertirse en números",
+            "Los estudiantes curan exitosamente un conjunto de datos etiquetado con definiciones claras de categorías",
+            "Los estudiantes identifican y explican casos específicos donde el contexto o la ambigüedad causa clasificación errónea"
+          ]
+        },
+        "rubric": {
+          "conceptualUnderstanding": {
+            "criterion": "Comprensión del Procesamiento de Texto",
+            "beginning": "No puede explicar cómo el texto se convierte a un formato que el modelo puede usar",
+            "developing": "Sabe que el texto debe convertirse pero no puede explicar la tokenización o la representación numérica",
+            "proficient": "Explica claramente la tokenización y cómo las palabras se mapean a representaciones numéricas para la entrada del modelo",
+            "advanced": "Explica múltiples métodos de representación de texto, sus compensaciones y cómo el contexto afecta el significado"
+          },
+          "dataPreparation": {
+            "criterion": "Curación y Calidad del Conjunto de Datos",
+            "beginning": "No puede crear un conjunto de datos etiquetado o las etiquetas son inconsistentes y poco claras",
+            "developing": "Crea un conjunto de datos pero con etiquetas ambiguas, muestras insuficientes o desbalance de clases",
+            "proficient": "Cura un conjunto de datos bien etiquetado y balanceado con definiciones claras de categorías y muestras suficientes",
+            "advanced": "Crea un conjunto de datos de alta calidad, identifica casos límite y explica cómo la calidad de los datos afecta el rendimiento del modelo"
+          },
+          "modelTraining": {
+            "criterion": "Entrenamiento y Análisis del Modelo",
+            "beginning": "No puede entrenar el modelo ni interpretar ningún resultado",
+            "developing": "Entrena el modelo pero no puede explicar resultados más allá de la precisión general",
+            "proficient": "Entrena el modelo, interpreta el rendimiento por clase e identifica patrones específicos de fallo",
+            "advanced": "Analiza el comportamiento del modelo en profundidad, identifica sesgos sistemáticos y propone mejoras dirigidas"
+          },
+          "criticalThinking": {
+            "criterion": "Pensamiento Crítico sobre Limitaciones del NLP",
+            "beginning": "No puede identificar situaciones donde la clasificación de texto podría fallar",
+            "developing": "Identifica que el sarcasmo o la ambigüedad es difícil pero no puede explicar por qué en términos técnicos",
+            "proficient": "Explica fenómenos lingüísticos específicos (sarcasmo, contexto, ambigüedad) que desafían los modelos de texto",
+            "advanced": "Conecta las limitaciones del NLP con preocupaciones éticas del mundo real y propone estrategias de mitigación"
+          }
+        },
+        "differentiation": {
+          "struggling": {
+            "strategies": [
+              "Proporcionar un conjunto de datos pre-curado para que los estudiantes se enfoquen en el entrenamiento y análisis en lugar de la recopilación de datos",
+              "Usar el recorrido guiado de ModelMentor para la configuración de clasificación de texto",
+              "Comenzar con una tarea binaria simple (positivo/negativo) con ejemplos claramente no ambiguos"
+            ]
+          },
+          "onLevel": {
+            "strategies": [
+              "Seguir la lección estándar con elección entre análisis de sentimiento y detección de spam",
+              "Animar a los estudiantes a encontrar y probar casos límite que desafíen su modelo"
+            ]
+          },
+          "advanced": {
+            "strategies": [
+              "Desafiar a los estudiantes a construir un modelo de sentimiento multiclase (positivo, negativo, neutral, mixto)",
+              "Hacer que los estudiantes investiguen y presenten un caso real de fallo de NLP (modelos de lenguaje sesgados, incidentes de traducción errónea)",
+              "Pedir a los estudiantes que comparen el rendimiento de bolsa de palabras con representaciones de texto más avanzadas"
+            ]
+          }
+        },
+        "handout": {
+          "title": "Laboratorio de Clasificación de Texto - Guía del Estudiante",
+          "instructions": "Completa cada sección mientras construyes tu modelo de clasificación de texto. Registra observaciones y análisis.",
+          "sections": [
+            {
+              "heading": "Parte 1: Entendiendo la Tokenización",
+              "prompts": [
+                "Toma esta oración y divídela en tokens (palabras): \"Me encantó esta película pero el final fue decepcionante\"",
+                "¿Cuántos tokens tiene tu oración? ¿Qué tokens crees que señalan sentimiento positivo? ¿Negativo?"
+              ],
+              "reflectionQuestions": [
+                "¿Por qué la palabra \"pero\" podría ser importante para entender el sentimiento aunque no sea positiva ni negativa en sí misma?"
+              ]
+            },
+            {
+              "heading": "Parte 2: Construyendo tu Conjunto de Datos",
+              "prompts": [
+                "¿Qué tarea de clasificación elegiste? (sentimiento / spam / otro: ___)",
+                "¿Cuántas muestras tienes en cada clase? Clase A: ___ muestras, Clase B: ___ muestras"
+              ]
+            },
+            {
+              "heading": "Parte 3: Análisis del Modelo",
+              "prompts": [
+                "Registra la precisión de tu modelo: ___%. Encuentra 2 ejemplos mal clasificados y escríbelos abajo con tu explicación de por qué el modelo falló."
+              ],
+              "reflectionQuestions": [
+                "¿En qué patrones se basa más tu modelo? ¿Hay casos donde esos patrones son engañosos?",
+                "¿Cómo podría la clasificación automatizada de texto causar daño si se usa sin supervisión humana?"
+              ]
+            }
+          ],
+          "workflowSteps": [
+            "Abre ModelMentor y selecciona el tipo de proyecto Clasificación de Texto",
+            "Carga el conjunto de datos de ejemplo o crea tus propias muestras de texto etiquetadas",
+            "Revisa la vista previa de tokenización para entender cómo se procesa tu texto",
+            "Entrena el modelo y observa las métricas de precisión",
+            "Prueba con nuevas muestras de texto y analiza las clasificaciones erróneas"
+          ]
+        },
+        "teacherNotes": {
+          "misconceptions": [
+            {
+              "misconception": "El modelo entiende el significado de las palabras como los humanos",
+              "correction": "El modelo solo aprende patrones estadísticos — qué palabras tienden a aparecer juntas en cada categoría. No tiene comprensión del significado, contexto o intención."
+            },
+            {
+              "misconception": "El texto más largo siempre es más fácil de clasificar correctamente",
+              "correction": "El texto más largo puede contener señales mixtas (declaraciones tanto positivas como negativas), haciendo la clasificación más difícil. Las declaraciones cortas y claras pueden ser más fáciles de clasificar."
+            },
+            {
+              "misconception": "Un filtro de spam solo busca palabras prohibidas específicas",
+              "correction": "Los filtros de spam modernos usan muchas características incluyendo patrones de palabras, información del remitente, formato y modelos estadísticos — no solo coincidencia de palabras clave."
+            }
+          ],
+          "classroomTips": [
+            "Usar ejemplos de redes sociales o mensajería con los que los estudiantes se identifiquen — esto aumenta significativamente el compromiso",
+            "Hacer que los estudiantes intenten engañar los modelos de otros con ejemplos adversarios — esto desarrolla el pensamiento crítico",
+            "Discutir la ética de la moderación de contenido temprano para enmarcar el trabajo técnico en un contexto del mundo real"
+          ],
+          "discussionPrompts": {
+            "warmUp": [
+              "¿Qué pistas usas para determinar si un mensaje es positivo o negativo? ¿Son esas pistas siempre confiables?"
+            ],
+            "directInstruction": [
+              "Si mezclamos las palabras de una oración, ¿siempre cambia el significado? ¿Puedes pensar en ejemplos donde sí y donde no?",
+              "¿Por qué un filtro de spam podría marcar incorrectamente un correo legítimo? ¿Qué palabras podrían activarlo?"
+            ],
+            "guidedPractice": [
+              "¿Qué palabras cree el modelo que son más positivas? ¿Más negativas? ¿Estás de acuerdo con sus elecciones?"
+            ],
+            "closure": [
+              "¿Deberían las empresas de redes sociales usar IA para eliminar contenido automáticamente? ¿Qué podría salir mal?"
+            ]
+          }
+        }
+      },
+      "regression-9-12": {
+        "title": "Modelos de Regresión: Predicción de Precios de Casas",
+        "overview": "Los estudiantes aprenden cómo los modelos de regresión predicen valores numéricos continuos construyendo un modelo de predicción de precios de casas. Exploran relaciones lineales entre características (metros cuadrados, habitaciones, ubicación) y precio, entrenan un modelo de regresión usando ModelMentor y evalúan predicciones usando Error Cuadrático Medio (MSE) y R-cuadrado. Esta lección conecta conceptos matemáticos como pendiente y correlación con aplicaciones reales de aprendizaje automático.",
+        "objectives": [
+          "Explicar cómo la regresión difiere de la clasificación e identificar problemas adecuados para cada enfoque",
+          "Identificar relaciones lineales y no lineales entre características de entrada y una variable objetivo",
+          "Entrenar un modelo de regresión e interpretar el Error Cuadrático Medio (MSE) y R-cuadrado como medidas de calidad de predicción",
+          "Analizar cómo la selección de características y la calidad de los datos afectan la precisión de las predicciones"
+        ],
+        "materials": [
+          "Computadoras con acceso a internet y ModelMentor cargado",
+          "Guía del estudiante (impresa o digital)",
+          "Conjunto de datos de precios de casas con características: metros cuadrados, habitaciones, baños, año de construcción, puntaje de ubicación",
+          "Papel cuadriculado o herramienta de graficación digital para visualizar relaciones"
+        ],
+        "vocabulary": [
+          {
+            "term": "Regresión",
+            "definition": "Un tipo de aprendizaje automático que predice un número continuo (como precio o temperatura) en lugar de una categoría"
+          },
+          {
+            "term": "Relación Lineal",
+            "definition": "Cuando dos variables cambian juntas a una tasa constante — cuando una sube, la otra sube (o baja) proporcionalmente"
+          },
+          {
+            "term": "Error Cuadrático Medio (MSE)",
+            "definition": "Una medida de qué tan lejos están las predicciones de los valores reales — se calcula promediando las diferencias al cuadrado entre valores predichos y reales"
+          },
+          {
+            "term": "Función de Pérdida (Loss)",
+            "definition": "Una fórmula matemática que mide qué tan equivocadas están las predicciones del modelo — el modelo intenta minimizar esto durante el entrenamiento"
+          },
+          {
+            "term": "R-cuadrado",
+            "definition": "Un puntaje de 0 a 1 que indica qué tan bien el modelo explica la variación en los datos — 1.0 significa predicciones perfectas, 0 significa no mejor que adivinar el promedio"
+          }
+        ],
+        "procedure": {
+          "warmUp": {
+            "steps": [
+              "Mostrar a los estudiantes un diagrama de dispersión de metros cuadrados vs. precio de casas y pedirles que dibujen una línea que mejor se ajuste a los datos",
+              "Preguntar: Si una casa tiene 200 m², ¿cuál predecirías que sería su precio basándote en tu línea?",
+              "Revelar los precios reales y discutir qué tan cerca estuvieron sus predicciones"
+            ],
+            "discussionPrompts": [
+              "¿Cómo decidiste dónde dibujar tu línea? ¿Qué hizo que algunas líneas fueran mejores que otras?"
+            ]
+          },
+          "directInstruction": {
+            "steps": [
+              "Explicar la diferencia entre regresión (predecir números) y clasificación (predecir categorías)",
+              "Introducir el concepto de función de pérdida: cómo el modelo mide sus propios errores durante el entrenamiento",
+              "Recorrer el cálculo del MSE con un ejemplo simple de 3 puntos en el pizarrón",
+              "Explicar R-cuadrado como una medida de cuánta variación en los precios puede explicar el modelo"
+            ],
+            "teacherNotes": [
+              "Conectar con conocimiento matemático previo: pendiente de una recta, y = mx + b, correlación. Los estudiantes que han tomado álgebra reconocerán estos conceptos."
+            ],
+            "discussionPrompts": [
+              "¿Por qué elevamos al cuadrado los errores en el MSE en lugar de solo promediarlos? ¿Qué pasaría con errores negativos?",
+              "Si un modelo tiene R-cuadrado de 0.85, ¿qué nos dice eso? ¿Es suficientemente bueno para predecir precios de casas?"
+            ]
+          },
+          "guidedPractice": {
+            "steps": [
+              "Guiar a los estudiantes para cargar el conjunto de datos de precios de casas en ModelMentor",
+              "Explorar los datos juntos: crear diagramas de dispersión de cada característica vs. precio para identificar relaciones",
+              "Entrenar el modelo de regresión como clase e interpretar la salida de MSE y R-cuadrado"
+            ],
+            "discussionPrompts": [
+              "¿Qué característica tiene la relación más fuerte con el precio? ¿Cómo puedes saberlo del diagrama de dispersión?"
+            ]
+          },
+          "independentPractice": {
+            "steps": [
+              "Los estudiantes experimentan con diferentes combinaciones de características para encontrar el mejor conjunto de predictores",
+              "Los estudiantes entrenan múltiples modelos y comparan valores de MSE y R-cuadrado",
+              "Los estudiantes prueban su mejor modelo con descripciones personalizadas de casas y evalúan si las predicciones parecen razonables"
+            ],
+            "discussionPrompts": [
+              "¿Qué combinación de características te dio el MSE más bajo? ¿Te sorprendió cuáles características importaron más?"
+            ]
+          },
+          "closure": {
+            "steps": [
+              "Los grupos comparten sus mejores combinaciones de características y métricas de rendimiento del modelo",
+              "Discusión en clase: ¿Cuáles son las limitaciones de usar un modelo para predecir precios de casas? ¿Qué factores podría estar omitiendo?"
+            ],
+            "discussionPrompts": [
+              "¿Confiarías en este modelo para fijar el precio de tu casa? ¿Qué información adicional querrías?"
+            ]
+          }
+        },
+        "formativeAssessment": {
+          "indicators": [
+            "Los estudiantes distinguen correctamente entre problemas de regresión y clasificación con ejemplos del mundo real",
+            "Los estudiantes interpretan valores de MSE y explican qué significa un MSE más bajo para la calidad de predicción",
+            "Los estudiantes identifican qué características tienen la relación predictiva más fuerte con la variable objetivo"
+          ]
+        },
+        "rubric": {
+          "conceptualUnderstanding": {
+            "criterion": "Comprensión de Conceptos de Regresión",
+            "beginning": "No puede explicar qué es la regresión o cómo difiere de la clasificación",
+            "developing": "Sabe que la regresión predice números pero no puede explicar funciones de pérdida o métricas de evaluación",
+            "proficient": "Explica claramente la regresión, funciones de pérdida e interpreta MSE y R-cuadrado correctamente",
+            "advanced": "Explica conceptos de regresión, identifica supuestos y limitaciones, y conecta con fundamentos matemáticos"
+          },
+          "dataAnalysis": {
+            "criterion": "Exploración de Datos y Análisis de Características",
+            "beginning": "No puede identificar relaciones entre características y la variable objetivo",
+            "developing": "Identifica relaciones lineales obvias pero omite patrones no lineales o interacciones entre características",
+            "proficient": "Explora sistemáticamente relaciones entre características usando diagramas de dispersión e identifica predictores fuertes",
+            "advanced": "Identifica relaciones complejas, detecta valores atípicos y explica cómo la ingeniería de características podría mejorar las predicciones"
+          },
+          "modelBuilding": {
+            "criterion": "Entrenamiento y Evaluación del Modelo",
+            "beginning": "No puede entrenar un modelo ni interpretar valores de MSE/R-cuadrado",
+            "developing": "Entrena un modelo pero no puede comparar diferentes conjuntos de características ni explicar mejoras en métricas",
+            "proficient": "Entrena múltiples modelos con diferentes características, compara métricas y selecciona la mejor configuración",
+            "advanced": "Optimiza sistemáticamente la selección de características, identifica riesgos de sobreajuste y valida predicciones contra conocimiento del dominio"
+          },
+          "criticalThinking": {
+            "criterion": "Análisis Crítico de Predicciones",
+            "beginning": "Acepta todas las predicciones del modelo sin cuestionar su razonabilidad",
+            "developing": "Nota algunas predicciones irrazonables pero no puede explicar por qué ocurren",
+            "proficient": "Identifica predicciones irrazonables, las conecta con limitaciones de los datos y sugiere mejoras",
+            "advanced": "Evalúa críticamente los supuestos del modelo, identifica sesgo en los datos de entrenamiento y discute implicaciones éticas de la fijación automatizada de precios"
+          }
+        },
+        "differentiation": {
+          "struggling": {
+            "strategies": [
+              "Comenzar con un modelo de una sola característica (solo metros cuadrados) antes de agregar complejidad",
+              "Proporcionar diagramas de dispersión pre-hechos y guiar la interpretación con ejes etiquetados y líneas de tendencia",
+              "Usar el recorrido guiado de ModelMentor para recorrer cada paso del flujo de trabajo de regresión"
+            ]
+          },
+          "onLevel": {
+            "strategies": [
+              "Seguir la lección estándar con el conjunto de datos completo de precios de casas con múltiples características",
+              "Fomentar la experimentación sistemática con diferentes combinaciones de características"
+            ]
+          },
+          "advanced": {
+            "strategies": [
+              "Desafiar a los estudiantes a identificar y manejar valores atípicos en el conjunto de datos antes de entrenar",
+              "Hacer que los estudiantes investiguen la regresión no lineal y expliquen cuándo los modelos lineales son insuficientes",
+              "Pedir a los estudiantes que creen su propio conjunto de datos para un problema de regresión diferente (por ejemplo, predecir calificaciones a partir de horas de estudio)"
+            ]
+          }
+        },
+        "handout": {
+          "title": "Modelos de Regresión: Predicción de Precios de Casas - Guía del Estudiante",
+          "instructions": "Completa cada sección mientras exploras la regresión. Muestra tu trabajo y explica tu razonamiento.",
+          "sections": [
+            {
+              "heading": "Parte 1: Explorando Relaciones",
+              "prompts": [
+                "Crea diagramas de dispersión para al menos 3 características vs. precio. ¿Qué característica muestra la relación lineal más fuerte?",
+                "Estima la pendiente: por cada 10 m² adicionales, ¿cuánto aumenta el precio aproximadamente?"
+              ],
+              "reflectionQuestions": [
+                "¿Todas las relaciones entre características y precio son lineales? ¿Puedes encontrar una que no lo sea?"
+              ]
+            },
+            {
+              "heading": "Parte 2: Entrenando y Comparando Modelos",
+              "prompts": [
+                "Modelo 1 características: ___ → MSE: ___, R-cuadrado: ___",
+                "Modelo 2 características: ___ → MSE: ___, R-cuadrado: ___"
+              ]
+            },
+            {
+              "heading": "Parte 3: Pruebas y Reflexión",
+              "prompts": [
+                "Ingresa una descripción personalizada de casa y registra el precio predicho. ¿Parece razonable? ¿Por qué sí o por qué no?"
+              ],
+              "reflectionQuestions": [
+                "¿Qué factores afectan los precios de las casas que NO están en nuestro conjunto de datos? ¿Cómo podría esto limitar nuestro modelo?",
+                "Si estuvieras comprando una casa, ¿confiarías en la predicción de este modelo? ¿Qué más considerarías?"
+              ]
+            }
+          ],
+          "workflowSteps": [
+            "Abre ModelMentor y selecciona el tipo de proyecto Regresión",
+            "Carga el conjunto de datos de precios de casas y explora las relaciones entre características",
+            "Selecciona características y entrena tu primer modelo de regresión",
+            "Compara MSE y R-cuadrado entre diferentes combinaciones de características",
+            "Prueba tu mejor modelo con entradas personalizadas y evalúa las predicciones"
+          ]
+        },
+        "teacherNotes": {
+          "misconceptions": [
+            {
+              "misconception": "Un modelo con bajo MSE en datos de entrenamiento siempre predecirá bien con datos nuevos",
+              "correction": "Un MSE bajo en entrenamiento puede indicar sobreajuste — el modelo memorizó los datos de entrenamiento en lugar de aprender patrones generales. Siempre prueba con datos no vistos."
+            },
+            {
+              "misconception": "La correlación entre una característica y el objetivo significa que esa característica causa el objetivo",
+              "correction": "Correlación no implica causalidad. Una característica puede correlacionarse con el precio sin causarlo directamente (por ejemplo, el número de baños se correlaciona con el precio porque las casas más grandes tienen más baños)."
+            },
+            {
+              "misconception": "Agregar más características siempre mejora el modelo",
+              "correction": "Las características irrelevantes o ruidosas pueden perjudicar el rendimiento del modelo. La selección de características se trata de encontrar las entradas más informativas, no de usar todo lo disponible."
+            }
+          ],
+          "classroomTips": [
+            "Usar ejemplos de bienes raíces locales para hacer el conjunto de datos relatable — los estudiantes se comprometen más cuando reconocen el contexto",
+            "Hacer que los estudiantes predigan precios manualmente primero, luego comparar con el modelo — esto construye intuición sobre lo que el modelo está haciendo",
+            "Conectar el MSE con el concepto de error promedio en términos cotidianos: el modelo se equivoca por aproximadamente  en promedio"
+          ],
+          "discussionPrompts": {
+            "warmUp": [
+              "¿Cómo decidiste dónde dibujar tu línea? ¿Qué hizo que algunas líneas fueran mejores que otras?"
+            ],
+            "directInstruction": [
+              "¿Por qué elevamos al cuadrado los errores en el MSE en lugar de solo promediarlos? ¿Qué pasaría con errores negativos?",
+              "Si un modelo tiene R-cuadrado de 0.85, ¿qué nos dice eso? ¿Es suficientemente bueno para predecir precios de casas?"
+            ],
+            "guidedPractice": [
+              "¿Qué característica tiene la relación más fuerte con el precio? ¿Cómo puedes saberlo del diagrama de dispersión?"
+            ],
+            "closure": [
+              "¿Confiarías en este modelo para fijar el precio de tu casa? ¿Qué información adicional querrías?"
+            ]
+          }
+        }
+      }
+    }
   }
 }

@@ -535,5 +535,1015 @@
       "deploy": "Deploy",
       "deployDescription": "Share your model"
     }
+  },
+  "lessonPlans": {
+    "ui": {
+      "library": "Lesson Plan Library",
+      "filterBy": "Filter by",
+      "gradeBand": "Grade Band",
+      "subjectArea": "Subject Area",
+      "duration": "Duration",
+      "modelType": "Model Type",
+      "standard": "Standard",
+      "clearFilters": "Clear Filters",
+      "noResults": "No lesson plans match your filters. Try broadening your criteria.",
+      "exportPdf": "Export PDF",
+      "exportHandout": "Export Student Handout",
+      "print": "Print",
+      "backToLibrary": "Back to Library",
+      "overview": "Overview",
+      "procedure": "Procedure",
+      "assessment": "Assessment",
+      "differentiation": "Differentiation",
+      "handout": "Student Handout",
+      "teacherNotes": "Teacher Notes",
+      "objectives": "Learning Objectives",
+      "standards": "Standards Alignment",
+      "materials": "Materials Needed",
+      "vocabulary": "Key Vocabulary",
+      "rubric": "Assessment Rubric",
+      "formativeAssessment": "Formative Assessment",
+      "gradeBands": {
+        "6-8": "Grades 6-8 (Middle School)",
+        "9-12": "Grades 9-12 (High School)"
+      },
+      "durations": {
+        "45min": "45 minutes",
+        "60min": "60 minutes",
+        "90min": "90 minutes"
+      },
+      "subjects": {
+        "computer-science": "Computer Science",
+        "mathematics": "Mathematics",
+        "science": "Science",
+        "cross-curricular": "Cross-Curricular"
+      },
+      "modelTypes": {
+        "image-classification": "Image Classification",
+        "text-classification": "Text Classification",
+        "regression": "Regression"
+      },
+      "levels": {
+        "beginning": "Beginning",
+        "developing": "Developing",
+        "proficient": "Proficient",
+        "advanced": "Advanced"
+      },
+      "diffLevels": {
+        "struggling": "Struggling Learners",
+        "on-level": "On-Level",
+        "advanced": "Advanced Learners"
+      }
+    },
+    "phases": {
+      "warmUp": "Warm-Up / Hook",
+      "directInstruction": "Direct Instruction",
+      "guidedPractice": "Guided Practice",
+      "independentPractice": "Independent Practice",
+      "closure": "Closure / Reflection"
+    },
+    "standards": {
+      "csta-2-DA-08": {
+        "name": "Collect Data",
+        "description": "Collect data using computational tools and transform the data to make it more useful and reliable"
+      },
+      "csta-3A-AP-13": {
+        "name": "Create Prototypes",
+        "description": "Create prototypes that use algorithms to solve computational problems by leveraging prior student knowledge and personal interests"
+      },
+      "csta-3A-DA-11": {
+        "name": "Create Visualizations",
+        "description": "Create interactive data visualizations using software tools to help others better understand real-world phenomena"
+      },
+      "csta-3A-DA-12": {
+        "name": "Create Computational Models",
+        "description": "Create computational models that represent the relationships among different elements of data collected from a phenomenon or process"
+      },
+      "iste-5a": {
+        "name": "Computational Thinker - Formulate Problems",
+        "description": "Students formulate problem definitions suited for technology-assisted methods such as data analysis, abstract models and algorithmic thinking"
+      },
+      "iste-5c": {
+        "name": "Computational Thinker - Break Problems",
+        "description": "Students break problems into component parts, extract key information, and develop descriptive models to understand complex systems"
+      },
+      "iste-3d": {
+        "name": "Knowledge Constructor - Build Knowledge",
+        "description": "Students build knowledge by actively exploring real-world issues and problems, developing ideas and theories and pursuing answers"
+      }
+    },
+    "sep": {
+      "pensamientoComputacional": {
+        "area": "Computational Thinking (Pensamiento Computacional)",
+        "description": "Aligned with SEP Pensamiento Computacional area — students use algorithmic thinking and data analysis to solve problems"
+      }
+    },
+    "plans": {
+      "image-classification-6-8": {
+        "title": "Introduction to Image Classification",
+        "overview": "Students explore how computers can learn to recognize and classify images by training their own image classification model. Using everyday objects like flowers and animals, students collect image data, train a model using ModelMentor, and evaluate its accuracy. This introductory lesson builds foundational understanding of how machine learning works through hands-on experimentation.",
+        "objectives": [
+          "Explain how image classification models learn to recognize patterns in visual data",
+          "Collect and organize a labeled image dataset with at least two categories",
+          "Train an image classification model and interpret its accuracy metrics"
+        ],
+        "materials": [
+          "Computers or tablets with internet access and ModelMentor loaded",
+          "Student handout (printed or digital)",
+          "Sample image sets of flowers and animals (provided in ModelMentor)",
+          "Whiteboard or projector for class demonstrations"
+        ],
+        "vocabulary": [
+          {
+            "term": "Image Classification",
+            "definition": "Teaching a computer to sort images into categories, like telling apart photos of cats and dogs"
+          },
+          {
+            "term": "Training Data",
+            "definition": "The collection of labeled example images that the computer uses to learn patterns"
+          },
+          {
+            "term": "Label",
+            "definition": "A tag that tells the computer what category an image belongs to (e.g., flower or animal)"
+          },
+          {
+            "term": "Accuracy",
+            "definition": "How often the model correctly identifies the category of an image, shown as a percentage"
+          }
+        ],
+        "procedure": {
+          "warmUp": {
+            "steps": [
+              "Show students a set of 6 mixed images (3 flowers, 3 animals) and ask them to sort them into groups",
+              "Ask: How did you decide which group each image belongs to? What features did you look for?"
+            ],
+            "teacherNotes": [
+              "Use this activity to draw parallels between human pattern recognition and machine learning. Students naturally identify features like petals, fur, legs, etc."
+            ],
+            "discussionPrompts": [
+              "What clues did you use to tell flowers apart from animals? Could you teach someone else your method?"
+            ]
+          },
+          "directInstruction": {
+            "steps": [
+              "Introduce the concept of image classification: computers learning to sort images into categories",
+              "Explain the training process: showing the computer many labeled examples so it can find patterns",
+              "Demonstrate opening ModelMentor and navigating to the image classification project type"
+            ],
+            "teacherNotes": [
+              "Emphasize that the computer does not understand images the way humans do — it looks at pixel patterns and colors"
+            ],
+            "discussionPrompts": [
+              "How is the way a computer looks at images different from how you look at them?",
+              "Why do you think we need to show the computer many examples instead of just one?"
+            ]
+          },
+          "guidedPractice": {
+            "steps": [
+              "Guide students through loading the sample flower/animal dataset in ModelMentor",
+              "Walk through the training process together, explaining each step as it happens",
+              "Have students observe the accuracy metric as the model trains and discuss what it means"
+            ],
+            "discussionPrompts": [
+              "What do you notice happening to the accuracy number as the model trains? Why do you think it changes?"
+            ]
+          },
+          "independentPractice": {
+            "steps": [
+              "Students test the trained model with new images not in the training set",
+              "Students record which predictions are correct and which are wrong in their handout"
+            ],
+            "discussionPrompts": [
+              "Did the model get any predictions wrong? What do you think might have confused it?"
+            ]
+          },
+          "closure": {
+            "steps": [
+              "Class discussion: What surprised you about how the model performed?",
+              "Exit ticket: Write one thing the model did well and one thing it struggled with"
+            ],
+            "discussionPrompts": [
+              "If you could give the model more training data, what kind of images would you add to help it improve?"
+            ]
+          }
+        },
+        "formativeAssessment": {
+          "indicators": [
+            "Students can explain in their own words how the model learns from examples",
+            "Students correctly identify whether model predictions are accurate or inaccurate",
+            "Students suggest reasonable improvements to the training data to improve accuracy"
+          ]
+        },
+        "rubric": {
+          "conceptualUnderstanding": {
+            "criterion": "Conceptual Understanding of Image Classification",
+            "beginning": "Cannot explain how the model learns from images; confuses classification with other tasks",
+            "developing": "Provides a basic explanation of classification but misses key concepts like training data or labels",
+            "proficient": "Clearly explains how the model uses labeled training data to learn to classify new images",
+            "advanced": "Explains the classification process and identifies factors that affect model performance such as data quality and quantity"
+          },
+          "dataCollection": {
+            "criterion": "Data Collection and Organization",
+            "beginning": "Unable to collect or organize images into labeled categories without significant assistance",
+            "developing": "Collects images but labels are inconsistent or categories are poorly defined",
+            "proficient": "Collects a well-organized dataset with clear, consistent labels for each category",
+            "advanced": "Creates a balanced, diverse dataset and explains why variety in training data matters for model performance"
+          },
+          "modelTraining": {
+            "criterion": "Model Training and Evaluation",
+            "beginning": "Cannot initiate training or interpret the accuracy metric",
+            "developing": "Can start training but struggles to explain what accuracy means or why it changes",
+            "proficient": "Successfully trains a model and correctly interprets accuracy as a measure of correct predictions",
+            "advanced": "Trains the model, interprets accuracy, and proposes specific strategies to improve model performance"
+          },
+          "criticalThinking": {
+            "criterion": "Critical Thinking and Reflection",
+            "beginning": "Cannot identify model errors or suggest reasons for incorrect predictions",
+            "developing": "Identifies some errors but cannot explain why the model might have made mistakes",
+            "proficient": "Identifies errors and provides reasonable explanations for why the model struggled with certain images",
+            "advanced": "Analyzes error patterns, connects them to training data limitations, and proposes data-driven solutions"
+          }
+        },
+        "differentiation": {
+          "struggling": {
+            "strategies": [
+              "Provide a pre-labeled dataset so students can focus on training rather than data collection",
+              "Use the ModelMentor guided tour mode which provides step-by-step prompts",
+              "Pair with a peer mentor who can help explain concepts in student-friendly language"
+            ]
+          },
+          "onLevel": {
+            "strategies": [
+              "Follow the standard lesson flow with the provided flower/animal dataset",
+              "Encourage students to test with their own images found online"
+            ]
+          },
+          "advanced": {
+            "strategies": [
+              "Challenge students to add a third category to their classification model",
+              "Ask students to deliberately create a biased dataset and observe how it affects accuracy",
+              "Have students write a brief explanation of how they would improve the model for a younger student"
+            ]
+          }
+        },
+        "handout": {
+          "title": "Image Classification Explorer - Student Handout",
+          "instructions": "Follow along with the class activity. Record your observations and predictions in the spaces below.",
+          "sections": [
+            {
+              "heading": "Part 1: Exploring the Data",
+              "prompts": [
+                "How many images are in your training dataset? How many categories do you have?",
+                "Describe what makes images in each category similar to each other."
+              ],
+              "reflectionQuestions": [
+                "Why do you think the computer needs many examples of each category to learn?"
+              ]
+            },
+            {
+              "heading": "Part 2: Training the Model",
+              "prompts": [
+                "What was the model accuracy after training? Write the percentage here.",
+                "Did the accuracy go up or down during training? Describe what you observed."
+              ]
+            },
+            {
+              "heading": "Part 3: Testing and Reflection",
+              "prompts": [
+                "Test your model with 5 new images. Record the results: Image description, Predicted category, Correct? (Yes/No)"
+              ],
+              "reflectionQuestions": [
+                "What types of images did the model get wrong? What might have confused it?",
+                "If you could add more training images, what would you add to help the model improve?"
+              ]
+            }
+          ],
+          "workflowSteps": [
+            "Open ModelMentor and select Image Classification project",
+            "Load the sample dataset or upload your own images",
+            "Review your data in the preview panel",
+            "Click Train Model and observe the accuracy metric"
+          ]
+        },
+        "teacherNotes": {
+          "misconceptions": [
+            {
+              "misconception": "The computer understands what is in the image like a human does",
+              "correction": "The computer only detects patterns in pixel values (colors, shapes, edges). It has no understanding of what a flower or animal actually is."
+            },
+            {
+              "misconception": "More training data always means a better model",
+              "correction": "Quality matters as much as quantity. Blurry, mislabeled, or unrepresentative images can actually hurt model performance."
+            },
+            {
+              "misconception": "If the model gets 100% accuracy on training data, it will work perfectly on new images",
+              "correction": "High training accuracy can mean the model memorized the examples rather than learning general patterns. It may still fail on new, unseen images."
+            }
+          ],
+          "classroomTips": [
+            "Have students work in pairs to encourage discussion about why the model makes certain predictions",
+            "If internet is slow, pre-download the sample dataset before class",
+            "Use the projector to show one student group training in real-time so the whole class can observe"
+          ],
+          "discussionPrompts": {
+            "warmUp": [
+              "What clues did you use to tell flowers apart from animals? Could you teach someone else your method?"
+            ],
+            "directInstruction": [
+              "How is the way a computer looks at images different from how you look at them?",
+              "Why do you think we need to show the computer many examples instead of just one?"
+            ],
+            "guidedPractice": [
+              "What do you notice happening to the accuracy number as the model trains? Why do you think it changes?"
+            ],
+            "closure": [
+              "If you could give the model more training data, what kind of images would you add to help it improve?"
+            ]
+          }
+        }
+      },
+      "image-classification-9-12": {
+        "title": "Advanced Image Classification with Transfer Learning",
+        "overview": "Students deepen their understanding of image classification by exploring transfer learning, confusion matrices, and model evaluation metrics. Using ModelMentor, students fine-tune a pre-trained model on a custom dataset, analyze per-class performance using a confusion matrix, and evaluate precision, recall, and F1 scores. This lesson connects to real-world applications like medical imaging and autonomous vehicles.",
+        "objectives": [
+          "Explain how transfer learning leverages pre-trained models to improve classification on new tasks",
+          "Interpret a confusion matrix to identify which classes the model confuses most often",
+          "Calculate and explain precision, recall, and F1 score for a multi-class classifier",
+          "Evaluate trade-offs between model complexity, training time, and accuracy"
+        ],
+        "materials": [
+          "Computers with internet access and ModelMentor loaded",
+          "Student handout (printed or digital)",
+          "Pre-prepared multi-class image dataset (5+ categories)",
+          "Whiteboard or projector for demonstrating confusion matrix interpretation"
+        ],
+        "vocabulary": [
+          {
+            "term": "Transfer Learning",
+            "definition": "A technique where a model trained on a large dataset is adapted to a new, smaller dataset — like using knowledge from one task to help with another"
+          },
+          {
+            "term": "Confusion Matrix",
+            "definition": "A table that shows how often the model correctly and incorrectly classifies each category, revealing which classes get confused with each other"
+          },
+          {
+            "term": "Precision",
+            "definition": "Of all the items the model predicted as a certain class, what fraction actually belonged to that class"
+          },
+          {
+            "term": "Recall",
+            "definition": "Of all the items that actually belong to a class, what fraction did the model correctly identify"
+          },
+          {
+            "term": "F1 Score",
+            "definition": "A single number that balances precision and recall — useful when you want both to be high"
+          }
+        ],
+        "procedure": {
+          "warmUp": {
+            "steps": [
+              "Show students two scenarios: training a model from scratch with 50 images vs. fine-tuning a pre-trained model with 50 images",
+              "Ask students to predict which approach will perform better and why"
+            ],
+            "discussionPrompts": [
+              "If you already knew how to identify dogs, would it be easier to learn to identify wolves? Why?"
+            ]
+          },
+          "directInstruction": {
+            "steps": [
+              "Explain transfer learning: how pre-trained models already know basic visual features (edges, textures, shapes)",
+              "Introduce the confusion matrix as a tool for understanding model errors beyond simple accuracy",
+              "Walk through precision, recall, and F1 score calculations with a simple 2-class example",
+              "Discuss real-world applications where these metrics matter (medical imaging: recall is critical; spam filtering: precision is critical)"
+            ],
+            "teacherNotes": [
+              "Use the analogy of a student transferring schools — they already know math basics, they just need to learn the new curriculum specifics"
+            ],
+            "discussionPrompts": [
+              "In medical imaging, would you rather have high precision or high recall? What are the consequences of each type of error?",
+              "Why might overall accuracy be misleading when classes are imbalanced?"
+            ]
+          },
+          "guidedPractice": {
+            "steps": [
+              "Guide students through loading a multi-class dataset and enabling transfer learning in ModelMentor",
+              "Train the model together and examine the confusion matrix output",
+              "Calculate precision and recall for one class as a group exercise"
+            ],
+            "discussionPrompts": [
+              "Looking at the confusion matrix, which classes does the model confuse most? What visual similarities might explain this?"
+            ]
+          },
+          "independentPractice": {
+            "steps": [
+              "Students train their own model with transfer learning enabled and analyze the confusion matrix",
+              "Students calculate precision, recall, and F1 for at least two classes",
+              "Students experiment with adding more training data for confused classes and retrain"
+            ],
+            "discussionPrompts": [
+              "After adding more data for the confused classes, did the confusion matrix improve? By how much?"
+            ]
+          },
+          "closure": {
+            "steps": [
+              "Groups present their confusion matrix findings and strategies for improvement",
+              "Class discussion: When would you choose transfer learning over training from scratch?"
+            ],
+            "discussionPrompts": [
+              "What real-world problem would you want to solve with image classification, and which metric (precision or recall) would matter most?"
+            ]
+          }
+        },
+        "formativeAssessment": {
+          "indicators": [
+            "Students can explain why transfer learning is more efficient than training from scratch with limited data",
+            "Students correctly interpret confusion matrix cells and identify the most confused class pairs",
+            "Students calculate precision and recall and explain the trade-off between them"
+          ]
+        },
+        "rubric": {
+          "conceptualUnderstanding": {
+            "criterion": "Understanding of Transfer Learning",
+            "beginning": "Cannot explain what transfer learning is or why it might be useful",
+            "developing": "Provides a basic definition of transfer learning but cannot explain its advantages over training from scratch",
+            "proficient": "Clearly explains how transfer learning reuses learned features and why it works better with limited data",
+            "advanced": "Explains transfer learning, identifies when it is and is not appropriate, and connects to real-world applications"
+          },
+          "modelEvaluation": {
+            "criterion": "Model Evaluation with Confusion Matrix",
+            "beginning": "Cannot read or interpret a confusion matrix",
+            "developing": "Can identify correct predictions on the diagonal but struggles to interpret off-diagonal errors",
+            "proficient": "Correctly interprets the full confusion matrix and identifies which classes are most often confused",
+            "advanced": "Uses the confusion matrix to diagnose specific model weaknesses and proposes targeted data collection strategies"
+          },
+          "transferLearning": {
+            "criterion": "Application of Transfer Learning",
+            "beginning": "Cannot enable or configure transfer learning in the tool",
+            "developing": "Enables transfer learning but cannot explain the difference in results compared to training from scratch",
+            "proficient": "Successfully applies transfer learning and compares results with and without it, noting improvements",
+            "advanced": "Experiments with different pre-trained base models and analyzes how the choice affects performance on specific classes"
+          },
+          "criticalThinking": {
+            "criterion": "Critical Analysis of Metrics",
+            "beginning": "Cannot calculate or explain precision, recall, or F1 score",
+            "developing": "Can calculate one metric but confuses precision with recall or cannot explain their significance",
+            "proficient": "Correctly calculates precision, recall, and F1, and explains when each metric is most important",
+            "advanced": "Analyzes metric trade-offs in context, proposes threshold adjustments, and connects to real-world decision-making"
+          }
+        },
+        "differentiation": {
+          "struggling": {
+            "strategies": [
+              "Provide a pre-computed confusion matrix and guide interpretation with color-coded cells",
+              "Use the ModelMentor guided tour to walk through transfer learning setup step by step",
+              "Simplify to a 2-class problem before attempting multi-class classification"
+            ]
+          },
+          "onLevel": {
+            "strategies": [
+              "Follow the standard lesson with a 5-class dataset and full metric calculations",
+              "Encourage peer discussion about confusion matrix patterns"
+            ]
+          },
+          "advanced": {
+            "strategies": [
+              "Challenge students to compare multiple pre-trained base models and analyze which works best for their data",
+              "Have students research and present a real-world case where precision vs. recall trade-offs had significant consequences",
+              "Ask students to create an imbalanced dataset intentionally and analyze how it affects metrics"
+            ]
+          }
+        },
+        "handout": {
+          "title": "Advanced Image Classification - Student Handout",
+          "instructions": "Complete each section as you work through the lesson. Show your calculations and explain your reasoning.",
+          "sections": [
+            {
+              "heading": "Part 1: Transfer Learning Experiment",
+              "prompts": [
+                "Train your model WITHOUT transfer learning. Record the accuracy: ____%",
+                "Train your model WITH transfer learning. Record the accuracy: ____%"
+              ],
+              "reflectionQuestions": [
+                "Why did transfer learning produce different results? What prior knowledge did the pre-trained model bring?"
+              ]
+            },
+            {
+              "heading": "Part 2: Confusion Matrix Analysis",
+              "prompts": [
+                "Draw or paste your confusion matrix below. Circle the two classes that are most often confused.",
+                "For your most confused class pair, count: True Positives = ___, False Positives = ___, False Negatives = ___"
+              ]
+            },
+            {
+              "heading": "Part 3: Metrics and Improvement",
+              "prompts": [
+                "Calculate Precision = TP/(TP+FP) = ___ and Recall = TP/(TP+FN) = ___ for your chosen class"
+              ],
+              "reflectionQuestions": [
+                "What specific images could you add to your training data to reduce confusion between the two most confused classes?",
+                "In what real-world application would high recall be more important than high precision? Explain why."
+              ]
+            }
+          ],
+          "workflowSteps": [
+            "Open ModelMentor and create a new Image Classification project",
+            "Load the multi-class dataset (5+ categories)",
+            "Train once without transfer learning, record results",
+            "Enable transfer learning and retrain, compare results",
+            "Analyze the confusion matrix and calculate metrics"
+          ]
+        },
+        "teacherNotes": {
+          "misconceptions": [
+            {
+              "misconception": "Transfer learning always produces better results than training from scratch",
+              "correction": "Transfer learning works best when the pre-trained model was trained on similar data. If the new task is very different (e.g., medical X-rays vs. natural photos), it may not help much."
+            },
+            {
+              "misconception": "A high overall accuracy means the model works well for all classes",
+              "correction": "With imbalanced datasets, a model can achieve high accuracy by mostly predicting the majority class while performing poorly on minority classes."
+            },
+            {
+              "misconception": "The confusion matrix only shows errors",
+              "correction": "The diagonal of the confusion matrix shows correct predictions. The off-diagonal cells show errors, revealing which specific classes get confused."
+            }
+          ],
+          "classroomTips": [
+            "Have students color-code their confusion matrices (green for correct, red for errors) to make patterns more visible",
+            "Use real-world examples like medical diagnosis to make precision/recall trade-offs concrete and engaging",
+            "Allow students to choose their own image categories to increase engagement and ownership"
+          ],
+          "discussionPrompts": {
+            "warmUp": [
+              "If you already knew how to identify dogs, would it be easier to learn to identify wolves? Why?"
+            ],
+            "directInstruction": [
+              "In medical imaging, would you rather have high precision or high recall? What are the consequences of each type of error?",
+              "Why might overall accuracy be misleading when classes are imbalanced?"
+            ],
+            "guidedPractice": [
+              "Looking at the confusion matrix, which classes does the model confuse most? What visual similarities might explain this?"
+            ],
+            "closure": [
+              "What real-world problem would you want to solve with image classification, and which metric would matter most?"
+            ]
+          }
+        }
+      },
+      "text-classification-9-12": {
+        "title": "Text Classification: Sentiment Analysis and Spam Detection",
+        "overview": "Students explore natural language processing (NLP) by building text classification models for sentiment analysis and spam detection. They learn how computers process text through tokenization, build training datasets from real-world text samples, and evaluate model performance on unseen text. This lesson connects to everyday applications like email filtering, social media moderation, and customer feedback analysis.",
+        "objectives": [
+          "Explain how text is converted into numerical representations that machine learning models can process",
+          "Design and curate a labeled text dataset for a binary classification task",
+          "Train a text classification model and evaluate its performance using accuracy and per-class metrics",
+          "Analyze how word choice, context, and ambiguity affect model predictions"
+        ],
+        "materials": [
+          "Computers with internet access and ModelMentor loaded",
+          "Student handout (printed or digital)",
+          "Sample text datasets: movie reviews (sentiment) and email samples (spam/not-spam)",
+          "Whiteboard or projector for demonstrating tokenization concepts"
+        ],
+        "vocabulary": [
+          {
+            "term": "Tokenization",
+            "definition": "The process of breaking text into smaller pieces (tokens) like words or subwords that the model can process individually"
+          },
+          {
+            "term": "Sentiment Analysis",
+            "definition": "Using a model to determine the emotional tone of text — whether it expresses positive, negative, or neutral feelings"
+          },
+          {
+            "term": "Natural Language Processing (NLP)",
+            "definition": "The field of AI focused on helping computers understand, interpret, and generate human language"
+          },
+          {
+            "term": "Bag of Words",
+            "definition": "A simple text representation that counts how often each word appears, ignoring word order and grammar"
+          }
+        ],
+        "procedure": {
+          "warmUp": {
+            "steps": [
+              "Display 5 short text messages on screen and ask students to classify each as positive, negative, or neutral",
+              "Reveal that one message is sarcastic — discuss why it is hard to classify",
+              "Ask: What makes text classification harder than image classification for computers?"
+            ],
+            "discussionPrompts": [
+              "What clues do you use to determine if a message is positive or negative? Are those clues always reliable?"
+            ]
+          },
+          "directInstruction": {
+            "steps": [
+              "Explain how computers cannot read text directly — they need numerical representations",
+              "Demonstrate tokenization: break a sentence into words, then show how each word maps to a number",
+              "Introduce the bag-of-words concept and its limitations (loses word order and context)",
+              "Show real-world examples: spam filters, sentiment analysis on product reviews, content moderation"
+            ],
+            "teacherNotes": [
+              "Use a physical demonstration: write a sentence on cards (one word per card), shuffle them, and ask if the meaning changes — this illustrates why word order matters"
+            ],
+            "discussionPrompts": [
+              "If we shuffle the words in a sentence, does the meaning always change? Can you think of examples where it does and does not?",
+              "Why might a spam filter incorrectly flag a legitimate email? What words might trigger it?"
+            ]
+          },
+          "guidedPractice": {
+            "steps": [
+              "Guide students through loading the movie review sentiment dataset in ModelMentor",
+              "Walk through the text preprocessing steps together: tokenization and vocabulary building",
+              "Train the sentiment model as a class and examine which words the model associates with positive vs. negative"
+            ],
+            "discussionPrompts": [
+              "Which words does the model think are most positive? Most negative? Do you agree with its choices?"
+            ]
+          },
+          "independentPractice": {
+            "steps": [
+              "Students choose between sentiment analysis or spam detection for their independent project",
+              "Students curate their own small dataset (at least 20 samples per class) or use the provided samples",
+              "Students train, test, and analyze their model, documenting cases where it fails"
+            ],
+            "discussionPrompts": [
+              "Find a text sample that your model classifies incorrectly. Why do you think it failed? What about the text is ambiguous?"
+            ]
+          },
+          "closure": {
+            "steps": [
+              "Students share their most interesting misclassification and explain why the model was confused",
+              "Class discussion: What are the ethical implications of automated text classification in content moderation?"
+            ],
+            "discussionPrompts": [
+              "Should social media companies use AI to automatically remove content? What could go wrong?"
+            ]
+          }
+        },
+        "formativeAssessment": {
+          "indicators": [
+            "Students can explain the tokenization process and why text must be converted to numbers",
+            "Students successfully curate a labeled dataset with clear category definitions",
+            "Students identify and explain specific cases where context or ambiguity causes misclassification"
+          ]
+        },
+        "rubric": {
+          "conceptualUnderstanding": {
+            "criterion": "Understanding of Text Processing",
+            "beginning": "Cannot explain how text is converted to a format the model can use",
+            "developing": "Knows text must be converted but cannot explain tokenization or numerical representation",
+            "proficient": "Clearly explains tokenization and how words are mapped to numerical representations for model input",
+            "advanced": "Explains multiple text representation methods, their trade-offs, and how context affects meaning"
+          },
+          "dataPreparation": {
+            "criterion": "Dataset Curation and Quality",
+            "beginning": "Cannot create a labeled dataset or labels are inconsistent and unclear",
+            "developing": "Creates a dataset but with ambiguous labels, insufficient samples, or class imbalance",
+            "proficient": "Curates a well-labeled, balanced dataset with clear category definitions and sufficient samples",
+            "advanced": "Creates a high-quality dataset, identifies edge cases, and explains how data quality affects model performance"
+          },
+          "modelTraining": {
+            "criterion": "Model Training and Analysis",
+            "beginning": "Cannot train the model or interpret any results",
+            "developing": "Trains the model but cannot explain results beyond overall accuracy",
+            "proficient": "Trains the model, interprets per-class performance, and identifies specific failure patterns",
+            "advanced": "Analyzes model behavior in depth, identifies systematic biases, and proposes targeted improvements"
+          },
+          "criticalThinking": {
+            "criterion": "Critical Thinking about NLP Limitations",
+            "beginning": "Cannot identify situations where text classification might fail",
+            "developing": "Identifies that sarcasm or ambiguity is hard but cannot explain why in technical terms",
+            "proficient": "Explains specific linguistic phenomena (sarcasm, context, ambiguity) that challenge text models",
+            "advanced": "Connects NLP limitations to real-world ethical concerns and proposes mitigation strategies"
+          }
+        },
+        "differentiation": {
+          "struggling": {
+            "strategies": [
+              "Provide a pre-curated dataset so students can focus on training and analysis rather than data collection",
+              "Use the ModelMentor guided tour for text classification setup",
+              "Start with a simple binary task (positive/negative) with clearly unambiguous examples"
+            ]
+          },
+          "onLevel": {
+            "strategies": [
+              "Follow the standard lesson with choice between sentiment analysis and spam detection",
+              "Encourage students to find and test edge cases that challenge their model"
+            ]
+          },
+          "advanced": {
+            "strategies": [
+              "Challenge students to build a multi-class sentiment model (positive, negative, neutral, mixed)",
+              "Have students research and present on a real NLP failure case (biased language models, mistranslation incidents)",
+              "Ask students to compare bag-of-words performance with more advanced text representations"
+            ]
+          }
+        },
+        "handout": {
+          "title": "Text Classification Lab - Student Handout",
+          "instructions": "Complete each section as you build your text classification model. Record observations and analysis.",
+          "sections": [
+            {
+              "heading": "Part 1: Understanding Tokenization",
+              "prompts": [
+                "Take this sentence and break it into tokens (words): \"I really loved this movie but the ending was disappointing\"",
+                "How many tokens does your sentence have? Which tokens do you think signal positive sentiment? Negative?"
+              ],
+              "reflectionQuestions": [
+                "Why might the word \"but\" be important for understanding sentiment even though it is not positive or negative itself?"
+              ]
+            },
+            {
+              "heading": "Part 2: Building Your Dataset",
+              "prompts": [
+                "What classification task did you choose? (sentiment / spam / other: ___)",
+                "How many samples do you have in each class? Class A: ___ samples, Class B: ___ samples"
+              ]
+            },
+            {
+              "heading": "Part 3: Model Analysis",
+              "prompts": [
+                "Record your model accuracy: ___%. Find 2 misclassified examples and write them below with your explanation of why the model failed."
+              ],
+              "reflectionQuestions": [
+                "What patterns does your model rely on most? Are there cases where those patterns are misleading?",
+                "How could automated text classification cause harm if used without human oversight?"
+              ]
+            }
+          ],
+          "workflowSteps": [
+            "Open ModelMentor and select Text Classification project type",
+            "Load the sample dataset or create your own labeled text samples",
+            "Review the tokenization preview to understand how your text is processed",
+            "Train the model and observe accuracy metrics",
+            "Test with new text samples and analyze misclassifications"
+          ]
+        },
+        "teacherNotes": {
+          "misconceptions": [
+            {
+              "misconception": "The model understands the meaning of words like humans do",
+              "correction": "The model only learns statistical patterns — which words tend to appear together in each category. It has no understanding of meaning, context, or intent."
+            },
+            {
+              "misconception": "Longer text is always easier to classify correctly",
+              "correction": "Longer text can contain mixed signals (both positive and negative statements), making classification harder. Short, clear statements can be easier to classify."
+            },
+            {
+              "misconception": "A spam filter only looks for specific banned words",
+              "correction": "Modern spam filters use many features including word patterns, sender information, formatting, and statistical models — not just keyword matching."
+            }
+          ],
+          "classroomTips": [
+            "Use examples from social media or messaging that students relate to — this increases engagement significantly",
+            "Have students try to trick each other models with adversarial examples — this builds critical thinking",
+            "Discuss content moderation ethics early to frame the technical work in a real-world context"
+          ],
+          "discussionPrompts": {
+            "warmUp": [
+              "What clues do you use to determine if a message is positive or negative? Are those clues always reliable?"
+            ],
+            "directInstruction": [
+              "If we shuffle the words in a sentence, does the meaning always change? Can you think of examples where it does and does not?",
+              "Why might a spam filter incorrectly flag a legitimate email? What words might trigger it?"
+            ],
+            "guidedPractice": [
+              "Which words does the model think are most positive? Most negative? Do you agree with its choices?"
+            ],
+            "closure": [
+              "Should social media companies use AI to automatically remove content? What could go wrong?"
+            ]
+          }
+        }
+      },
+      "regression-9-12": {
+        "title": "Regression Models: Predicting House Prices",
+        "overview": "Students learn how regression models predict continuous numerical values by building a house price prediction model. They explore linear relationships between features (square footage, bedrooms, location) and price, train a regression model using ModelMentor, and evaluate predictions using Mean Squared Error (MSE) and R-squared metrics. This lesson connects mathematics concepts like slope and correlation to real-world machine learning applications.",
+        "objectives": [
+          "Explain how regression differs from classification and identify problems suited for each approach",
+          "Identify linear and non-linear relationships between input features and a target variable",
+          "Train a regression model and interpret Mean Squared Error (MSE) and R-squared as measures of prediction quality",
+          "Analyze how feature selection and data quality affect prediction accuracy"
+        ],
+        "materials": [
+          "Computers with internet access and ModelMentor loaded",
+          "Student handout (printed or digital)",
+          "House price dataset with features: square footage, bedrooms, bathrooms, year built, location score",
+          "Graph paper or digital graphing tool for visualizing relationships"
+        ],
+        "vocabulary": [
+          {
+            "term": "Regression",
+            "definition": "A type of machine learning that predicts a continuous number (like price or temperature) rather than a category"
+          },
+          {
+            "term": "Linear Relationship",
+            "definition": "When two variables change together at a constant rate — as one goes up, the other goes up (or down) proportionally"
+          },
+          {
+            "term": "Mean Squared Error (MSE)",
+            "definition": "A measure of how far off predictions are from actual values — calculated by averaging the squared differences between predicted and actual values"
+          },
+          {
+            "term": "Loss Function",
+            "definition": "A mathematical formula that measures how wrong the model predictions are — the model tries to minimize this during training"
+          },
+          {
+            "term": "R-squared",
+            "definition": "A score from 0 to 1 that indicates how well the model explains the variation in the data — 1.0 means perfect predictions, 0 means no better than guessing the average"
+          }
+        ],
+        "procedure": {
+          "warmUp": {
+            "steps": [
+              "Show students a scatter plot of house square footage vs. price and ask them to draw a line that best fits the data",
+              "Ask: If a house is 2000 sq ft, what would you predict its price to be based on your line?",
+              "Reveal the actual prices and discuss how close their predictions were"
+            ],
+            "discussionPrompts": [
+              "How did you decide where to draw your line? What made some lines better than others?"
+            ]
+          },
+          "directInstruction": {
+            "steps": [
+              "Explain the difference between regression (predicting numbers) and classification (predicting categories)",
+              "Introduce the concept of a loss function: how the model measures its own errors during training",
+              "Walk through MSE calculation with a simple 3-point example on the board",
+              "Explain R-squared as a measure of how much of the variation in prices the model can explain"
+            ],
+            "teacherNotes": [
+              "Connect to prior math knowledge: slope of a line, y = mx + b, correlation. Students who have taken algebra will recognize these concepts."
+            ],
+            "discussionPrompts": [
+              "Why do we square the errors in MSE instead of just averaging them? What would happen with negative errors?",
+              "If a model has R-squared of 0.85, what does that tell us? Is that good enough for predicting house prices?"
+            ]
+          },
+          "guidedPractice": {
+            "steps": [
+              "Guide students through loading the house price dataset in ModelMentor",
+              "Explore the data together: create scatter plots of each feature vs. price to identify relationships",
+              "Train the regression model as a class and interpret the MSE and R-squared output"
+            ],
+            "discussionPrompts": [
+              "Which feature has the strongest relationship with price? How can you tell from the scatter plot?"
+            ]
+          },
+          "independentPractice": {
+            "steps": [
+              "Students experiment with different feature combinations to find the best predictor set",
+              "Students train multiple models and compare MSE and R-squared values",
+              "Students test their best model with custom house descriptions and evaluate if predictions seem reasonable"
+            ],
+            "discussionPrompts": [
+              "Which combination of features gave you the lowest MSE? Were you surprised by which features mattered most?"
+            ]
+          },
+          "closure": {
+            "steps": [
+              "Groups share their best feature combinations and model performance metrics",
+              "Class discussion: What are the limitations of using a model to predict house prices? What factors might it miss?"
+            ],
+            "discussionPrompts": [
+              "Would you trust this model to set the price for your house? What additional information would you want?"
+            ]
+          }
+        },
+        "formativeAssessment": {
+          "indicators": [
+            "Students correctly distinguish between regression and classification problems with real-world examples",
+            "Students interpret MSE values and explain what a lower MSE means for prediction quality",
+            "Students identify which features have the strongest predictive relationship with the target variable"
+          ]
+        },
+        "rubric": {
+          "conceptualUnderstanding": {
+            "criterion": "Understanding of Regression Concepts",
+            "beginning": "Cannot explain what regression is or how it differs from classification",
+            "developing": "Knows regression predicts numbers but cannot explain loss functions or evaluation metrics",
+            "proficient": "Clearly explains regression, loss functions, and interprets MSE and R-squared correctly",
+            "advanced": "Explains regression concepts, identifies assumptions and limitations, and connects to mathematical foundations"
+          },
+          "dataAnalysis": {
+            "criterion": "Data Exploration and Feature Analysis",
+            "beginning": "Cannot identify relationships between features and the target variable",
+            "developing": "Identifies obvious linear relationships but misses non-linear patterns or feature interactions",
+            "proficient": "Systematically explores feature relationships using scatter plots and identifies strong predictors",
+            "advanced": "Identifies complex relationships, detects outliers, and explains how feature engineering could improve predictions"
+          },
+          "modelBuilding": {
+            "criterion": "Model Training and Evaluation",
+            "beginning": "Cannot train a model or interpret MSE/R-squared values",
+            "developing": "Trains a model but cannot compare different feature sets or explain metric improvements",
+            "proficient": "Trains multiple models with different features, compares metrics, and selects the best configuration",
+            "advanced": "Systematically optimizes feature selection, identifies overfitting risks, and validates predictions against domain knowledge"
+          },
+          "criticalThinking": {
+            "criterion": "Critical Analysis of Predictions",
+            "beginning": "Accepts all model predictions without questioning their reasonableness",
+            "developing": "Notices some unreasonable predictions but cannot explain why they occur",
+            "proficient": "Identifies unreasonable predictions, connects them to data limitations, and suggests improvements",
+            "advanced": "Critically evaluates model assumptions, identifies bias in training data, and discusses ethical implications of automated pricing"
+          }
+        },
+        "differentiation": {
+          "struggling": {
+            "strategies": [
+              "Start with a single-feature model (square footage only) before adding complexity",
+              "Provide pre-made scatter plots and guide interpretation with labeled axes and trend lines",
+              "Use the ModelMentor guided tour to walk through each step of the regression workflow"
+            ]
+          },
+          "onLevel": {
+            "strategies": [
+              "Follow the standard lesson with the full multi-feature house price dataset",
+              "Encourage systematic experimentation with different feature combinations"
+            ]
+          },
+          "advanced": {
+            "strategies": [
+              "Challenge students to identify and handle outliers in the dataset before training",
+              "Have students research non-linear regression and explain when linear models are insufficient",
+              "Ask students to create their own dataset for a different regression problem (e.g., predicting test scores from study hours)"
+            ]
+          }
+        },
+        "handout": {
+          "title": "Regression Models: House Price Prediction - Student Handout",
+          "instructions": "Complete each section as you explore regression. Show your work and explain your reasoning.",
+          "sections": [
+            {
+              "heading": "Part 1: Exploring Relationships",
+              "prompts": [
+                "Create scatter plots for at least 3 features vs. price. Which feature shows the strongest linear relationship?",
+                "Estimate the slope: for every additional 100 sq ft, how much does the price increase approximately?"
+              ],
+              "reflectionQuestions": [
+                "Are all relationships between features and price linear? Can you find one that is not?"
+              ]
+            },
+            {
+              "heading": "Part 2: Training and Comparing Models",
+              "prompts": [
+                "Model 1 features: ___ → MSE: ___, R-squared: ___",
+                "Model 2 features: ___ → MSE: ___, R-squared: ___"
+              ]
+            },
+            {
+              "heading": "Part 3: Testing and Reflection",
+              "prompts": [
+                "Enter a custom house description and record the predicted price. Does it seem reasonable? Why or why not?"
+              ],
+              "reflectionQuestions": [
+                "What factors affect house prices that are NOT in our dataset? How might this limit our model?",
+                "If you were buying a house, would you trust this model prediction? What else would you consider?"
+              ]
+            }
+          ],
+          "workflowSteps": [
+            "Open ModelMentor and select Regression project type",
+            "Load the house price dataset and explore feature relationships",
+            "Select features and train your first regression model",
+            "Compare MSE and R-squared across different feature combinations",
+            "Test your best model with custom inputs and evaluate predictions"
+          ]
+        },
+        "teacherNotes": {
+          "misconceptions": [
+            {
+              "misconception": "A model with low MSE on training data will always predict well on new data",
+              "correction": "Low training MSE can indicate overfitting — the model memorized the training data rather than learning general patterns. Always test on unseen data."
+            },
+            {
+              "misconception": "Correlation between a feature and the target means that feature causes the target",
+              "correction": "Correlation does not imply causation. A feature may correlate with price without directly causing it (e.g., number of bathrooms correlates with price because larger houses have more bathrooms)."
+            },
+            {
+              "misconception": "Adding more features always improves the model",
+              "correction": "Irrelevant or noisy features can actually hurt model performance. Feature selection is about finding the most informative inputs, not using everything available."
+            }
+          ],
+          "classroomTips": [
+            "Use local real estate examples to make the dataset relatable — students engage more when they recognize the context",
+            "Have students predict prices manually first, then compare with the model — this builds intuition for what the model is doing",
+            "Connect MSE to the concept of average error in everyday terms: the model is off by about  on average"
+          ],
+          "discussionPrompts": {
+            "warmUp": [
+              "How did you decide where to draw your line? What made some lines better than others?"
+            ],
+            "directInstruction": [
+              "Why do we square the errors in MSE instead of just averaging them? What would happen with negative errors?",
+              "If a model has R-squared of 0.85, what does that tell us? Is that good enough for predicting house prices?"
+            ],
+            "guidedPractice": [
+              "Which feature has the strongest relationship with price? How can you tell from the scatter plot?"
+            ],
+            "closure": [
+              "Would you trust this model to set the price for your house? What additional information would you want?"
+            ]
+          }
+        }
+      }
+    }
   }
 }

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, Download, Clock, GraduationCap, Target, Lightbulb, CheckCircle2, AlertTriangle, ShieldAlert } from 'lucide-react';
+import { BookOpen, Download, Clock, GraduationCap, Target, Lightbulb, CheckCircle2, AlertTriangle, ShieldAlert, Library } from 'lucide-react';
 import { lessonPlans } from '@/utils/lessonPlans';
 import { toast } from 'sonner';
 
@@ -98,6 +98,22 @@ export default function TeacherResourcesPage() {
             </div>
           </div>
         </div>
+
+        {/* Curriculum Library Link */}
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="flex items-center justify-between p-6">
+            <div className="flex items-center gap-3">
+              <Library className="h-6 w-6 text-primary" />
+              <div>
+                <p className="font-medium">Curriculum Lesson Plan Library</p>
+                <p className="text-sm text-muted-foreground">Browse standards-aligned lesson plans with rubrics, differentiation, and handouts</p>
+              </div>
+            </div>
+            <Button onClick={() => navigate('/teacher/lesson-plans')}>
+              Browse Library
+            </Button>
+          </CardContent>
+        </Card>
 
         {/* Lesson Plan Selector */}
         <Card>
